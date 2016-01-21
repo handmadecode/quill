@@ -1,0 +1,61 @@
+apply plugin: 'groovy'
+apply plugin: 'maven-publish'
+
+group = 'org.myire'
+version = '0.9'
+
+repositories
+{
+    mavenCentral()
+}
+
+dependencies
+{
+    compile gradleApi()
+    testCompile 'junit:junit:4.12'
+}
+
+ext.sourceAndTargetCompatibility = 1.6
+
+tasks.withType(GroovyCompile)
+{
+    sourceCompatibility = sourceAndTargetCompatibility
+    targetCompatibility = sourceAndTargetCompatibility
+}
+
+tasks.withType(JavaCompile)
+{
+    sourceCompatibility = sourceAndTargetCompatibility
+    targetCompatibility = sourceAndTargetCompatibility
+}
+
+task ('sourcesJar', type: Jar)
+{
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+task ('groovydocJar', type: Jar, dependsOn: groovydoc)
+{
+    classifier = 'groovydoc'
+    from groovydoc.destinationDir
+}
+
+publishing.publications
+{
+    maven(MavenPublication)
+    {
+        from components.java
+        artifact sourcesJar
+        artifact groovydocJar
+
+        pom.withXml
+        {
+            Node pomRoot = asNode()
+            new XmlParser().parse(file('gradle/pom-template.xml')).children().each
+            {
+                pomRoot.append(it)
+            }
+        }
+    }
+}
