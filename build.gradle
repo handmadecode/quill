@@ -1,5 +1,5 @@
 apply plugin: 'groovy'
-apply plugin: 'maven-publish'
+apply plugin: 'maven'
 
 group = 'org.myire'
 version = '0.9'
@@ -41,21 +41,32 @@ task ('groovydocJar', type: Jar, dependsOn: groovydoc)
     from groovydoc.destinationDir
 }
 
-publishing.publications
+task ('emptyJavadocJar', type: Jar)
 {
-    maven(MavenPublication)
-    {
-        from components.java
-        artifact sourcesJar
-        artifact groovydocJar
+    classifier = 'javadoc'
+    from fileTree(dir:'meta', includes:['README-empty-javadoc.txt'])
+}
 
-        pom.withXml
+task ('createPom')
+{
+    def pomFile = "$mavenPomDir/${project.archivesBaseName}-${project.version}.pom"
+    outputs.file(pomFile)
+
+    def pom = pom()
+    pom.withXml
+    {
+        def pomRoot = asNode()
+        def dependencies = pomRoot.get('dependencies')
+        if (dependencies)
+            pomRoot.remove(dependencies)
+
+        new XmlParser().parse(file('meta/pom-template.xml')).children().each
         {
-            Node pomRoot = asNode()
-            new XmlParser().parse(file('gradle/pom-template.xml')).children().each
-            {
-                pomRoot.append(it)
-            }
+            pomRoot.append(it)
         }
     }
+
+    doFirst { pom.writeTo(pomFile) }
 }
+
+build.finalizedBy 'sourcesJar', 'groovydocJar', 'emptyJavadocJar', 'createPom'
