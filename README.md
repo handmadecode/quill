@@ -13,6 +13,7 @@ appeal to the taste of those who work in different ways.
 
 
 ## Contents
+1. [Release Notes](#release-notes)
 1. [General Usage](#general-usage)
 1. [Ivy Module Plugin](#ivy-module-plugin)
 1. [Project Metadata Plugin](#project-metadata-plugin)
@@ -26,6 +27,13 @@ appeal to the taste of those who work in different ways.
 1. [CPD Plugin](#cpd-plugin)
 1. [JavaNCSS Plugin](#javancss-plugin)
 1. [Reports Dashboard Plugin](#reports-dashboard-plugin)
+
+
+## Release Notes
+
+### version 0.10
+
+* Property `group` added to the `projectMetaData` extension.
 
 
 ## General Usage
@@ -183,7 +191,9 @@ This extension holds project meta data properties:
 
 * `shortName` - A string with the project's short name, for example "Quill".
 
-* `longName` - A string with the project's long name, for example "Gradle Additions and Defaults".
+* `longName` - A string with the project's long name, for example "Quill Gradle Plugins".
+
+* `group` - A string with the project's group name, for example "org.myire".
 
 * `description` - A string with the project's description, for example "Additional tasks and
 opinionated defaults for Gradle build scripts".
@@ -196,6 +206,7 @@ Setting the properties explicitly in the build script is straight-forward:
     projectMetaData {
         shortName = 'Quill'
         longName = 'Quill Gradle plugins'
+        group = 'org.myire'
         description = 'Additional tasks and opinionated defaults for Gradle build scripts'
         mainPackage = 'org/myire/quill/'
     }
@@ -206,6 +217,7 @@ extension properties:
     {
       "shortName": "Quill",
       "longName": "Quill Gradle plugins",
+      "group": "org.myire",
       "description": "Additional tasks and opinionated defaults for Gradle build scripts",
       "mainPackage" : "org/myire/quill/"
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Peter Franzen. All rights reserved.
+ * Copyright 2015-2016 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -13,8 +13,8 @@ import org.myire.quill.common.ProjectAware
 
 
 /**
- * Project extension for specifying the short name, long name, description and main package of a
- * project.
+ * Project extension for specifying the short name, long name, group, description, and main package
+ * of a project.
  */
 class ProjectMetaDataExtension extends ProjectAware
 {
@@ -23,6 +23,9 @@ class ProjectMetaDataExtension extends ProjectAware
 
     /** The project's long name, for example &quot;Quill Gradle plugins&quot;. */
     String longName
+
+    /** The project's group, for example &quot;org.myire&quot;. */
+    String group
 
     /**
      * The project's description,for example &quot;Additional tasks and opinionated defaults for
@@ -42,6 +45,7 @@ class ProjectMetaDataExtension extends ProjectAware
         super(pProject);
         shortName = pProject.name;
         longName = pProject.name;
+        group = pProject.group;
         description = pProject.description;
     }
 
@@ -50,8 +54,10 @@ class ProjectMetaDataExtension extends ProjectAware
      * Load the project meta data values from a JSON file.
      *
      * @param pJsonFile A specification of the file to load the values from.
+     *
+     * @return  This instance.
      */
-    void from(String pJsonFile)
+    ProjectMetaDataExtension from(String pJsonFile)
     {
         File aResolvedFile = project.file(pJsonFile)
         if (aResolvedFile.canRead())
@@ -63,6 +69,8 @@ class ProjectMetaDataExtension extends ProjectAware
                 shortName = aValues.shortName;
             if (aValues.longName != null)
                 longName = aValues.longName;
+            if (aValues.group != null)
+                group = aValues.group;
             if (aValues.description != null)
                 description = aValues.description;
             if (aValues.mainPackage != null)
@@ -71,5 +79,22 @@ class ProjectMetaDataExtension extends ProjectAware
         else
             project.logger.warn('File \'{}\' is not readable, using default values for the project meta data',
                                 aResolvedFile.absolutePath);
+
+        return this;
+    }
+
+
+    /**
+     * Set the project's {@code group} property to this instance's {@code group} property, given
+     * that the latter is non-null.
+     *
+     * @return  This instance.
+     */
+    ProjectMetaDataExtension applyGroupToProject()
+    {
+        if (group)
+            project.setGroup(group);
+
+        return this;
     }
 }
