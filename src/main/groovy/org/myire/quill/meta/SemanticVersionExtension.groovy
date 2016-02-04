@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Peter Franzen. All rights reserved.
+ * Copyright 2015-2016 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -44,8 +44,10 @@ class SemanticVersionExtension extends ProjectAware
      * Load the semantic version values from a JSON file.
      *
      * @param pJsonFile A specification of the file to load the values from.
+     *
+     * @return  This instance.
      */
-    void from(Object pJsonFile)
+    SemanticVersionExtension from(Object pJsonFile)
     {
         File aResolvedFile = project.file(pJsonFile);
         if (aResolvedFile.canRead())
@@ -67,6 +69,32 @@ class SemanticVersionExtension extends ProjectAware
         else
             project.logger.warn('File \'{}\' is not readable, using default values for the semantic version number',
                                 aResolvedFile.absolutePath);
+
+        return this;
+    }
+
+
+    /**
+     * Set the project's {@code version} property to this instance's short version string.
+     *
+     * @return  This instance.
+     */
+    SemanticVersionExtension applyShortVersionToProject()
+    {
+        project.setVersion(getShortVersionString());
+        return this;
+    }
+
+
+    /**
+     * Set the project's {@code version} property to this instance's long version string.
+     *
+     * @return  This instance.
+     */
+    SemanticVersionExtension applyLongVersionToProject()
+    {
+        project.setVersion(getLongVersionString());
+        return this;
     }
 
 
