@@ -8,6 +8,8 @@ package org.myire.quill.check
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.plugins.quality.CodeQualityExtension
+import org.gradle.api.tasks.SourceSet
 
 import org.myire.quill.common.ProjectAware
 import org.myire.quill.common.Projects
@@ -90,5 +92,38 @@ abstract class AbstractPluginEnhancer<T extends Task> extends ProjectAware
     {
         File aDirectory = Projects.createTemporaryDirectorySpec(project, fToolName.toLowerCase());
         return new File(aDirectory, pFileName);
+    }
+
+
+    /**
+     * Configure a {@code CodeQualityExtension} with the default values shared by all code quality
+     * extensions. The {@code ignoreFailures} property will be set to true, and a dynamic method
+     * with the name {@code disableTestChecks} that disables checking the test sources will be added
+     * to the extension.
+     *
+     * @param pExtension    The extension to configure.
+     */
+    static protected void configureCodeQualityExtension(CodeQualityExtension pExtension)
+    {
+        // Allow the build to continue on failures.
+        pExtension?.ignoreFailures = true;
+
+        // Add a dynamic method that disables the test checks by removing the test source set
+        // from the extension.
+        pExtension?.metaClass?.disableTestChecks
+        {
+            removeTestSourceSet((CodeQualityExtension) delegate);
+        }
+    }
+
+
+    /**
+     * Remove the test source set from a {@code CodeQualityExtension}.
+     *
+     * @param pExtension    The extension to remove the test source set from.
+     */
+    static void removeTestSourceSet(CodeQualityExtension pExtension)
+    {
+        pExtension.sourceSets = pExtension.sourceSets.findAll { it.name != SourceSet.TEST_SOURCE_SET_NAME }
     }
 }

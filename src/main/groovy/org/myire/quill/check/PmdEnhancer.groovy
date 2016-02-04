@@ -72,12 +72,12 @@ class PmdEnhancer extends AbstractPluginEnhancer<Pmd>
     @Override
     void configureExtension()
     {
+        // Set the common defaults for all code quality extensions.
+        configureCodeQualityExtension(getExtension());
+
         getExtension()?.with
         {
             toolVersion = DEFAULT_TOOL_VERSION;
-
-            // Ignore failures in order to let the build continue.
-            ignoreFailures = true;
 
             // Don't use the PMD built-in rule sets by default, instead use the Quill built-in rule
             // file.

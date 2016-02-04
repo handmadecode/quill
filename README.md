@@ -34,6 +34,7 @@ appeal to the taste of those who work in different ways.
 ### version 0.10
 
 * Property `group` added to the `projectMetaData` extension.
+* Method `disableTestChecks` added to all enhancements of `CodeQualityExtension` subclasses.
 
 
 ## General Usage
@@ -728,6 +729,14 @@ XML reports with messages, which is equivalent to the build script configuration
       reports.xml.withMessages = true
     }
 
+### Extension additions
+
+A method with the name `disableTestChecks` is added to the `findbugs` extension. If this method is
+called in the build script it will remove the `test` source set from the extension's source sets,
+thus disabling the `findbugsTest` task:
+
+    findbugs.disableTestChecks()
+
 ### Task additions
 
 The plugin adds an [XSL transformation report](#xsl-transformation-reports) to the `FindBugs` tasks.
@@ -741,7 +750,7 @@ per task, e.g. to use another XSL file than the one distributed in the Quill jar
     
     findbugsTest.quillHtmlReport.enabled = false
 
-  
+
 ## Checkstyle Additions Plugin
 
 The Checkstyle Additions plugin applies the standard Gradle plugin `checkstyle` to the project and
@@ -788,6 +797,14 @@ doesn't have a work-around for this incompatibility in versions before 2.7.
 
 This means that by default the Checkstyle Additions plugin requires Gradle version 2.7 or later and
 Java 7 or later. 
+
+### Extension additions
+
+The plugin adds a method with the name `disableTestChecks` to the `checkstyle` extension. If this
+method is called in the build script it will remove the `test` source set from the extension's
+source sets, thus disabling the `checkstyleTest` task:
+
+    checkstyle.disableTestChecks()
 
 ### Task additions
 
@@ -847,6 +864,14 @@ the rule set file bundled with the Quill jar is used. This file is extracted to 
 
 Note that this rule set file requires at least version 5.4.0 of PMD. When setting `toolVersion` to
 an older version of PMD, another rule set file must be explicitly configured.
+
+### Extension additions
+
+A method with the name `disableTestChecks` is added to the `pmd` extension. Calling this method in
+the build script it will remove the `test` source set from the extension's source sets, thus
+disabling the `pmdTest` task:
+
+    pmd.disableTestChecks()
 
 ### Task additions
 
@@ -949,6 +974,14 @@ property is an inheritance from `CodeQualityExtension`. This is equivalent to sp
 following in the build script:
 
     jdepend.ignoreFailures = true
+
+### Extension additions
+
+The plugin adds a method called `disableTestChecks` to the `jdepend` extension. Calling this method
+in the build script it will remove the `test` source set from the extension's source sets, thus
+disabling the `jdependTest` task:
+
+    jdepend.disableTestChecks()
 
 ### Task additions
 
