@@ -35,6 +35,12 @@ appeal to the taste of those who work in different ways.
 
 * Property `group` added to the `projectMetaData` extension.
 * Method `disableTestChecks` added to all enhancements of `CodeQualityExtension` subclasses.
+* Tokens `GENERIC_START` and `GENERIC_END` removed from the `NoWhitespaceBefore` check in
+  the built-in Checkstyle configuration file. Whitespace checking of type parameters is handled by
+  the `GenericWhitespace` check.
+* Check `InnerAssignment` removed from the built-in Checkstyle configuration file.
+* Rules `AssignmentInOperand` and `UselessParentheses` removed from the built-in PMD configuration
+  file.
 
 
 ## General Usage
