@@ -51,7 +51,8 @@ class JDependEnhancer extends AbstractPluginEnhancer<JDepend>
     @Override
     void configureExtension()
     {
-        Projects.getExtension(project, JDEPEND_EXTENSION_NAME, JDependExtension.class)?.ignoreFailures = true;
+        // Set the common defaults for all code quality extensions.
+        configureCodeQualityExtension(Projects.getExtension(project, JDEPEND_EXTENSION_NAME, JDependExtension.class));
     }
 
 

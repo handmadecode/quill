@@ -77,9 +77,6 @@
         <module name="IllegalThrows">
             <property name="severity" value="${severity.dubious}" default="error"/>
         </module>
-        <module name="InnerAssignment">
-            <property name="severity" value="${severity.dubious}" default="error"/>
-        </module>
         <module name="MissingSwitchDefault">
             <property name="severity" value="${severity.dubious}" default="error"/>
         </module>
@@ -298,7 +295,7 @@
         </module>
         <module name="NoWhitespaceBefore">
             <property name="severity" value="${severity.formatting}" default="warning"/>
-            <property name="tokens" value="COMMA, SEMI, POST_INC, POST_DEC, DOT, GENERIC_START, GENERIC_END"/>
+            <property name="tokens" value="COMMA, SEMI, POST_INC, POST_DEC, DOT"/>
             <property name="allowLineBreaks" value="true"/>
         </module>
         <module name="ParenPad">

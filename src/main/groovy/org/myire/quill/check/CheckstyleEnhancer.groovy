@@ -56,13 +56,14 @@ class CheckstyleEnhancer extends AbstractPluginEnhancer<Checkstyle>
     @Override
     void configureExtension()
     {
+        // Set the common defaults for all code quality extensions.
+        configureCodeQualityExtension(getExtension());
+
         getExtension()?.with
         {
             toolVersion = DEFAULT_TOOL_VERSION
 
-            // Allow the build to continue on failures and don't print each violation to the
-            // console.
-            ignoreFailures = true;
+            // Don't print each violation to the console.
             showViolations = false;
 
             // Use the built-in config file as default.

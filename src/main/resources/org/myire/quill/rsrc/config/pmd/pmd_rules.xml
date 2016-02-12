@@ -71,7 +71,6 @@
     <!-- PMD 5.4 -->
     <rule ref="rulesets/java/basic.xml/SimplifiedTernary"><priority>2</priority></rule>
 
-    <rule ref="rulesets/java/controversial.xml/AssignmentInOperand"><priority>2</priority></rule>
     <rule ref="rulesets/java/controversial.xml/SuspiciousOctalEscape"><priority>2</priority></rule>
     <rule ref="rulesets/java/controversial.xml/DontImportSun"><priority>2</priority></rule>
     <rule ref="rulesets/java/controversial.xml/DoNotCallGarbageCollectionExplicitly"><priority>2</priority></rule>
@@ -163,7 +162,6 @@
     <rule ref="rulesets/java/unnecessary.xml/UnnecessaryConversionTemporary"><priority>2</priority></rule>
     <rule ref="rulesets/java/unnecessary.xml/UnnecessaryFinalModifier"><priority>2</priority></rule>
     <rule ref="rulesets/java/unnecessary.xml/UnnecessaryReturn"><priority>2</priority></rule>
-    <rule ref="rulesets/java/unnecessary.xml/UselessParentheses"><priority>2</priority></rule>
     <!-- PMD 5.4 -->
     <rule ref="rulesets/java/unnecessary.xml/UselessQualifiedThis"><priority>1</priority></rule>
 

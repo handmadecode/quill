@@ -50,11 +50,10 @@ class FindBugsEnhancer extends AbstractPluginEnhancer<FindBugs>
     @Override
     void configureExtension()
     {
-        Projects.getExtension(project, FINDBUGS_EXTENSION_NAME, FindBugsExtension.class)?.with
-        {
-            toolVersion = DEFAULT_TOOL_VERSION;
-            ignoreFailures = true;
-        }
+        // Set the common defaults for all code quality extensions and the default tool version.
+        FindBugsExtension aExtension = Projects.getExtension(project, FINDBUGS_EXTENSION_NAME, FindBugsExtension.class);
+        configureCodeQualityExtension(aExtension);
+        aExtension?.toolVersion = DEFAULT_TOOL_VERSION;
     }
 
 

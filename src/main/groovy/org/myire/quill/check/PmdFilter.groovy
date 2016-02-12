@@ -143,7 +143,7 @@ class PmdFilter extends ProjectAware
                 if (aNode.name().equals('file'))
                 {
                     aNumFilteredViolations += filterFileNode(aNode, pMatchers);
-                    if (aNode.children().empty)
+                    if (aNode.children().isEmpty())
                         // All violations were filtered out, mark this file node for removal from
                         // the report.
                         aEmptyFileNodes += aNode;
