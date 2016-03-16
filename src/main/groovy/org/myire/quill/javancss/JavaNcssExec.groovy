@@ -55,14 +55,24 @@ class JavaNcssExec
 
         // Execute JavaNCSS in a forked JVM.
         fTask.logger.debug('Executing JavaNCSS with arguments {}', aArguments);
-        ExecResult aResult = fTask.project.javaexec {
-            main = MAIN_CLASS
-            classpath fTask.javancssClasspath
-            args aArguments
-        }
+        try
+        {
+            ExecResult aResult = fTask.project.javaexec {
+                main = MAIN_CLASS
+                classpath fTask.javancssClasspath
+                args aArguments
+            }
 
-        LogLevel aLogLevel = aResult.exitValue == 0 ? LogLevel.DEBUG : LogLevel.WARN;
-        fTask.logger.log(aLogLevel, 'JavaNCSS exited with code {}', aResult.exitValue);
+            LogLevel aLogLevel = aResult.exitValue == 0 ? LogLevel.DEBUG : LogLevel.WARN;
+            fTask.logger.log(aLogLevel, 'JavaNCSS exited with code {}', aResult.exitValue);
+        }
+        catch (Exception e)
+        {
+            if (fTask.ignoreFailures)
+                fTask.logger.log(LogLevel.ERROR, 'JavaNCSS failed: {}', e.getMessage(), e);
+            else
+                throw e;
+        }
     }
 
 
