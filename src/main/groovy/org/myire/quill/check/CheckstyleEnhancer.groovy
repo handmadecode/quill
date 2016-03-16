@@ -11,6 +11,7 @@ import org.gradle.api.plugins.quality.CheckstyleExtension
 import org.gradle.api.plugins.quality.CheckstylePlugin
 import org.gradle.api.plugins.quality.CheckstyleReports
 import org.gradle.api.reporting.Report
+
 import org.myire.quill.common.Projects
 
 
@@ -26,7 +27,7 @@ class CheckstyleEnhancer extends AbstractPluginEnhancer<Checkstyle>
 {
     static private final String CHECKSTYLE_TOOL_NAME = 'Checkstyle'
     static private final String CHECKSTYLE_EXTENSION_NAME = CHECKSTYLE_TOOL_NAME.toLowerCase()
-    static private final String DEFAULT_TOOL_VERSION = '6.14.1'
+    static private final String DEFAULT_TOOL_VERSION = '6.16.1'
 
     // The file name to use when extracting the built-in config file from its resource.
     static private final String BUILTIN_CONFIG_FILE_NAME = 'checkstyle_config.xml'
@@ -76,7 +77,6 @@ class CheckstyleEnhancer extends AbstractPluginEnhancer<Checkstyle>
     AbstractCheckTaskEnhancer<Checkstyle> createTaskEnhancer(Checkstyle pTask)
     {
         return new CheckstyleTaskEnhancer(pTask, getExtension(), createBuiltInConfigFileSpec());
-
     }
 
 
@@ -129,10 +129,7 @@ class CheckstyleEnhancer extends AbstractPluginEnhancer<Checkstyle>
                 '/org/myire/quill/rsrc/report/checkstyle/checkstyle.xsl'
         static private final String BUILTIN_CHECKSTYLE_CONFIG =
                 '/org/myire/quill/rsrc/config/checkstyle/checkstyle_config.xml'
-        static private final String BUILTIN_CHECKSTYLE_SUPPRESSIONS =
-                '/org/myire/quill/rsrc/config/checkstyle/checkstyle_suppressions.xml'
 
-        static private final String BUILTIN_SUPPRESSIONS_FILE_NAME = 'checkstyle_suppressions.xml'
         static private final String CHECKSTYLE_SUPPRESSIONS_FILE_PROPERTY = 'suppressions.file';
 
 
@@ -157,11 +154,18 @@ class CheckstyleEnhancer extends AbstractPluginEnhancer<Checkstyle>
             // By default tasks get the config file from the extension, which is fine, but we must
             // check if the extension specifies the built-in config file (which it is configured to
             // do by default) and if so make sure the built-in file has been extracted.
-            task.conventionMapping.configFile = { extensionConfigFileWithCheckForBuiltIn() };
+            if (Checkstyle.metaClass.hasProperty(task, "config"))
+                // Starting with Gradle v2.2, the configuration is specified in the 'config'
+                // property, which is of type TextResource.
+                task.conventionMapping.config = { extensionConfigResourceWithCheckForBuiltIn() };
+            else
+                // Versions before 2.2 specify the configuration in the 'configFile' property, which
+                // is of type File.
+                task.conventionMapping.configFile = { extensionConfigFileWithCheckForBuiltIn() };
 
-            // Make sure the config properties have a suppressions file specified if the built-in
-            // config file is used, and that those properties are restored after execution to avoid
-            // false detection of modified input properties.
+            // Make sure the "suppressions.file" config property is specified, and that the
+            // config properties are restored after execution to avoid false detection of modified
+            // input properties.
             task.doFirst({ setupConfigProperties() });
             task.doLast({ restoreConfigProperties() });
 
@@ -185,6 +189,22 @@ class CheckstyleEnhancer extends AbstractPluginEnhancer<Checkstyle>
         }
 
         /**
+         * Get the extension's config file as a {@code TextResource}. If it is the built-in config
+         * file, make sure that is has been extracted from the classpath resource.
+         *<p>
+         * The return type is {@code Object} rather than {@code TextResource}. The reason for is to
+         * allow this class to be loaded without referring to  {@code TextResource}. By doing this,
+         * Gradle versions before 2.2, which don't define the {@code TextResource} class, can use
+         * this class as long as this method isn't invoked.
+         *
+         * @return The extension's config file as a {@code TextResource}.
+         */
+        Object extensionConfigResourceWithCheckForBuiltIn()
+        {
+            return task.project.resources.text.fromFile(extensionConfigFileWithCheckForBuiltIn());
+        }
+
+        /**
          * Check if the property &quot;suppressions.file&quot; in the Checkstyle task's
          * configuration properties is set. If it isn't, set it to a file in the task's temporary
          * directory called &quot;checkstyle_suppressions.xml&quot;. If that file doesn't exist,
@@ -195,37 +215,18 @@ class CheckstyleEnhancer extends AbstractPluginEnhancer<Checkstyle>
             // Remember if the suppressions file property was added or not so it can be restored.
             fAddedSuppressionsFileProperty = false;
 
-            // Only set the suppressions file if the built-in config file is used.
-            if (task.configFile != fBuiltInConfigFileSpec)
-                return;
-
-            Map<String, Object> aConfigProperties = task.configProperties;
-            if (aConfigProperties == null)
-                return;
-
-            // The built-in suppressions file resides next to the built-in config file.
-            File aBuiltInSuppressionsFile = new File(fBuiltInConfigFileSpec.parentFile, BUILTIN_SUPPRESSIONS_FILE_NAME);
-
-            // Check if the property already is defined.
-            String aSuppressionsFilePath = aConfigProperties.get(CHECKSTYLE_SUPPRESSIONS_FILE_PROPERTY);
-            if (aSuppressionsFilePath == null)
+            // Only set the suppressions file if the built-in config file is used and the property
+            // isn't set already.
+            if (task.configFile == fBuiltInConfigFileSpec)
             {
-                // The config property wasn't specified, set it to the built-in file.
-                aSuppressionsFilePath = aBuiltInSuppressionsFile.absolutePath;
-                aConfigProperties.put(CHECKSTYLE_SUPPRESSIONS_FILE_PROPERTY, aSuppressionsFilePath);
-                fAddedSuppressionsFileProperty = true;
-                task.logger.debug('Setting config property {} to {} for task {}',
-                                  BUILTIN_CHECKSTYLE_SUPPRESSIONS,
-                                  aSuppressionsFilePath,
-                                  task.name);
-
-                // Ensure the built-in suppressions file has been extracted from its resource.
-                extractResourceToFile(BUILTIN_CHECKSTYLE_SUPPRESSIONS, aBuiltInSuppressionsFile);
+                String aSuppressionsFilePath = task.configProperties?.get(CHECKSTYLE_SUPPRESSIONS_FILE_PROPERTY);
+                if (aSuppressionsFilePath == null)
+                {
+                    task.configProperties.put(CHECKSTYLE_SUPPRESSIONS_FILE_PROPERTY,
+                                              'no-suppressions-file-' + System.nanoTime());
+                    fAddedSuppressionsFileProperty = true;
+                }
             }
-            else if (aSuppressionsFilePath == aBuiltInSuppressionsFile.absolutePath)
-                // The config property was specified to be the built-in suppressions file, ensure it
-                // has been extracted.
-                extractResourceToFile(BUILTIN_CHECKSTYLE_SUPPRESSIONS, aBuiltInSuppressionsFile);
         }
 
         /**
