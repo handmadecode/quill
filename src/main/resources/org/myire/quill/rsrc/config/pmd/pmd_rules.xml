@@ -40,7 +40,6 @@
 
     <rule ref="rulesets/java/naming.xml/MethodWithSameNameAsEnclosingClass"><priority>1</priority></rule>
 
-    <rule ref="rulesets/java/strictexception.xml/AvoidCatchingThrowable"><priority>1</priority></rule>
     <rule ref="rulesets/java/strictexception.xml/SignatureDeclareThrowsException"><priority>1</priority></rule>
     <rule ref="rulesets/java/strictexception.xml/ExceptionAsFlowControl"><priority>1</priority></rule>
     <rule ref="rulesets/java/strictexception.xml/AvoidCatchingNPE"><priority>1</priority></rule>

@@ -28,6 +28,7 @@
             <property name="severity" value="${severity.errorprone}" default="error"/>
         </module>
         <module name="IllegalCatch">
+            <property name="illegalClassNames" value="java.lang.Error, java.lang.Exception, java.lang.RuntimeException"/>
             <property name="severity" value="${severity.errorprone}" default="error"/>
         </module>
         <module name="ModifiedControlVariable">
@@ -198,7 +199,7 @@
 
 <!-- Checks for the myire Java style guide naming. -->
         <module name="CatchParameterName">
-            <property name="format" value="^[a-z]*e$"/>
+            <property name="format" value="^[a-z]*[e,t]$"/>
             <property name="severity" value="${severity.style}" default="warning"/>
         </module>
         <module name="ClassTypeParameterName">
@@ -206,7 +207,7 @@
             <property name="severity" value="${severity.style}" default="warning"/>
         </module>
         <module name="ConstantName">
-            <property name="format" value="(^k[A-Z0-9][a-zA-Z0-9]*$)|(^c[A-Z0-9][a-zA-Z0-9]*$)|(^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$)"/>
+            <property name="format" value="(^[k,c][A-Z0-9][a-zA-Z0-9]*$)|(^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$)"/>
             <property name="severity" value="${severity.style}" default="warning"/>
         </module>
         <module name="DeclarationOrder">
