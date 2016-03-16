@@ -80,7 +80,6 @@
     <rule ref="rulesets/java/design.xml/SwitchStmtsShouldHaveDefault"><priority>2</priority></rule>
     <rule ref="rulesets/java/design.xml/DefaultLabelNotLastInSwitchStmt"><priority>2</priority></rule>
     <rule ref="rulesets/java/design.xml/NonCaseLabelInSwitchStatement"><priority>2</priority></rule>
-    <rule ref="rulesets/java/design.xml/OptimizableToArrayCall"><priority>2</priority></rule>
     <rule ref="rulesets/java/design.xml/EqualsNull"><priority>2</priority></rule>
     <rule ref="rulesets/java/design.xml/InstantiationToGetClass"><priority>2</priority></rule>
     <rule ref="rulesets/java/design.xml/IdempotentOperations"><priority>2</priority></rule>
