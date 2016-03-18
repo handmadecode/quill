@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Peter Franzen. All rights reserved.
+ * Copyright 2014, 2016 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -22,6 +22,25 @@ import org.gradle.util.GFileUtils
  */
 final class Projects
 {
+    // When using the Gradle daemon, loading resources from the JAR file sometimes fails. This
+    // seems to be related to the URL cache, but instantiating a URLConnection that sets the
+    // use caches default value to false seems to fix this.
+    // See this thread for the source of the fix:
+    // https://discuss.gradle.org/t/getresourceasstream-returns-null-in-plugin-in-daemon-mode/2385
+    static
+    {
+        new URLConnection(new URL("file:///")) {
+            {
+                setDefaultUseCaches(false);
+            }
+            @Override
+            void connect()
+            {
+            }
+        }
+    }
+
+
     /**
      * Get a source set from a project.
      *

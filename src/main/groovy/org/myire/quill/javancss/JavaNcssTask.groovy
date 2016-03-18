@@ -69,6 +69,12 @@ public class JavaNcssTask extends SourceTask implements Reporting<JavaNcssReport
     @Input
     boolean functionMetrics = true
 
+    /**
+     * Should the build continue in case of failures? Default is true.
+     */
+    @Input
+    boolean ignoreFailures = true
+
 
     /**
      * Create the task's report container.

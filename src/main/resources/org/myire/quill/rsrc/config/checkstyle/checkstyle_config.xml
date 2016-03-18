@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE module PUBLIC "-//Puppy Crawl//DTD Check Configuration 1.2//EN" "http://www.puppycrawl.com/dtds/configuration_1_1.dtd">
 
-<!-- For use with CheckStyle 6.14 or later -->
+<!-- For use with CheckStyle 6.15 or later -->
 
 <module name="Checker">
 
 <!-- The location of the suppression filter file to use for all modules. -->
     <module name="SuppressionFilter">
         <property name="file" value="${suppressions.file}"/>
+        <property name="optional" value ="true"/>
     </module>
 
     <module name="TreeWalker">
@@ -27,6 +28,7 @@
             <property name="severity" value="${severity.errorprone}" default="error"/>
         </module>
         <module name="IllegalCatch">
+            <property name="illegalClassNames" value="java.lang.Error, java.lang.Exception, java.lang.RuntimeException"/>
             <property name="severity" value="${severity.errorprone}" default="error"/>
         </module>
         <module name="ModifiedControlVariable">
@@ -197,7 +199,7 @@
 
 <!-- Checks for the myire Java style guide naming. -->
         <module name="CatchParameterName">
-            <property name="format" value="^[a-z]*e$"/>
+            <property name="format" value="^[a-z]*[e,t]$"/>
             <property name="severity" value="${severity.style}" default="warning"/>
         </module>
         <module name="ClassTypeParameterName">
@@ -205,7 +207,7 @@
             <property name="severity" value="${severity.style}" default="warning"/>
         </module>
         <module name="ConstantName">
-            <property name="format" value="(^k[A-Z0-9][a-zA-Z0-9]*$)|(^c[A-Z0-9][a-zA-Z0-9]*$)|(^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$)"/>
+            <property name="format" value="(^[k,c][A-Z0-9][a-zA-Z0-9]*$)|(^[A-Z][A-Z0-9]*(_[A-Z0-9]+)*$)"/>
             <property name="severity" value="${severity.style}" default="warning"/>
         </module>
         <module name="DeclarationOrder">
@@ -329,6 +331,7 @@
     </module>
     <!-- Require the @author JavaDoc tag -->
     <module name="RegexpSingleline">
+        <property name="id" value="JavaDocAuthor"/>
         <property name="format" value="@author"/>
         <property name="minimum" value="1"/>
         <property name="maximum" value="2147483647"/>
@@ -337,6 +340,7 @@
     </module>
     <!-- Do not allow trailing whitespace -->
     <module name="RegexpSingleline">
+        <property name="id" value="LineTrailingSpaces"/>
         <property name="format" value="\s+$"/>
         <property name="message" value="Line has trailing spaces"/>
         <property name="severity" value="${severity.formatting}" default="warning"/>

@@ -46,7 +46,8 @@ class CoberturaReportsTask extends AbstractCoberturaTask implements Reporting<Co
         outputs.file( { -> this.reports.getXml().destination } );
         outputs.dir( { -> this.reports.getHtml().destination } );
 
-        // Only execute if at least one of the reports is enabled.
+        // Only execute if the data file exists and at least one of the reports is enabled.
+        onlyIf { getDataFile().exists() };
         onlyIf { this.reports.getXml().enabled || this.reports.getHtml().enabled };
     }
 
