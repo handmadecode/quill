@@ -31,16 +31,30 @@ appeal to the taste of those who work in different ways.
 
 ## Release Notes
 
+### version 0.11
+
+* Cobertura report tasks no longer fail if the input data file doesn't exist (e.g. because no tests
+  were executed).
+* Loading a built-in configuration no longer fails when using the Gradle daemon.
+* Property `ignoreFailures` added to the `javancss` task.
+* Checkstyle default version upgraded to 6.16.1.
+* The built-in Checkstyle configuration requires version 6.15 or later of Checkstyle.
+* Checks based on `RegexpSingleline` in the built-in Checkstyle configuration have unique IDs to
+  allow suppressions based on ID.
+* Check `IllegalCatch` in the built-in Checkstyle configuration no longer rejects
+ `java.lang.Throwable`.
+* Rules `AvoidCatchingThrowable` and `OptimizableToArrayCall` removed from the built-in PMD
+  configuration.
+
 ### version 0.10
 
 * Property `group` added to the `projectMetaData` extension.
 * Method `disableTestChecks` added to all enhancements of `CodeQualityExtension` subclasses.
 * Tokens `GENERIC_START` and `GENERIC_END` removed from the `NoWhitespaceBefore` check in
-  the built-in Checkstyle configuration file. Whitespace checking of type parameters is handled by
-  the `GenericWhitespace` check.
-* Check `InnerAssignment` removed from the built-in Checkstyle configuration file.
-* Rules `AssignmentInOperand` and `UselessParentheses` removed from the built-in PMD configuration
-  file.
+  the built-in Checkstyle configuration. Whitespace checking of type parameters is handled by the
+  `GenericWhitespace` check.
+* Check `InnerAssignment` removed from the built-in Checkstyle configuration.
+* Rules `AssignmentInOperand` and `UselessParentheses` removed from the built-in PMD configuration.
 
 
 ## General Usage
@@ -770,27 +784,27 @@ configures the corresponding project extension and tasks with some defaults and 
 
 The plugin configures the `checkstyle` extension in the project to let the build continue even if
 violations are found, and to not log every found violation. The Checkstyle version to use is set to 
-6.14.1. This is equivalent to configuring the extension explicitly in the build script as follows:
+6.16.1. This is equivalent to configuring the extension explicitly in the build script as follows:
 
     checkstyle {
       ignoreFailures = true
       showViolations = false
-      toolVersion = '6.14.1'
+      toolVersion = '6.16.1'
     }
 
 The Checkstyle configuration file is specified to be the one bundled with the Quill jar. This
 configuration file is extracted to the path "tmp/checkstyle/checkstyle_config.xml" relative to the
-project's build directory. Note that this configuration file requires at least version 6.14 of
+project's build directory. Note that this configuration file requires at least version 6.15 of
 Checkstyle. When setting `toolVersion` to an older version of Checkstyle, another configuration file
 must be explicitly configured.
 
-This built-in Checkstyle configuration file sets up a suppression filter file. The location of this
-filter file is specified through the Checkstyle configuration property `suppressions.file`. The
-default suppression file bundled with the Quill jar has no filters, to use a project specific file
-its location should be specified in the `checkstyle` extension:
+This built-in Checkstyle configuration file can optionally use a suppression filter file. The
+location of this file is specified through the Checkstyle configuration property
+`suppressions.file`, which can be set in the `checkstyle` extension:
 
     checkstyle.configProperties.put('suppressions.file', file('checkstyle_suppressions.xml'))
 
+If this property isn't specified, no suppression filter file is used.
 
 ### Checkstyle version considerations
 
@@ -1156,7 +1170,7 @@ The JavaNCSS plugin adds a task for calculating source code metrics using the
 [JavaNCSS](https://github.com/codehaus/javancss) tool.
 
 Note that the JavaNCSS tool hasn't received an update since July 2014 and currently does not support
-Java 8 syntax.
+Java 8 specific syntax, e.g. lambdas.
 
 ### Usage
 
@@ -1190,6 +1204,9 @@ class/interface. Default is true.
 
 * `functionMetrics` - a boolean specifying if metrics data should be calculated for each
 method/function. Default is true.
+
+* `ignoreFailures` - a boolean specifying if the build should continue if the JavaNCSS execution
+fails. Default is true.
 
 * `reports` - a `ReportContainer` holding the reports created by the task, see below.
 
