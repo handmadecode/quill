@@ -31,6 +31,11 @@ appeal to the taste of those who work in different ways.
 
 ## Release Notes
 
+### version 1.0
+
+* Check `JavaDocAuthor` removed from the built-in Checkstyle configuration.
+* Checkstyle default version upgraded to 6.17.
+
 ### version 0.11
 
 * Cobertura report tasks no longer fail if the input data file doesn't exist (e.g. because no tests
@@ -784,12 +789,12 @@ configures the corresponding project extension and tasks with some defaults and 
 
 The plugin configures the `checkstyle` extension in the project to let the build continue even if
 violations are found, and to not log every found violation. The Checkstyle version to use is set to 
-6.16.1. This is equivalent to configuring the extension explicitly in the build script as follows:
+6.17. This is equivalent to configuring the extension explicitly in the build script as follows:
 
     checkstyle {
       ignoreFailures = true
       showViolations = false
-      toolVersion = '6.16.1'
+      toolVersion = '6.17'
     }
 
 The Checkstyle configuration file is specified to be the one bundled with the Quill jar. This
@@ -882,8 +887,14 @@ The plugin removes the built-in PMD rule sets from the extension's configuration
 the rule set file bundled with the Quill jar is used. This file is extracted to the path
 "tmp/pmd/pmd_rules.xml" relative to the project's build directory.
 
-Note that this rule set file requires at least version 5.4.0 of PMD. When setting `toolVersion` to
-an older version of PMD, another rule set file must be explicitly configured.
+The built-in rule set file is specified through the extension's `ruleSetFiles` property. If the
+extension is configured to use another rule set file through the incubating `ruleSetConfig`
+property, the built-in rule set file will still be in use. It must be explicitly disabled by setting
+`ruleSetFiles` to en empty file collection, e.g. `pmd.ruleSetFiles = files()`.
+
+Note that the built-in rule set file requires at least version 5.4.0 of PMD. When setting
+`toolVersion` to an older version of PMD, another rule set file must be explicitly configured.
+
 
 ### Extension additions
 
@@ -1252,6 +1263,11 @@ The reports can also be configured through chained access of the properties:
 
 The `javancss` task implements the `Reporting` interface, meaning that the produced reports are
 picked up by the Build Dashboard plugin.
+
+Note that if the primary report isn't enabled, the `javancss` task will not run. This means that the
+task can be skipped by adding the configuration line
+
+    javancss.reports.primary.enabled = false
 
 ### Dependency configuration
 

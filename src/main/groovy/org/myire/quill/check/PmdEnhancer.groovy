@@ -174,7 +174,7 @@ class PmdEnhancer extends AbstractPluginEnhancer<Pmd>
 
             // By default tasks get the rule set files from the extension, which is fine, but we
             // must check if the extension specifies the built-in rule file (which it is configured
-            // to do by default) in teh set of files, and if so make sure the built-in file has been
+            // to do by default) in the set of files, and if so make sure the built-in file has been
             // extracted.
             task.conventionMapping.ruleSetFiles = { extensionRuleSetFilesWithCheckForBuiltIn() };
 
