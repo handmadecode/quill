@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Peter Franzen. All rights reserved.
+ * Copyright 2015-2016 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -20,6 +20,7 @@ import org.myire.quill.java.JavaAdditionsPlugin
 import org.myire.quill.javancss.JavaNcssPlugin
 import org.myire.quill.junit.JUnitAdditionsPlugin
 import org.myire.quill.meta.ProjectMetaDataPlugin
+import org.myire.quill.pom.PomPlugin
 
 
 /**
@@ -43,5 +44,6 @@ class QuillAllPlugin implements Plugin<Project>
         pProject.plugins.apply(JavaNcssPlugin.class);
         pProject.plugins.apply(JUnitAdditionsPlugin.class);
         pProject.plugins.apply(ProjectMetaDataPlugin.class);
+        pProject.plugins.apply(PomPlugin.class);
     }
 }
