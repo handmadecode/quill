@@ -68,13 +68,15 @@
       <table class="neutralbg">
         <tr>
           <td class="summaryvalue"><xsl:value-of select="count(packages/package)"/></td>
-          <td class="summaryvalue"><xsl:value-of select="packages/total/classes"/></td>
-          <td class="summaryvalue"><xsl:value-of select="packages/total/functions"/></td>
+          <!-- Top level types are in packages/total/classes, inner types per top level type in
+                objects/object/classes -->
+          <td class="summaryvalue"><xsl:value-of select="packages/total/classes + sum(objects/object/classes)"/></td>
+          <td class="summaryvalue"><xsl:value-of select="count(functions/function)"/></td>
           <td class="summaryvalue"><xsl:value-of select="packages/total/ncss"/></td>
         </tr>
         <tr>
           <td class="summarylabel">packages</td>
-          <td class="summarylabel">classes</td>
+          <td class="summarylabel">types</td>
           <td class="summarylabel">methods</td>
           <td class="summarylabel">NCSS</td>
         </tr>

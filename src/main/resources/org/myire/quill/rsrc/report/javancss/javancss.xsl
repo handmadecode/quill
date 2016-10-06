@@ -121,15 +121,15 @@
         <td class="data" align="right"><xsl:value-of select="packages/total/javadocs"/></td>
       </tr>
       <tr>
-        <td class="label">Classes:</td>
-        <td class="data" align="right"><xsl:value-of select="packages/total/classes"/></td>
+        <td class="label">Types:</td>
+        <td class="data" align="right"><xsl:value-of select="packages/total/classes + sum(objects/object/classes)"/></td>
         <td/>
         <td class="label">JavaDoc lines:</td>
         <td class="data" align="right"><xsl:value-of select="packages/total/javadoc_lines"/></td>
       </tr>
       <tr>
         <td class="label">Methods:</td>
-        <td class="data" align="right"><xsl:value-of select="packages/total/functions"/></td>
+        <td class="data" align="right"><xsl:value-of select="count(functions/function)"/></td>
         <td/>
         <td class="label">Single line comments:</td>
         <td class="data" align="right"><xsl:value-of select="packages/total/single_comment_lines"/></td>
