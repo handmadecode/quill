@@ -94,7 +94,17 @@
             </tr>
             <tr>
               <td class="label">Cycles found:</td>
-              <td class="data" align="right"><xsl:value-of select="count(Cycles/Cycle)"/></td>
+              <xsl:variable name="num-cycles" select="count(Cycles/Package)"/>
+              <td class="data" align="right">
+                <xsl:choose>
+                  <xsl:when test="$num-cycles &gt; 0">
+                    <span class="warning"><xsl:value-of select="$num-cycles"/></span>
+                  </xsl:when>
+                  <xsl:otherwise>
+                    <xsl:value-of select="$num-cycles"/>
+                  </xsl:otherwise>
+                </xsl:choose>
+              </td>
             </tr>
         </table>
     </xsl:template>
