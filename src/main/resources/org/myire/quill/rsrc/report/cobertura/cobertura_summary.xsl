@@ -35,7 +35,7 @@
 
   <!-- Count the total number of packages and files -->
   <xsl:variable name="num-packages" select="count(packages/package)"/>
-  <xsl:variable name="num-files" select="count(packages/package/classes/class)"/>
+  <xsl:variable name="num-types" select="count(packages/package/classes/class)"/>
 
     <!-- The Cobertura summary section -->
     <div class="summarysection">
@@ -55,7 +55,7 @@
       <div class="summarysectionitem">
         <xsl:call-template name="output-summary-table">
           <xsl:with-param name="num-packages" select="$num-packages"/>
-          <xsl:with-param name="num-files" select="$num-files"/>
+          <xsl:with-param name="num-types" select="$num-types"/>
         </xsl:call-template>
       </div>
 
@@ -74,18 +74,18 @@
   <!-- Output a table with statistics for all analyzed classes -->
   <xsl:template name="output-summary-table">
     <xsl:param name="num-packages"/>
-    <xsl:param name="num-files"/>
+    <xsl:param name="num-types"/>
       <table class="neutralbg">
         <tr>
           <td class="summaryvalue"><xsl:value-of select="$num-packages"/></td>
-          <td class="summaryvalue"><xsl:value-of select="$num-files"/></td>
+          <td class="summaryvalue"><xsl:value-of select="$num-types"/></td>
           <td class="summaryvalue"><xsl:value-of select="round(1000 * number(@line-rate)) div 10"/>%</td>
           <td class="summaryvalue"><xsl:value-of select="round(1000 * number(@branch-rate)) div 10"/>%</td>
           <td class="summaryvalue"><xsl:value-of select="format-number(number(@complexity), '#.000')"/></td>
         </tr>
         <tr>
           <td class="summarylabel">packages</td>
-          <td class="summarylabel">files</td>
+          <td class="summarylabel">types</td>
           <td class="summarylabel">line<br/>coverage</td>
           <td class="summarylabel">branch<br/>coverage</td>
           <td class="summarylabel">average<br/>complexity</td>
