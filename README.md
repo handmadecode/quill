@@ -789,12 +789,12 @@ configures the corresponding project extension and tasks with some defaults and 
 
 The plugin configures the `checkstyle` extension in the project to let the build continue even if
 violations are found, and to not log every found violation. The Checkstyle version to use is set to 
-6.17. This is equivalent to configuring the extension explicitly in the build script as follows:
+6.19. This is equivalent to configuring the extension explicitly in the build script as follows:
 
     checkstyle {
       ignoreFailures = true
       showViolations = false
-      toolVersion = '6.17'
+      toolVersion = '6.19'
     }
 
 The Checkstyle configuration file is specified to be the one bundled with the Quill jar. This
@@ -817,8 +817,11 @@ The version of Checkstyle used may put some requirements on the Gradle version a
 
 * Using Checkstyle versions >= 6.2 requires that the Gradle build is run with Java 7 or later.
 
-* Using Checkstyle versions >= 6.8 requires that Gradle version 2.7 or later is used due to an incompatibility in the Checkstyle Ant task that was introduced in Checkstyle version 6.8. Gradle
+* Using Checkstyle versions >= 6.8 requires that Gradle version 2.7 or later is used due to an
+incompatibility in the Checkstyle Ant task that was introduced in Checkstyle version 6.8. Gradle
 doesn't have a work-around for this incompatibility in versions before 2.7.
+
+* Using Checkstyle versions >= 7.0 requires that the Gradle build is run with Java 8 or later.
 
 This means that by default the Checkstyle Additions plugin requires Gradle version 2.7 or later and
 Java 7 or later. 
