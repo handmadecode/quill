@@ -79,9 +79,9 @@ class CoberturaPlugin implements Plugin<Project>
 
         aConfiguration.incoming.beforeResolve
         {
-            // If no dependencies are explicitly declared, a dependency to the cobertura artifact
-            // with the version specified in the extension property 'toolVersion' of the Cobertura
-            // extension is added.
+            // If no dependencies are explicitly declared, a dependency on the Cobertura artifact
+            // with the version specified in the Cobertura extension property 'toolVersion' is
+            // added.
             if (aConfiguration.dependencies.empty)
             {
                 String aID = "${COBERTURA_GROUP_ARTIFACT_ID}:${fExtension.toolVersion}";

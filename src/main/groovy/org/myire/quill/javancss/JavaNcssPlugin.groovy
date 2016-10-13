@@ -54,9 +54,8 @@ class JavaNcssPlugin implements Plugin<Project>
         }
 
         aConfiguration.incoming.beforeResolve {
-            // If no dependencies are explicitly declared, a dependency to the JavaNCSS artifact
-            // with the version specified in the extension property 'toolVersion' of the JavaNCSS
-            // task is added.
+            // If no dependencies are explicitly declared, a dependency on the JavaNCSS artifact
+            // with the version specified in the JavaNCSS task property 'toolVersion' is added.
             if (aConfiguration.dependencies.empty)
             {
                 String aID = "${JAVANCSS_GROUP_ARTIFACT_ID}:${fTask.toolVersion}";
@@ -71,7 +70,7 @@ class JavaNcssPlugin implements Plugin<Project>
     private JavaNcssTask createTask()
     {
         JavaNcssTask aTask = fProject.tasks.create(TASK_NAME, JavaNcssTask.class);
-        aTask.description = 'Runs JavaNCSS to creates a report with ncss statistics';
+        aTask.description = 'Runs JavaNCSS to create a report with ncss statistics';
         aTask.javancssClasspath = fConfiguration;
         aTask.setupReports();
         aTask.addUpToDateCheck();
