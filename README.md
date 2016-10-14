@@ -27,9 +27,22 @@ appeal to the taste of those who work in different ways.
 1. [CPD Plugin](#cpd-plugin)
 1. [JavaNCSS Plugin](#javancss-plugin)
 1. [Reports Dashboard Plugin](#reports-dashboard-plugin)
+1. [Pom Plugin](#pom-plugin)
 
 
 ## Release Notes
+
+### version 1.1
+
+* [Pom plugin](#pom-plugin) added.
+* The total number of types in the JavaNCSS HTML report now include inner types and local classes,
+  and the total number of methods include methods from inner types.
+* The JDepend HTML report correctly displays the number of cycles, previously this value always was 0.
+* The JDepend summary in the Reports Dashboard has the warning background colour if cycles have been
+  detected. 
+* The Cobertura summary in the Reports Dashboard labels the number of types as 'types', not 'files'.
+* Checkstyle default version upgraded to 6.19.
+* PMD and CPD default versions upgraded to 5.5.1.
 
 ### version 1.0
 
@@ -69,7 +82,7 @@ To use the Quill plugins they must be added to the Gradle build script classpath
     buildscript {
       ...
       dependencies {
-        classpath 'org.myire.quill:quill:0.9'
+        classpath 'org.myire.quill:quill:1.0'
       ...
 
 The Quill plugins can then be applied to the Gradle project:
@@ -789,12 +802,12 @@ configures the corresponding project extension and tasks with some defaults and 
 
 The plugin configures the `checkstyle` extension in the project to let the build continue even if
 violations are found, and to not log every found violation. The Checkstyle version to use is set to 
-6.17. This is equivalent to configuring the extension explicitly in the build script as follows:
+6.19. This is equivalent to configuring the extension explicitly in the build script as follows:
 
     checkstyle {
       ignoreFailures = true
       showViolations = false
-      toolVersion = '6.17'
+      toolVersion = '6.19'
     }
 
 The Checkstyle configuration file is specified to be the one bundled with the Quill jar. This
@@ -817,8 +830,11 @@ The version of Checkstyle used may put some requirements on the Gradle version a
 
 * Using Checkstyle versions >= 6.2 requires that the Gradle build is run with Java 7 or later.
 
-* Using Checkstyle versions >= 6.8 requires that Gradle version 2.7 or later is used due to an incompatibility in the Checkstyle Ant task that was introduced in Checkstyle version 6.8. Gradle
+* Using Checkstyle versions >= 6.8 requires that Gradle version 2.7 or later is used due to an
+incompatibility in the Checkstyle Ant task that was introduced in Checkstyle version 6.8. Gradle
 doesn't have a work-around for this incompatibility in versions before 2.7.
+
+* Using Checkstyle versions >= 7.0 requires that the Gradle build is run with Java 8 or later.
 
 This means that by default the Checkstyle Additions plugin requires Gradle version 2.7 or later and
 Java 7 or later. 
@@ -873,12 +889,12 @@ corresponding project extension and tasks with some defaults and additions.
 ### Default values
 
 The plugin configures the `pmd` extension in the project to let the build continue even if
-violations are found, and to use version 5.4.1 of PMD. This is equivalent to configuring the
+violations are found, and to use version 5.5.1 of PMD. This is equivalent to configuring the
 extension explicitly in the build script as follows:
 
     pmd {
       ignoreFailures = true
-      toolVersion = '5.4.1'
+      toolVersion = '5.5.1'
     }
 
 Note that using PMD versions >= 5.4.0 requires that the Gradle build is run with Java 7 or later.
@@ -1070,7 +1086,7 @@ through the following properties:
 
 * `toolVersion` - a string specifying the version of CPD to use. The default is the version
 specified in `pmd.toolVersion`, or, if the `pmd` extension isn't available in the project, version
-"5.4.1".
+"5.5.1".
 
 * `cpdClasspath` - a `FileCollection` specifying the classpath containing the CPD classes used by
 the task. The default is the `cpd` dependency configuration (see below).
@@ -1507,3 +1523,85 @@ cause the following error:
  
 when the both plugins are applied and the `build` task is executed. This bug is described
 [here](https://issues.gradle.org/browse/GRADLE-2957) and was resolved in Gradle 2.2.
+
+
+## Pom Plugin
+
+The Pom plugin applies the Maven plugin to the project and adds a task for creating pom files
+outside the context of uploading to a Maven repository.
+
+### Usage
+
+    apply plugin: 'org.myire.quill.pom'
+
+### Task
+
+The plugin adds a task with the name `createPom` to the project. This task has a single property,
+`destination`, that specifies the location of the pom file to create. The default name of this file
+is `${project.archivesBaseName}-${project.version}.pom`, and it is located in the directory
+specified in the project property `mavenPomDir`, which is added by the Maven plugin.
+
+The destination of the pom file can be configured by setting the destination property:
+
+    createPom.destination = 'alternative-pom.xml'
+
+The destination will be resolved relative to the project build directory.
+
+The task creates the pom file by creating a `MavenPom` instance using the factory method `pom` added
+by the Maven plugin. This instance is then written to the destination file.
+
+Without any configuration, the task is equivalent to
+
+    pom().writeTo "$mavenPomDir/${project.archivesBaseName}-${project.version}.pom"
+
+#### The `from` method
+
+The task can add data to the pom file from one or more XML files. These files are specified through
+the method `from`, which takes one or more objects as parameters. These objects are resolved to
+files relative to the project directory.
+
+Example:
+
+    createPom.from 'meta/pom-template.xml'
+
+will add data from a file called `pom-template.xml` in a subdirectory of the project directory
+called `meta`.
+
+A file passed to `from` should contain a partial pom file inside a root `<project>` element.
+Everything inside the root element will be added to the created pom file.
+
+If the file `pom-template.xml` in the example has the following contents:
+
+    <?xml version="1.0"?>
+    <project>
+      <name>Quill</name>
+      <description>A collection of Gradle plugins</description>
+      <url>https://github.com/handmadecode/quill</url>
+    </project>
+
+then the XML
+
+      <name>Quill</name>
+      <description>A collection of Gradle plugins</description>
+      <url>https://github.com/handmadecode/quill</url>
+
+will be added to the created pom file.
+
+This method returns the `createPom` task instance to allow method chaining.
+
+#### The `withoutScope` method
+
+The pom created by the `pom()` method includes all dependencies. Sometimes it is not desirable to
+have all dependencies in the resulting pom file. It may for instance be unnecessary to include the
+test dependencies.
+
+The `withoutScope` method takes one or more scope names as parameters. The dependencies in these
+scopes will be filtered out from the created pom file.
+
+Example:
+
+    createPom.withoutScope 'test'
+
+will filter out all test dependencies.
+
+This method returns the `createPom` task instance to allow method chaining.

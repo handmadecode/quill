@@ -8,6 +8,7 @@ package org.myire.quill.common
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.UnknownTaskException
+import org.gradle.api.internal.file.AbstractFileResolver
 import org.gradle.api.internal.file.FileResolver
 import org.gradle.api.internal.file.TemporaryFileProvider
 import org.gradle.api.internal.project.ProjectInternal
@@ -114,6 +115,28 @@ final class Projects
 
 
     /**
+     * Get a plugin from a project's convention.
+     *
+     * @param pProject  The project.
+     * @param pName     The name of the plugin.
+     * @param pPluginClass
+     *                  The plugin's class (or a superclass of its class).
+     *
+     * @return  The plugin with the specified name, or null if there is no plugin with that name in
+     *          the project's convention. Null is also returned if there is a plugin with the
+     *          specified name that is not a subtype of the specified plugin class.
+     */
+    static <T> T getConventionPlugin(Project pProject, String pName, Class<T> pPluginClass)
+    {
+        Object aPlugin = pProject.convention.plugins[pName];
+        if (aPlugin != null && pPluginClass.isAssignableFrom(aPlugin.getClass()))
+            return (T) aPlugin;
+        else
+            return null;
+    }
+
+
+    /**
      * Create a file specification for a file or directory within the project's main report
      * directory. If the specified project has the reporting extension installed, that extension's
      * {@code baseDir} property is used as the main reporting directory, otherwise the project's
@@ -177,6 +200,26 @@ final class Projects
     {
         if (pProject instanceof ProjectInternal)
             return ((ProjectInternal) pProject).fileResolver;
+        else
+            return null;
+    }
+
+
+    /**
+     * Create a file resolver that resolves paths relative to a base directory.
+     *
+     * @param pProject          The project to create the resolver with.
+     * @param pBaseDirectory    The resolver's base directory, this path will be resolved relative
+     *                          to the specified project's project directory before the resolver is
+     *                          created.
+     *
+     * @return  A new {@code FileResolver}, or null if one couldn't be created.
+     */
+    static FileResolver createBaseDirectoryFileResolver(Project pProject, Object pBaseDirectory)
+    {
+        FileResolver aProjectResolver = getFileResolver(pProject);
+        if (aProjectResolver instanceof AbstractFileResolver)
+            return ((AbstractFileResolver) aProjectResolver).withBaseDir(pBaseDirectory);
         else
             return null;
     }

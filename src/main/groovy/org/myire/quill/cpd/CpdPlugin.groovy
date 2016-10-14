@@ -69,8 +69,8 @@ class CpdPlugin implements Plugin<Project>
         }
 
         aConfiguration.incoming.beforeResolve {
-            // If no dependencies are explicitly declared, a dependency to the CPD artifact with
-            // the version specified in the task property 'toolVersion' of the CPD task is added.
+            // If no dependencies are explicitly declared, a dependency on the CPD artifact with the
+            // version specified in the CPD task property 'toolVersion' is added.
             if (aConfiguration.dependencies.empty)
             {
                 // Check the CPD version number to determine which group and artifact ID to use.

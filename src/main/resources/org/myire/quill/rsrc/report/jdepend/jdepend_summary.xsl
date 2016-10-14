@@ -67,14 +67,22 @@
 
   <!-- Output a table with a summary of the JDepend run -->
   <xsl:template name="output-summary-table">
-      <table class="neutralbg">
+      <xsl:variable name="num-cycles" select="count(Cycles/Package)"/>
+      <table>
+        <!-- Choose the table background color depending on whether there are any cycles or not -->
+        <xsl:attribute name="class">
+          <xsl:choose>
+            <xsl:when test="$num-cycles&gt; 0">warningbg</xsl:when>
+            <xsl:otherwise>successbg</xsl:otherwise>
+          </xsl:choose>
+        </xsl:attribute>
         <tr>
           <td class="summaryvalue"><xsl:value-of select="count(Packages/Package/Stats)"/></td>
           <td class="summaryvalue"><xsl:call-template name="max-classes"/></td>
           <td class="summaryvalue"><xsl:call-template name="max-afferent"/></td>
           <td class="summaryvalue"><xsl:call-template name="max-efferent"/></td>
           <td class="summaryvalue"><xsl:call-template name="max-distance"/></td>
-          <td class="summaryvalue"><xsl:value-of select="count(Cycles/Cycle)"/></td>
+          <td class="summaryvalue"><xsl:value-of select="$num-cycles"/></td>
         </tr>
         <tr>
           <td class="summarylabel">packages</td>
