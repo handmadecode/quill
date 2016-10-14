@@ -27,14 +27,22 @@ appeal to the taste of those who work in different ways.
 1. [CPD Plugin](#cpd-plugin)
 1. [JavaNCSS Plugin](#javancss-plugin)
 1. [Reports Dashboard Plugin](#reports-dashboard-plugin)
-1. [PomPlugin](#pom-plugin)
+1. [Pom Plugin](#pom-plugin)
 
 
 ## Release Notes
 
 ### version 1.1
 
-* Pom plugin added
+* [Pom plugin](#pom-plugin) added.
+* The total number of types in the JavaNCSS HTML report now include inner types and local classes,
+  and the total number of methods include methods from inner types.
+* The JDepend HTML report correctly displays the number of cycles, previously this value always was 0.
+* The JDepend summary in the Reports Dashboard has the warning background colour if cycles have been
+  detected. 
+* The Cobertura summary in the Reports Dashboard labels the number of types as 'types', not 'files'.
+* Checkstyle default version upgraded to 6.19.
+* PMD and CPD default versions upgraded to 5.5.1.
 
 ### version 1.0
 
