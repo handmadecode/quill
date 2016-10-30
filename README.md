@@ -25,12 +25,17 @@ appeal to the taste of those who work in different ways.
 1. [PMD Additions Plugin](#pmd-additions-plugin)
 1. [JDepend Additions Plugin](#jdepend-additions-plugin)
 1. [CPD Plugin](#cpd-plugin)
-1. [JavaNCSS Plugin](#javancss-plugin)
+1. [Scent Plugin](#scent-plugin)
 1. [Reports Dashboard Plugin](#reports-dashboard-plugin)
 1. [Pom Plugin](#pom-plugin)
+1. [JavaNCSS Plugin](#javancss-plugin)
 
 
 ## Release Notes
+
+### version 1.2
+
+* [Scent Plugin](#scent-plugin) added.
 
 ### version 1.1
 
@@ -88,7 +93,7 @@ To use the Quill plugins they must be added to the Gradle build script classpath
 The Quill plugins can then be applied to the Gradle project:
 
     apply plugin: 'org.myire.quill.cobertura'
-    apply plugin: 'org.myire.quill.javancss'
+    apply plugin: 'org.myire.quill.scent'
 
 To make all Quill plugins available in a build script, the plugin 'all' can be applied. This plugin
 will simply apply all Quill plugins to the Gradle project, thus removing the need to apply the
@@ -1081,7 +1086,7 @@ task. The `cpd` task operates on source files and is a subclass of
 files to analyze, such as include and exclude patterns. By default, the `cpd` task uses the `main`
 source set's Java files as input files.
 
-In addition to the standard source task properties, the `cpd` task's behavior can be configured
+In addition to the standard source task properties, the `cpd` task's behaviour can be configured
 through the following properties: 
 
 * `toolVersion` - a string specifying the version of CPD to use. The default is the version
@@ -1191,109 +1196,90 @@ equivalent to:
 where `<toolVersion>` is the value of the `cpd` task's `toolVersion` property.
 
 
-## JavaNCSS Plugin
+## Scent Plugin
 
-The JavaNCSS plugin adds a task for calculating source code metrics using the
-[JavaNCSS](https://github.com/codehaus/javancss) tool.
-
-Note that the JavaNCSS tool hasn't received an update since July 2014 and currently does not support
-Java 8 specific syntax, e.g. lambdas.
+The Scent plugin adds a task for collecting source code metrics using the
+[Scent](https://github.com/handmadecode/scent) library.
 
 ### Usage
 
-    apply plugin: 'org.myire.quill.javancss'
+    apply plugin: 'org.myire.quill.scent'
 
 ### Task
 
-The plugin adds a `javancss` task to the project and also adds it to the dependencies of the `build`
-task. The `javancss` task operates on Java source files and is a subclass of
+The plugin adds a `scent` task to the project and also adds the task to the dependencies of the
+`build` task. The `scent` task operates on Java source files and is a subclass of
 `org.gradle.api.tasks.SourceTask`, thereby using the standard mechanisms for specifying which source
-files to calculate metrics for, such as include and exclude patterns. By default, the `javancss`
+files to collect metrics for, such as include and exclude patterns. By default, the `scent`
 task uses the `main` source set's Java files as input files.
 
-In addition to the standard source task properties, the `javancss` task's behavior can be configured
+In addition to the standard source task properties, the `scent` task's behaviour can be configured
 through the following properties:
 
-* `toolVersion` - a string specifying the version of JavaNCSS to use. The default is version
-"33.54".
+* `toolVersion` - a string specifying the version of Scent to use. Default is version "0.9".
 
-* `javancssClasspath` - a `FileCollection` specifying the classpath containing the JavaNCSS classes
-used by the task. The default is the `javancss` dependency configuration (see below).
-
-* `ncss` - a boolean specifying if the total number of non commenting source statements in the input
-files should be calculated. Default is true.
-
-* `packageMetrics` - a boolean specifying if metrics data should be calculated for each package.
-Default is true.
-
-* `classMetrics` - a boolean specifying if metrics data should be calculated for each
-class/interface. Default is true.
-
-* `functionMetrics` - a boolean specifying if metrics data should be calculated for each
-method/function. Default is true.
-
-* `ignoreFailures` - a boolean specifying if the build should continue if the JavaNCSS execution
-fails. Default is true.
+* `sourceEncoding` - a string specifying the encoding of the Java files, e.g. "UTF-8". If this
+property isn't specified the platform's default encoding will be used.
 
 * `reports` - a `ReportContainer` holding the reports created by the task, see below.
 
+* `scentClasspath` - a `FileCollection` specifying the classpath containing the Scent classes used
+by the task. The default is the `scent` dependency configuration, see below.
+
 ### Reports
 
-The `javancss` task creates a primary report with the result of the source code metrics calculation.
-This report can either be o the XML format or the text format. If the primary report is on the XML
-format, the task can optionally produce an HTML report by applying an XSL transformation on the XML
-report.
+The `scent` task creates an XML report with the collected source code metrics. The task can also
+produce an HTML report by applying an XSL transformation on the XML report.
 
-The two reports are configured through the `reports` property of the `javancss` task:
+The two reports are configured through the `reports` property of the `scent` task:
 
-* `primary` - a `SingleFileReport` that also allows the format to be specified in its `format`
-property. Valid values for the format are "xml" or "text", with "xml" as the default value. The
-default report is a file called "javancss.*ext*" where *ext* is the value of the `format` property.
-The default report file is located in a directory called "javancss" in the project's report
-directory or, if no project report directory is defined, in a directory called "javancss" in the
+* `xml` - a `SingleFileReport` that creates an XML file with the collected source code metrics. The
+default is a file called "scent.xml"  located in a directory called "scent" in the project's report
+directory or, if no project report directory is defined, in a directory called "scent" in the
 project's build directory.
 
-* `html` - a `SingleFileReport` that will be created if the primary report is `enabled` and its 
-`format` is "xml". This report produces an HTML version of the tasks's XML report by applying an XSL transformation. By default, the HTML report is created in the same directory as the XML report
-and given the same base name as the XML report (e.g. "javancss.html" if the XML report has the name
-"javancss.xml"). The XSL style sheet to use can be specified through the `xslFile` property. This
-property is a `File` that is resolved relative to the project directory. If no XSL file is specified
-the default style sheet bundled with the Quill jar file will be used.
+* `html` - a `SingleFileReport` that will be created if the XML report is `enabled`. This report
+produces an HTML version of the tasks's XML report by applying an XSL transformation. By default,
+the HTML report is created in the same directory as the XML report and given the same base name as
+the XML report (e.g. "scent.html" if the XML report has the name "scent.xml"). The XSL style sheet
+to use can be specified through the `xslFile` property. This property is a `File` that is resolved
+relative to the project directory. If no XSL file is specified the default style sheet bundled with
+the Quill jar file will be used.
 
 The reports can be configured with a closure, just as any other `ReportContainer`:
 
-    javancss {
+    scent {
       ...
       reports {
-        primary.destination = "$buildDir/reports/metrics.xml"
-        html.xslFile = 'xsl/javancss.xsl'
+        xml.destination = "$buildDir/reports/metrics.xml"
+        html.xslFile = 'xsl/scent.xsl'
       }
     }
 
 The reports can also be configured through chained access of the properties:
 
-    javancss {
+    scent {
       ...
-      reports.primary.format = 'text'
+      reports.xml.destination = 'myreport.xml'
     }
 
-The `javancss` task implements the `Reporting` interface, meaning that the produced reports are
+The `scent` task implements the `Reporting` interface, meaning that the produced reports are
 picked up by the Build Dashboard plugin.
 
-Note that if the primary report isn't enabled, the `javancss` task will not run. This means that the
-task can be skipped by adding the configuration line
+Note that if the XML report isn't enabled, the `scent` task will not run. This means that the task
+can be skipped by adding the configuration line
 
-    javancss.reports.primary.enabled = false
+    scent.reports.xml.enabled = false
 
 ### Dependency configuration
 
-The JavaNCSS plugin adds a `javancss` dependency configuration to the project. This configuration
-specifies the default classpath for the `javancss` task. By default, this configuration has one
+The Scent plugin adds a `scent` dependency configuration to the project. This configuration
+specifies the default classpath for the `scent` task. By default, this configuration has one
 dependency, equivalent to:
 
-    javancss 'org.codehaus.javancss:javancss:<toolVersion>'
+    scent 'org.myire:scent:<toolVersion>'
 
-where `<toolVersion>` is the value of the `javancss` task's `toolVersion` property.
+where `<toolVersion>` is the value of the `scent` task's `toolVersion` property.
 
 
 ## Reports Dashboard Plugin
@@ -1605,3 +1591,108 @@ Example:
 will filter out all test dependencies.
 
 This method returns the `createPom` task instance to allow method chaining.
+
+
+## JavaNCSS Plugin
+
+The JavaNCSS plugin adds a task for calculating source code metrics using the
+[JavaNCSS](https://github.com/codehaus/javancss) tool.
+
+Note that the JavaNCSS tool hasn't received an update since July 2014 and currently does not support
+Java 8 specific syntax, e.g. lambdas.
+
+### Usage
+
+    apply plugin: 'org.myire.quill.javancss'
+
+### Task
+
+The plugin adds a `javancss` task to the project and also adds it to the dependencies of the `build`
+task. The `javancss` task operates on Java source files and is a subclass of
+`org.gradle.api.tasks.SourceTask`, thereby using the standard mechanisms for specifying which source
+files to calculate metrics for, such as include and exclude patterns. By default, the `javancss`
+task uses the `main` source set's Java files as input files.
+
+In addition to the standard source task properties, the `javancss` task's behaviour can be
+configured through the following properties:
+
+* `toolVersion` - a string specifying the version of JavaNCSS to use. The default is version
+"33.54".
+
+* `javancssClasspath` - a `FileCollection` specifying the classpath containing the JavaNCSS classes
+used by the task. The default is the `javancss` dependency configuration (see below).
+
+* `ncss` - a boolean specifying if the total number of non commenting source statements in the input
+files should be calculated. Default is true.
+
+* `packageMetrics` - a boolean specifying if metrics data should be calculated for each package.
+Default is true.
+
+* `classMetrics` - a boolean specifying if metrics data should be calculated for each
+class/interface. Default is true.
+
+* `functionMetrics` - a boolean specifying if metrics data should be calculated for each
+method/function. Default is true.
+
+* `ignoreFailures` - a boolean specifying if the build should continue if the JavaNCSS execution
+fails. Default is true.
+
+* `reports` - a `ReportContainer` holding the reports created by the task, see below.
+
+### Reports
+
+The `javancss` task creates a primary report with the result of the source code metrics calculation.
+This report can either be o the XML format or the text format. If the primary report is on the XML
+format, the task can optionally produce an HTML report by applying an XSL transformation on the XML
+report.
+
+The two reports are configured through the `reports` property of the `javancss` task:
+
+* `primary` - a `SingleFileReport` that also allows the format to be specified in its `format`
+property. Valid values for the format are "xml" or "text", with "xml" as the default value. The
+default report is a file called "javancss.*ext*" where *ext* is the value of the `format` property.
+The default report file is located in a directory called "javancss" in the project's report
+directory or, if no project report directory is defined, in a directory called "javancss" in the
+project's build directory.
+
+* `html` - a `SingleFileReport` that will be created if the primary report is `enabled` and its 
+`format` is "xml". This report produces an HTML version of the tasks's XML report by applying an XSL transformation. By default, the HTML report is created in the same directory as the XML report
+and given the same base name as the XML report (e.g. "javancss.html" if the XML report has the name
+"javancss.xml"). The XSL style sheet to use can be specified through the `xslFile` property. This
+property is a `File` that is resolved relative to the project directory. If no XSL file is specified
+the default style sheet bundled with the Quill jar file will be used.
+
+The reports can be configured with a closure, just as any other `ReportContainer`:
+
+    javancss {
+      ...
+      reports {
+        primary.destination = "$buildDir/reports/metrics.xml"
+        html.xslFile = 'xsl/javancss.xsl'
+      }
+    }
+
+The reports can also be configured through chained access of the properties:
+
+    javancss {
+      ...
+      reports.primary.format = 'text'
+    }
+
+The `javancss` task implements the `Reporting` interface, meaning that the produced reports are
+picked up by the Build Dashboard plugin.
+
+Note that if the primary report isn't enabled, the `javancss` task will not run. This means that the
+task can be skipped by adding the configuration line
+
+    javancss.reports.primary.enabled = false
+
+### Dependency configuration
+
+The JavaNCSS plugin adds a `javancss` dependency configuration to the project. This configuration
+specifies the default classpath for the `javancss` task. By default, this configuration has one
+dependency, equivalent to:
+
+    javancss 'org.codehaus.javancss:javancss:<toolVersion>'
+
+where `<toolVersion>` is the value of the `javancss` task's `toolVersion` property.

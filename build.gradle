@@ -12,10 +12,12 @@ repositories
 dependencies
 {
     compile gradleApi()
+    compile 'org.myire:scent:0.9'
+
     testCompile 'junit:junit:4.12'
 }
 
-ext.sourceAndTargetCompatibility = 1.6
+ext.sourceAndTargetCompatibility = 1.7
 
 tasks.withType(GroovyCompile)
 {
