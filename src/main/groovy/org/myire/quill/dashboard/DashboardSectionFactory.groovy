@@ -19,6 +19,7 @@ import org.myire.quill.cobertura.CoberturaReportsTask
 import org.myire.quill.cpd.CpdTask
 import org.myire.quill.javancss.JavaNcssTask
 import org.myire.quill.junit.JUnitAdditionsPlugin
+import org.myire.quill.scent.ScentTask
 
 
 /**
@@ -29,15 +30,17 @@ class DashboardSectionFactory
     // XSL resources with default style sheets for the standard dashboard sections.
     static private final String XSL_RESOURCE_JUNIT = '/org/myire/quill/rsrc/report/junit/junit_summary.xsl'
     static private final String XSL_RESOURCE_COBERTURA = '/org/myire/quill/rsrc/report/cobertura/cobertura_summary.xsl'
-    static private final String XSL_RESOURCE_JAVANCSS = '/org/myire/quill/rsrc/report/javancss/javancss_summary.xsl'
+    static private final String XSL_RESOURCE_SCENT = '/org/myire/quill/rsrc/report/scent/scent_summary.xsl'
     static private final String XSL_RESOURCE_FINDBUGS= '/org/myire/quill/rsrc/report/findbugs/findbugs_summary.xsl'
     static private final String XSL_RESOURCE_CHECKSTYLE = '/org/myire/quill/rsrc/report/checkstyle/checkstyle_summary.xsl'
     static private final String XSL_RESOURCE_PMD = '/org/myire/quill/rsrc/report/pmd/pmd_summary.xsl'
     static private final String XSL_RESOURCE_JDEPEND = '/org/myire/quill/rsrc/report/jdepend/jdepend_summary.xsl'
     static private final String XSL_RESOURCE_CPD = '/org/myire/quill/rsrc/report/cpd/cpd_summary.xsl'
+    static private final String XSL_RESOURCE_JAVANCSS = '/org/myire/quill/rsrc/report/javancss/javancss_summary.xsl'
 
 
     private final DashboardTask fTask;
+    private final Map<Class<? extends Task>, Closure<DashboardSection>> fSectionCreators = [:];
 
 
     /**
@@ -48,6 +51,16 @@ class DashboardSectionFactory
     DashboardSectionFactory(DashboardTask pTask)
     {
         fTask = pTask;
+
+        fSectionCreators[Checkstyle.class] = { Checkstyle t -> createCheckstyleSection(t) };
+        fSectionCreators[CoberturaReportsTask.class] = { CoberturaReportsTask t -> createCoberturaSection(t) };
+        fSectionCreators[CpdTask.class] = { CpdTask t -> createCpdSection(t) };
+        fSectionCreators[FindBugs.class] = { FindBugs t -> createFindBugsSection(t) };
+        fSectionCreators[JavaNcssTask.class] = { JavaNcssTask t -> createJavaNcssSection(t) };
+        fSectionCreators[JDepend.class] = { JDepend t -> createJDependSection(t) };
+        fSectionCreators[Pmd.class] = { Pmd t -> createPmdSection(t) };
+        fSectionCreators[ScentTask.class] = { ScentTask t -> createScentSection(t) };
+        fSectionCreators[Test.class] = { Test t -> createJUnitSection(t) };
     }
 
 
@@ -60,34 +73,14 @@ class DashboardSectionFactory
     {
         Map<String, DashboardSection> aSections = [:];
 
-        addSectionsForTaskType(aSections,
-                               Test.class,
-                               { Test t -> createJUnitSection(t) });
-        addSectionsForTaskType(aSections,
-                               CoberturaReportsTask.class,
-                               { CoberturaReportsTask t -> createCoberturaSection(t) });
-        addSectionsForTaskType(aSections,
-                               JavaNcssTask.class,
-                               { JavaNcssTask t -> createJavaNcssSection(t) });
-        addSectionsForTaskType(aSections,
-                               JDepend.class,
-                               'jdependMain',
-                               { JDepend t -> createJDependSection(t) });
-        addSectionsForTaskType(aSections,
-                               FindBugs.class,
-                               'findbugsMain',
-                               { FindBugs t -> createFindBugsSection(t) });
-        addSectionsForTaskType(aSections,
-                               Checkstyle.class,
-                               'checkstyleMain',
-                               { Checkstyle t -> createCheckstyleSection(t) });
-        addSectionsForTaskType(aSections,
-                               Pmd.class,
-                               'pmdMain',
-                               { Pmd t -> createPmdSection(t) });
-        addSectionsForTaskType(aSections,
-                               CpdTask.class,
-                               { CpdTask t -> createCpdSection(t) });
+        addSectionsForTaskType(aSections, Test.class);
+        addSectionsForTaskType(aSections, CoberturaReportsTask.class);
+        addSectionsForTaskType(aSections, ScentTask.class);
+        addSectionsForTaskType(aSections, JDepend.class, 'jdependMain');
+        addSectionsForTaskType(aSections, FindBugs.class, 'findbugsMain');
+        addSectionsForTaskType(aSections, Checkstyle.class, 'checkstyleMain');
+        addSectionsForTaskType(aSections, Pmd.class, 'pmdMain');
+        addSectionsForTaskType(aSections, CpdTask.class);
 
         return aSections;
     }
@@ -136,27 +129,19 @@ class DashboardSectionFactory
 
 
     /**
-     * Create a default dashboard section for the XML report of a JavaNCSS task.
+     * Create a default dashboard section for the XML report of a Scent task.
      *
-     * @param pTask The JavaNCSS task.
+     * @param pTask The Scent task.
      *
-     * @return  A new {@code DashboardSection}, or null if the task's primary report is not on the
-     *          XML format.
+     * @return  A new {@code DashboardSection}.
      */
-    DashboardSection createJavaNcssSection(JavaNcssTask pTask)
+    DashboardSection createScentSection(ScentTask pTask)
     {
-        Report aReport = pTask.reports.getPrimary();
-        if ("xml" == aReport.format)
-        {
-            return new DashboardSection(fTask, pTask.name, aReport, pTask.reports.getHtml(), XSL_RESOURCE_JAVANCSS);
-        }
-        else
-        {
-            fTask.logger.debug('Task \'{}\' creates a \'{}\' report, cannot create dashboard section for it',
-                               pTask.name,
-                               aReport.format);
-            return null;
-        }
+        return new DashboardSection(fTask,
+                                    pTask.name,
+                                    pTask.reports.getXml(),
+                                    pTask.reports.getHtml(),
+                                    XSL_RESOURCE_SCENT);
     }
 
 
@@ -253,20 +238,72 @@ class DashboardSectionFactory
 
 
     /**
+     * Create a default dashboard section for the XML report of a JavaNCSS task.
+     *
+     * @param pTask The JavaNCSS task.
+     *
+     * @return  A new {@code DashboardSection}, or null if the task's primary report is not on the
+     *          XML format.
+     */
+    DashboardSection createJavaNcssSection(JavaNcssTask pTask)
+    {
+        Report aReport = pTask.reports.getPrimary();
+        if ("xml" == aReport.format)
+        {
+            return new DashboardSection(fTask, pTask.name, aReport, pTask.reports.getHtml(), XSL_RESOURCE_JAVANCSS);
+        }
+        else
+        {
+            fTask.logger.debug('Task \'{}\' creates a \'{}\' report, cannot create dashboard section for it',
+                               pTask.name,
+                               aReport.format);
+            return null;
+        }
+    }
+
+
+    /**
+     * Add a dashboard section for a task if the factory has a built-in creator for the task's type.
+     *
+     * @param pSections The map to add the section to.
+     * @param pTask     The task to create the built-in dashboard section for.
+     *
+     * @return  True if a built-in section was added, false if the factory doesn't have a built-in
+     *          creator for the task's type.
+     */
+    boolean addBuiltInSection(Map<String, DashboardSection> pSections, Task pTask)
+    {
+        Map.Entry<Class<? extends Task>, Closure<DashboardSection>> aEntry =
+                fSectionCreators.find { k, v -> k.isInstance(pTask) };
+        DashboardSection aSection = aEntry?.value?.call(pTask);
+        if (aSection != null)
+        {
+            pSections.put(aSection.name, aSection)
+            return true;
+        }
+        else
+            return false;
+    }
+
+
+    /**
      * Add dashboard sections for all tasks of a certain type in the owning task's project by
-     * invoking a closure on each task.
+     * invoking the closure from {@code fSectionCreators} on each task.
      *
      * @param pSections The map to add the sections to.
      * @param pType     The task type to create default dashboard sections for.
-     * @param pClosure  The closure that creates a dashboard section for the specified task type.
      */
-    private <T extends Task> void addSectionsForTaskType(Map<String, DashboardSection> pSections,
-                                                         Class<T> pType,
-                                                         Closure<DashboardSection> pClosure)
+    private void addSectionsForTaskType(
+            Map<String, DashboardSection> pSections,
+            Class<? extends Task> pType)
     {
+        Closure<DashboardSection> aClosure = fSectionCreators[pType];
+        if (aClosure == null)
+            return;
+
         fTask.project.tasks.withType(pType)
         {
-            DashboardSection aSection = pClosure.call(it);
+            DashboardSection aSection = aClosure.call(it);
             if (aSection != null)
                 pSections.put(aSection.name, aSection);
         }
@@ -275,23 +312,26 @@ class DashboardSectionFactory
 
     /**
      * Add dashboard sections for all tasks of a certain type and name in the owning task's project
-     * by invoking a closure on each task.
+     * by invoking the closure from {@code fSectionCreators} on each task.
      *
      * @param pSections The map to add the sections to.
      * @param pType     The task type to create default dashboard sections for.
      * @param pName     The name that the tasks must match.
-     * @param pClosure  The closure that creates a dashboard section for the specified task type.
      */
-    private <T extends Task> void addSectionsForTaskType(Map<String, DashboardSection> pSections,
-                                                         Class<T> pType,
-                                                         String pName,
-                                                         Closure<DashboardSection> pClosure)
+    private void addSectionsForTaskType(
+            Map<String, DashboardSection> pSections,
+            Class<? extends Task> pType,
+            String pName)
     {
+        Closure<DashboardSection> aClosure = fSectionCreators[pType];
+        if (aClosure == null)
+            return;
+
         fTask.project.tasks.withType(pType)
         {
             if (pName == it.name)
             {
-                DashboardSection aSection = pClosure.call(it);
+                DashboardSection aSection = aClosure.call(it);
                 if (aSection != null)
                     pSections.put(aSection.name, aSection);
             }

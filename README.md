@@ -35,7 +35,12 @@ appeal to the taste of those who work in different ways.
 
 ### version 1.2
 
-* [Scent Plugin](#scent-plugin) added.
+* Quill requires at least Java 1.7 to run.
+* [Scent Plugin](#scent-plugin) added. It replaces the JavaNCSS plugin as the Quill standard plugin
+for source code metrics since JavaNCSS does not support Java 1.8 code.
+* The JavaNCSS plugin is no longer applied by the 'all' plugin, it must be applied explicitly.
+* The Reports Dashboard no longer contains a section for JavaNCSS by default. If the JavaNCSS plugin
+is applied its Reports Dashboard section must be added explicitly.
 
 ### version 1.1
 
@@ -78,6 +83,10 @@ appeal to the taste of those who work in different ways.
   `GenericWhitespace` check.
 * Check `InnerAssignment` removed from the built-in Checkstyle configuration.
 * Rules `AssignmentInOperand` and `UselessParentheses` removed from the built-in PMD configuration.
+
+### version 0.9
+
+* Initial release.
 
 
 ## General Usage
@@ -1330,8 +1339,8 @@ report.
 * All tasks of type `CoberturaReportsTask` (see the [Cobertura plugin](#cobertura-plugin)). The
 summarized report is the task's `xml` report and the linked report is the task's `html` report.
 
-* All tasks of type `JavaNcssTask` that have "xml" as the format for the primary report (see the
-[JavaNcss plugin](#javancss-plugin)). The linked report is the task's `html` report.
+* All tasks of type `ScentTask` (see the [Scent plugin](#scent-plugin)). The summarized report is
+the task's `xml` report and the linked report is the task's `html` report.
 
 * The `jdependMain` task. The summarized report is the task's `xml` report and the linked report is
 the task's XSL transformation report, if one exists (see the
@@ -1393,7 +1402,18 @@ The detailed report can be omitted when adding a new section:
                    'src/main/resources/xsl/findbugs_summary.xsl')
         ....
     }
-    
+
+A section based on the report(s) produced by a task for which there is built-in support can be added
+by passing the task to the `addBuiltInSection` method:
+
+    reportsDashboard {
+        addBuiltInSection(checkstyleTest)
+        ...
+    }
+
+The tasks with built-in support are the ones that have default sections (see above) and tasks of
+type `javancss`.
+
 The sections will appear in the order they were added to the `LinkedHashMap`. The default sections
 are added in the order they are listed above. New sections will thereby appear last in the report.
 One way to rearrange the sections is to remove a report and add it back:
@@ -1599,7 +1619,8 @@ The JavaNCSS plugin adds a task for calculating source code metrics using the
 [JavaNCSS](https://github.com/codehaus/javancss) tool.
 
 Note that the JavaNCSS tool hasn't received an update since July 2014 and currently does not support
-Java 8 specific syntax, e.g. lambdas.
+Java 8 specific syntax, e.g. lambdas. Because of this, the JavaNCSS plugin is *not* applied by the
+'all' plugin; it must always be applied explicitly.
 
 ### Usage
 
@@ -1696,3 +1717,23 @@ dependency, equivalent to:
     javancss 'org.codehaus.javancss:javancss:<toolVersion>'
 
 where `<toolVersion>` is the value of the `javancss` task's `toolVersion` property.
+
+### Use with Reports Dashboard
+
+The JavaNCSS report is not included in the Reports Dashboard by default when the JavaNCSS plugin is
+applied. A section for the JavaNCSS report must be added explicitly, e.g.:
+
+    reportsDashboard {
+        addSection('javancss',
+                   javancss.reports.primary,
+                   javancss.reports.html,
+                   'path/to/javancss.xsl')
+    }
+
+The Reports Dashboard does however have built-in support for JavaNCSS sections, just as for all
+other Quill tasks that produce reports, which means that the section can be added with the
+`addBuiltInSection` method:
+
+    reportsDashboard {
+        addBuiltInSection(javancss)
+    }

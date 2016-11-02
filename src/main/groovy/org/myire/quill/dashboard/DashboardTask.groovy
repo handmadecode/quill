@@ -21,11 +21,10 @@ import org.myire.quill.report.ReportBuilder
  * A task that creates a summary report of a collection of reports generated during a build. The
  * summary report consists of one {@code DashboardSection} for each report included in the summary.
  *<p>
- * By default the task generates a summary of the reports from the Test, Cobertura, JavaNCSS,
- * JDepend, FindBugs, Checkstyle, PMD, and CPD tasks that are available in the project. Build
- * scripts can access and modify these standard  sections through the {@code sections} property,
- * which is a map from task name to {@code DashboardSection} instance. New sections can also be
- * added to this map.
+ * By default the task generates a summary of the reports from the Test, Cobertura, Scent, JDepend,
+ * FindBugs, Checkstyle, PMD, and CPD tasks that are available in the project. Build scripts can
+ * access and modify these standard  sections through the {@code sections} property, which is a map
+ * from task name to {@code DashboardSection} instance. New sections can also be added to this map.
  *<p>
  * The sections are logically output as a matrix where the number of columns can be configured.
  * The HTML code that starts and ends the entire matrix, each row and each cell can also be
@@ -201,6 +200,20 @@ class DashboardTask extends AbstractTask implements Reporting<DashboardReports>
     void addSection(String pName, Report pReport, Report pDetailedReport, Object pXslFile)
     {
         fSections.put(pName, new DashboardSection(this, pName, pReport, pDetailedReport, project.file(pXslFile)));
+    }
+
+
+    /**
+     * Add a built-in dashboard section for a task.
+     *
+     * @param pTask The task to add a dashboard section for.
+     *
+     * @return  True if a built-in section was added, false if there is no built-in section for the
+     *          task's type.
+     */
+    boolean addBuiltInSection(Task pTask)
+    {
+        return fSectionFactory.addBuiltInSection(fSections, pTask);
     }
 
 
