@@ -37,10 +37,11 @@ appeal to the taste of those who work in different ways.
 
 * Quill requires at least Java 1.7 to run.
 * [Scent Plugin](#scent-plugin) added. It replaces the JavaNCSS plugin as the Quill standard plugin
-for source code metrics since JavaNCSS does not support Java 1.8 code.
+for source code metrics since JavaNCSS does not support Java 8 code.
 * The JavaNCSS plugin is no longer applied by the 'all' plugin, it must be applied explicitly.
 * The Reports Dashboard no longer contains a section for JavaNCSS by default. If the JavaNCSS plugin
 is applied its Reports Dashboard section must be added explicitly.
+* The JDepend plugin is enhanced to use the guru-nidi fork for Java 8 support.
 
 ### version 1.1
 
@@ -925,7 +926,6 @@ property, the built-in rule set file will still be in use. It must be explicitly
 Note that the built-in rule set file requires at least version 5.4.0 of PMD. When setting
 `toolVersion` to an older version of PMD, another rule set file must be explicitly configured.
 
-
 ### Extension additions
 
 A method with the name `disableTestChecks` is added to the `pmd` extension. Calling this method in
@@ -1018,14 +1018,32 @@ Filter out everything in files matching the pattern ".\*Test.\*\\.java":
 
     <rule-violation-filter files=".*Test.*\.java"/>
 
+
 ## JDepend Additions Plugin
 
 The JDepend Additions plugin applies the standard Gradle plugin `jdepend` to the project and
-configures the corresponding project extension and tasks with some defaults and additions.
+configures the corresponding project extension and tasks with some defaults and additions. It also
+replaces the `jdepend` configuration's dependency on the standard JDepend distribution with a
+dependency on the [guru-nidi](https://github.com/nidi3/jdepend) fork.
 
 ### Usage
 
     apply plugin: 'org.myire.quill.jdepend'
+
+### Configuration dependencies
+
+The latest version of the JDepend tool is 2.9.1, which was released in 2005. This version does not
+recognize the Java 8 class format, and it omits classes with Java 8 specific constructs (e.g. method
+handles) from the analysis.
+
+To support dependency analysis of Java 8 code, the plugin uses the
+[guru-nidi](https://github.com/nidi3/jdepend) fork of JDepend rather than the standard distribution.
+This is done by replacing the `jdepend` configuration's dependency on the `jdepend:jdepend` artifact
+with a dependency on the `guru.nidi:jdepend` artifact. The version of the `guru.nidi:jdepend`
+artifact is specified through the extension property `guruNidiVersion` (see below).
+
+This replacement of the standard JDepend library can be disabled by setting the `guruNidiVersion`
+property to null.
 
 ### Default values
 
@@ -1043,6 +1061,15 @@ in the build script it will remove the `test` source set from the extension's so
 disabling the `jdependTest` task:
 
     jdepend.disableTestChecks()
+
+The plugin also adds two properties:
+
+* `guruNidiVersion` - a string specifying the version of the guru-nidi JDepend fork to use. Default
+is version "2.9.5". If this property is set to null, the guru-nidi fork will *not* be used.
+
+* `antTaskVersion` - a string specifying the version of the JDepend Ant task to use in conjunction
+with the guru-nidi fork. Default is "1.9.7". Note that this property does not affect the version of
+the Ant task used when the guru-nidi fork is disabled.
 
 ### Task additions
 
