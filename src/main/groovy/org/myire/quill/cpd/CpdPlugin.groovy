@@ -9,6 +9,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.plugins.JavaBasePlugin
 import org.gradle.util.VersionNumber
 
 import org.myire.quill.common.Projects
@@ -42,6 +43,11 @@ class CpdPlugin implements Plugin<Project>
     void apply(Project pProject)
     {
         fProject = pProject;
+
+        // Make sure the Java base plugin is applied. This will create the check task, and if that
+        // task is available when the cpd task is created, the former will configured to depend on
+        // the latter, which will trigger the execution of cpd when running the check task.
+        pProject.plugins.apply(JavaBasePlugin.class);
 
         // Create the CPD configuration and add it to the project. The CPD classpath is specified
         // through this configuration's dependencies.
