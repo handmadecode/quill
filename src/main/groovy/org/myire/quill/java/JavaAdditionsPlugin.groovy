@@ -87,6 +87,9 @@ class JavaAdditionsPlugin implements Plugin<Project>
     {
         Javadoc aTask = Projects.getTask(fProject, JavaPlugin.JAVADOC_TASK_NAME, Javadoc.class);
 
+        // Ignore failures, i.e. do not break the build if a JavaDoc comment is malformed.
+        aTask?.failOnError = false;
+
         // Include protected and public members.
         MinimalJavadocOptions aOptions = aTask?.options;
         aOptions?.showFromProtected();
