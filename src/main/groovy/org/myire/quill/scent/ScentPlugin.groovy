@@ -9,6 +9,7 @@ import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.artifacts.Configuration
+import org.gradle.api.plugins.JavaBasePlugin
 
 import org.myire.quill.common.Projects
 
@@ -33,6 +34,11 @@ class ScentPlugin implements Plugin<Project>
     void apply(Project pProject)
     {
         fProject = pProject;
+
+        // Make sure the Java base plugin is applied. This will create the build task, and if that
+        // task is available when the scent task is created, the former will configured to depend on
+        // the latter, which will trigger the execution of scent when running the build task.
+        pProject.plugins.apply(JavaBasePlugin.class);
 
         // Create the Scent configuration and add it to the project. The Scent classpath is
         // specified through this configuration's dependencies.
