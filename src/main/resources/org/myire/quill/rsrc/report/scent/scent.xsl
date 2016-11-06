@@ -69,38 +69,58 @@
       </colgroup>
       <tr>
         <td class="label">Packages:</td>
-        <td class="data" align="right"><xsl:value-of select="summary/@packages"/></td>
+        <xsl:call-template name="output-value-cell">
+          <xsl:with-param name="value" select="summary/@packages"/>
+        </xsl:call-template>
         <td/>
         <td class="label">JavaDocs:</td>
-        <td class="data" align="right"><xsl:value-of select="summary/@javadoc-comments"/></td>
+        <xsl:call-template name="output-value-cell">
+          <xsl:with-param name="value" select="summary/@javadoc-comments"/>
+        </xsl:call-template>
       </tr>
       <tr>
         <td class="label">Compilation Units:</td>
-        <td class="data" align="right"><xsl:value-of select="summary/@compilation-units"/></td>
+        <xsl:call-template name="output-value-cell">
+          <xsl:with-param name="value" select="summary/@compilation-units"/>
+        </xsl:call-template>
         <td/>
         <td class="label">JavaDoc lines:</td>
-        <td class="data" align="right"><xsl:value-of select="summary/@javadoc-lines"/></td>
+        <xsl:call-template name="output-value-cell">
+          <xsl:with-param name="value" select="summary/@javadoc-lines"/>
+        </xsl:call-template>
       </tr>
       <tr>
         <td class="label">Types:</td>
-        <td class="data" align="right"><xsl:value-of select="summary/@types"/></td>
+        <xsl:call-template name="output-value-cell">
+          <xsl:with-param name="value" select="summary/@types"/>
+        </xsl:call-template>
         <td/>
         <td class="label">Single line comments:</td>
-        <td class="data" align="right"><xsl:value-of select="summary/@line-comments"/></td>
+        <xsl:call-template name="output-value-cell">
+          <xsl:with-param name="value" select="summary/@line-comments"/>
+        </xsl:call-template>
       </tr>
       <tr>
         <td class="label">Methods:</td>
-        <td class="data" align="right"><xsl:value-of select="summary/@methods"/></td>
+        <xsl:call-template name="output-value-cell">
+          <xsl:with-param name="value" select="summary/@methods"/>
+        </xsl:call-template>
         <td/>
         <td class="label">Block comments:</td>
-        <td class="data" align="right"><xsl:value-of select="summary/@block-comments"/></td>
+        <xsl:call-template name="output-value-cell">
+          <xsl:with-param name="value" select="summary/@block-comments"/>
+        </xsl:call-template>
       </tr>
       <tr>
         <td class="label">Statements:</td>
-        <td class="data" align="right"><xsl:value-of select="summary/@statements"/></td>
+        <xsl:call-template name="output-value-cell">
+          <xsl:with-param name="value" select="summary/@statements"/>
+        </xsl:call-template>
         <td/>
         <td class="label">Block comment lines:</td>
-        <td class="data" align="right"><xsl:value-of select="summary/@block-comment-lines"/></td>
+        <xsl:call-template name="output-value-cell">
+          <xsl:with-param name="value" select="summary/@block-comment-lines"/>
+        </xsl:call-template>
       </tr>
     </table>
   </xsl:template>
@@ -138,31 +158,31 @@
               <xsl:attribute name="class">altrow</xsl:attribute>
             </xsl:if>
             <td class="data"><xsl:value-of select="@name"/></td>
-            <xsl:call-template name="output-table-cell">
+            <xsl:call-template name="output-value-cell">
               <xsl:with-param name="value" select="summary/@types"/>
             </xsl:call-template>
-            <xsl:call-template name="output-table-cell">
+            <xsl:call-template name="output-value-cell">
               <xsl:with-param name="value" select="summary/@methods"/>
             </xsl:call-template>
-            <xsl:call-template name="output-table-cell">
+            <xsl:call-template name="output-value-cell">
               <xsl:with-param name="value" select="summary/@fields"/>
             </xsl:call-template>
-            <xsl:call-template name="output-table-cell">
+            <xsl:call-template name="output-value-cell">
               <xsl:with-param name="value" select="summary/@statements"/>
             </xsl:call-template>
-            <xsl:call-template name="output-table-cell">
+            <xsl:call-template name="output-value-cell">
               <xsl:with-param name="value" select="summary/@javadoc-comments"/>
             </xsl:call-template>
-            <xsl:call-template name="output-table-cell">
+            <xsl:call-template name="output-value-cell">
               <xsl:with-param name="value" select="summary/@javadoc-lines"/>
             </xsl:call-template>
-            <xsl:call-template name="output-table-cell">
+            <xsl:call-template name="output-value-cell">
               <xsl:with-param name="value" select="summary/@line-comments"/>
             </xsl:call-template>
-            <xsl:call-template name="output-table-cell">
+            <xsl:call-template name="output-value-cell">
               <xsl:with-param name="value" select="summary/@block-comments"/>
             </xsl:call-template>
-            <xsl:call-template name="output-table-cell">
+            <xsl:call-template name="output-value-cell">
               <xsl:with-param name="value" select="summary/@block-comment-lines"/>
             </xsl:call-template>
           </tr>
@@ -173,7 +193,7 @@
 
 
   <!-- Output a table cell with a value if it exists, otherwise a marker value for non-presence -->
-  <xsl:template name="output-table-cell">
+  <xsl:template name="output-value-cell">
     <xsl:param name="value"/>
     <td class="data" align="right">
     <xsl:choose>
@@ -181,7 +201,7 @@
         <xsl:value-of select="$value" />
       </xsl:when>
       <xsl:otherwise>
-        <xsl:text>-</xsl:text>
+        <xsl:text>0</xsl:text>
       </xsl:otherwise>
     </xsl:choose>
     </td>
