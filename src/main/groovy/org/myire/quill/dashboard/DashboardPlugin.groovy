@@ -8,6 +8,7 @@ package org.myire.quill.dashboard
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
+import org.gradle.api.plugins.JavaBasePlugin
 
 import org.myire.quill.common.Projects
 
@@ -27,6 +28,14 @@ class DashboardPlugin implements Plugin<Project>
     void apply(Project pProject)
     {
         fProject = pProject;
+
+        // Make sure the Java base plugin is applied. This will create the build task, and if that
+        // task is available when the reportsDashboard task is created, the former will configured
+        // to be finalized by the latter, which will trigger the execution of reportsDashboard when
+        // the build task has finished.
+        pProject.plugins.apply(JavaBasePlugin.class);
+
+        // Create the reportsDashboard task.
         createDashboardReportTask();
     }
 

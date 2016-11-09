@@ -82,7 +82,16 @@
           <td class="summaryvalue"><xsl:call-template name="max-afferent"/></td>
           <td class="summaryvalue"><xsl:call-template name="max-efferent"/></td>
           <td class="summaryvalue"><xsl:call-template name="max-distance"/></td>
-          <td class="summaryvalue"><xsl:value-of select="$num-cycles"/></td>
+          <td class="summaryvalue">
+            <xsl:choose>
+                <xsl:when test="$num-cycles &gt; 0">
+                    <span class="warning"><xsl:value-of select="$num-cycles"/></span>
+                </xsl:when>
+                <xsl:otherwise>
+                    <xsl:value-of select="$num-cycles"/>
+                </xsl:otherwise>
+            </xsl:choose>
+          </td>
         </tr>
         <tr>
           <td class="summarylabel">packages</td>
