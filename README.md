@@ -1074,12 +1074,12 @@ corresponding project extension and tasks with some defaults and additions.
 ### Default values
 
 The plugin configures the `pmd` extension in the project to let the build continue even if
-violations are found, and to use version 5.5.1 of PMD. This is equivalent to configuring the
+violations are found, and to use version 5.5.2 of PMD. This is equivalent to configuring the
 extension explicitly in the build script as follows:
 
     pmd {
       ignoreFailures = true
-      toolVersion = '5.5.1'
+      toolVersion = '5.5.2'
     }
 
 Note that using PMD versions >= 5.4.0 requires that the Gradle build is run with Java 7 or later.
@@ -1297,7 +1297,7 @@ through the following properties:
 
 * `toolVersion` - a string specifying the version of CPD to use. The default is the version
 specified in `pmd.toolVersion`, or, if the `pmd` extension isn't available in the project, version
-"5.5.1".
+"5.5.2".
 
 * `cpdClasspath` - a `FileCollection` specifying the classpath containing the CPD classes used by
 the task. The default is the `cpd` dependency configuration (see below).
