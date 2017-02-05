@@ -18,6 +18,7 @@ import org.myire.quill.dashboard.DashboardPlugin
 import org.myire.quill.ivy.IvyPlugin
 import org.myire.quill.java.JavaAdditionsPlugin
 import org.myire.quill.junit.JUnitAdditionsPlugin
+import org.myire.quill.maven.MavenImportPlugin
 import org.myire.quill.meta.ProjectMetaDataPlugin
 import org.myire.quill.pom.PomPlugin
 import org.myire.quill.scent.ScentPlugin
@@ -42,6 +43,7 @@ class QuillAllPlugin implements Plugin<Project>
         pProject.plugins.apply(IvyPlugin.class);
         pProject.plugins.apply(JavaAdditionsPlugin.class);
         pProject.plugins.apply(JUnitAdditionsPlugin.class);
+        pProject.plugins.apply(MavenImportPlugin.class);
         pProject.plugins.apply(ProjectMetaDataPlugin.class);
         pProject.plugins.apply(PomPlugin.class);
         pProject.plugins.apply(ScentPlugin.class);

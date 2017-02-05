@@ -16,6 +16,7 @@ appeal to the taste of those who work in different ways.
 1. [Release Notes](#release-notes)
 1. [General Usage](#general-usage)
 1. [Ivy Module Plugin](#ivy-module-plugin)
+1. [Maven Import Plugin](#maven-import-plugin)
 1. [Project Metadata Plugin](#project-metadata-plugin)
 1. [Java Additions Plugin](#java-additions-plugin)
 1. [JUnit Additions Plugin](#junit-additions-plugin)
@@ -32,6 +33,12 @@ appeal to the taste of those who work in different ways.
 
 
 ## Release Notes
+
+### version 1.3
+
+* [Maven Import Plugin](#maven-import-plugin) added.
+* The Reports Dashboard plugin creates links to the dashboard reports of any child projects.
+* PMD and CPD default versions upgraded to 5.5.2.
 
 ### version 1.2
 
@@ -213,6 +220,175 @@ and
         fromIvyModule()
         testCompile "org.mockito:mockito-core:1.10.19"
     }
+
+
+## Maven Import Plugin
+
+The Maven Import plugin imports repository and/or dependency definitions from a Maven pom file. The
+repositories and dependencies can either by dynamically added to the Gradle project for the current
+execution only, or be written to file for later inclusion.
+
+The plugin does **not** convert the entire pom file to a Gradle build script like the standard
+Gradle Build Init plugin does. It only operates on the repositories and dependencies in the pom
+file.
+
+### Usage
+
+The plugin needs to be applied explicitly if the Quill All plugin isn't applied:
+
+    apply plugin: 'org.myire.quill.maven'
+
+### Project extension
+
+The plugin adds an extension with the name `mavenImport` to the Gradle project. This extension
+allows a Maven settings file to be specified:
+
+    mavenImport.settingsFile = '/path/to/settings.xml'
+
+The path to the settings file is resolved relative to the project directory. If no settings file is
+specified, the default Maven settings will be used, as specified in the
+[Maven documentation](https://maven.apache.org/settings.html#Quick_Overview).
+
+The extension's property `scopeToConfiguration` contains the mapping from Maven dependency scope to
+Gradle configuration used by the dependency import. This property is a map from scope name to
+configuration name. A scope with an entry in this mapping will be mapped to the configuration with
+the name corresponding to the entry's value. A scope with no mapping will be mapped to the
+configuration with the same name as the scope. Scopes mapped explicitly to null will be ignored by
+the dependency import.
+
+By default this property contains the mappings
+
+* 'test' -> 'testCompile'
+* 'provided' -> 'compileOnly'
+
+meaning that the scopes 'compile', 'runtime', and 'system' will be mapped to configurations with the
+same names. Note that the configuration 'compileOnly' was introduced in Gradle version 2.12. If an
+older version of Gradle is used it may be necessary to define a different mapping for the 'provided'
+scope.
+
+Example: to ignore all dependencies with scope 'system' and to map the 'provided' scope to the
+'compile' configuration instead of 'compileOnly' the mapping should be configured as
+
+    mavenImport.scopeToConfiguration['system'] = null
+    mavenImport.scopeToConfiguration['provided'] = 'compile'
+
+The extension also allows the versions of the third-party libraries used by the plugin to be
+specified in the following properties:
+
+* `mavenVersion` - a string specifying the version of the Maven libraries to use. Default is version
+"3.3.9".
+* `sisuPlexusVersion` - a string specifying the version of the
+[org.eclipse.sisu.plexus](http://www.eclipse.org/sisu/) library to use. Default is version "0.3.3".
+* `sisuGuiceVersion` - a string specifying the version of the
+[sisu-guice](https://github.com/sonatype/sisu-guice) library to use. Default is version "3.2.6".
+* `aetherVersion` - a string specifying the version of the
+[org.eclipse.aether](http://www.eclipse.org/aether/) library to use. Default is version "1.1.0".
+
+### Dependency configuration
+
+The Maven Import plugin adds a dependency configuration with the name `mavenImport` to the project.
+This configuration specifies the default classpath for the Maven classes used by the plugin. By
+default, this configuration contains dependencies equivalent to:
+
+    mavenImport 'org.apache.maven:maven-core:<mavenVersion>'
+    mavenImport 'org.apache.maven:maven-embedder:<mavenVersion>'
+    mavenImport 'org.eclipse.sisu:org.eclipse.sisu.plexus:<sisuPlexusVersion>@jar'
+    mavenImport 'org.sonatype.sisu:sisu-guice:<sisuGuiceVersion>:no_aop@jar'
+    mavenImport 'org.eclipse.aether:aether-connector-basic:<aetherVersion>'
+    mavenImport 'org.eclipse.aether:aether-transport-file:<aetherVersion>'
+    mavenImport 'org.eclipse.aether:aether-transport-http:<aetherVersion>'
+
+where `<mavenVersion>`, `<sisuPlexusVersion>`, `<sisuGuiceVersion>`, and `<aetherVersion>` are the
+values of the `mavenImport` extension's properties with the corresponding names.
+
+### Dynamically importing repositories and dependencies
+
+Repositories and dependencies can be imported and dynamically added to the Gradle project through
+the dynamic method `fromPomFile` that the plugin adds to the Gradle project's `RepositoryHandler`
+and `DependencyHandler`. This method takes the pom file to import from as its only argument. The
+path to the pom file is resolved relative to the project directory.
+
+Specifying
+
+    dependencies.fromPomFile('/path/to/pom.xml')
+
+in the build script will dynamically add the dependencies defined in the effective pom of the file
+passed to the method.
+
+If no file is specified, the default value 'pom.xml' is assumed. Thus, specifying
+
+    repositories.fromPomFile()
+
+will import repositories from a file called 'pom.xml' in the Gradle project directory.
+
+Importing repositories and dependencies from a Maven pom file is additive. Any repositories and
+dependencies defined elsewhere in the Gradle build script will not be overwritten. It is thus
+possible to mix repositories and dependencies from a pom file with explicitly defined ones:
+
+    repositories {
+        fromPomFile('/path/to/pom.xml')
+        flatDir { dirs "${project.projectDir}/lib" }
+    }
+    dependencies {
+        fromPomFile()
+        testRuntime 'org.slf4j:slf4j-nop:1.7.22'
+    }
+
+In the example above the repositories are imported from the default pom file and the dependencies
+from an explicit pom file. It is also possible to import repositories or dependencies from several
+pom files.
+
+Note that importing repositories creates a chicken-and-egg situation. In order to import a pom file
+the plugin needs the external libraries from the `mavenImport` dependency configuration, and these
+libraries must be retrieved from a repository. If this repository is defined in the pom file, it
+will not be available when resolving the dependency configuration.
+
+To handle this situation, the plugin uses a temporary repository if no repositories are available
+when the `mavenImport` configuration is about to be resolved. This temporary repository is specified
+in the `mavenImport` extension property `classpathRepository`, and defaults to the repository
+returned by `project.repositories.mavenCentral()`.
+
+The property should be set to an `ArtifactRepository` or to a closure that returns an instance of
+that type. Setting this property to null will disable using a temporary repository when resolving
+the configuration's dependencies.
+
+Example:
+
+    mavenImport.classpathRepository = { project.jcenter() }
+
+### Converting repositories and dependencies
+
+Repositories and dependencies can be imported and written to a Gradle file with the `convertPom`
+task. This task imports and converts Maven repositories and dependencies in the same way
+as the dynamic method `fromPomFile` described above, but instead of adding the repositories and
+dependencies to the Gradle project the task writes them to a file. This file can then be applied to
+the Gradle build script in future executions.
+
+The `convertPom` task's behaviour can be configured through the following properties: 
+
+* `pomFile` - the path to the Maven pom file to import from. The path is resolved relative to the
+project directory. Default is 'pom.xml', i.e. a file called 'pom.xml' in the Gradle project
+directory.
+
+* `destination` - the path to the file to write the converted repositories and dependencies to. The
+path is resolved relative to the project directory. Default is a file called 'dependencies.gradle'
+in the same directory as the pom file.
+
+* `overwrite` - a boolean specifying whether or not to replace the destination file if it exists. If
+this property is `false` and the file specified in the `destination` property exists, the task will
+do nothing. Default is `true`.
+
+* `convertRepositories` - a boolean specifying whether or not to import and convert repositories
+from the pom file. Default is `true`.
+
+* `convertDependencies` - a boolean specifying whether or not to import and convert dependencies
+from the pom file. Default is `true`.
+
+* `mavenClasspath` - a `FileCollection` specifying the classpath containing the Maven classes used
+by the task. The default is the `mavenImport` dependency configuration, see above.
+
+The task will use the Maven settings file specified in the `mavenImport` project extension, or the
+default Maven settings if no explicit settings file has been specified.
 
 
 ## Project Metadata Plugin
@@ -904,12 +1080,12 @@ corresponding project extension and tasks with some defaults and additions.
 ### Default values
 
 The plugin configures the `pmd` extension in the project to let the build continue even if
-violations are found, and to use version 5.5.1 of PMD. This is equivalent to configuring the
+violations are found, and to use version 5.5.2 of PMD. This is equivalent to configuring the
 extension explicitly in the build script as follows:
 
     pmd {
       ignoreFailures = true
-      toolVersion = '5.5.1'
+      toolVersion = '5.5.2'
     }
 
 Note that using PMD versions >= 5.4.0 requires that the Gradle build is run with Java 7 or later.
@@ -1127,7 +1303,7 @@ through the following properties:
 
 * `toolVersion` - a string specifying the version of CPD to use. The default is the version
 specified in `pmd.toolVersion`, or, if the `pmd` extension isn't available in the project, version
-"5.5.1".
+"5.5.2".
 
 * `cpdClasspath` - a `FileCollection` specifying the classpath containing the CPD classes used by
 the task. The default is the `cpd` dependency configuration (see below).

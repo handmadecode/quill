@@ -14,7 +14,10 @@ import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
+import org.myire.quill.common.Projects
 import org.myire.quill.report.ReportBuilder
+
+import java.nio.file.Path
 
 
 /**
@@ -33,6 +36,7 @@ import org.myire.quill.report.ReportBuilder
 class DashboardTask extends AbstractTask implements Reporting<DashboardReports>
 {
     static final String HTML_RESOURCE_REPORT_CSS = '/org/myire/quill/rsrc/report/report.css'
+    static final String XSL_RESOURCE_CHILD_PROJECTS = '/org/myire/quill/rsrc/report/child_projects.xsl'
 
 
     private DashboardSectionFactory fSectionFactory;
@@ -346,6 +350,7 @@ class DashboardTask extends AbstractTask implements Reporting<DashboardReports>
         writeHeader(aReportBuilder);
         writeHeadline(aReportBuilder);
         writeSectionsMatrix(aReportBuilder);
+        writeChildProjectsLinks(aReportBuilder);
         writeFooter(aReportBuilder);
         aReportBuilder.close();
 
@@ -461,6 +466,77 @@ class DashboardTask extends AbstractTask implements Reporting<DashboardReports>
 
         // End the sections sequence with the configured HTML code.
         pBuilder.write(sectionsEndHtmlCode);
+    }
+
+
+    /**
+     * Write a section with links to the dashboard reports of any child projects.
+     *
+     * @param pBuilder The report builder to write the child project report links to.
+     */
+    private void writeChildProjectsLinks(ReportBuilder pBuilder)
+    {
+        Node aXml = createChildProjectsXml();
+        if (aXml != null)
+        {
+            // Create a temporary file with the XML representation of the child project reports.
+            File aXmlFile = File.createTempFile('quill-child-dashboard', '.xml');
+            aXmlFile.withPrintWriter
+            {
+                new XmlNodePrinter(it).print(aXml);
+            }
+
+            // Transform the temporary XML file with the built-in resource and then delete the file.
+            pBuilder.transform(aXmlFile, XSL_RESOURCE_CHILD_PROJECTS);
+            aXmlFile.delete();
+        }
+    }
+
+
+    /**
+     * Create an XML representation of the child projects that have a {@code DashboardTask}. The
+     * XML representation will be on the form
+     *<pre>
+     *  <child-projects>
+     *    <child-project name="..." report="..."/>
+     *    ...
+     *  </child-projects>
+     *</pre>
+     *
+     * where the attribute {@code name} contains the name of the child project and the attribute
+     * {@code report} contains the path to the dashboard report of the child project. The path is
+     * relative to this task's report destination.
+     *
+     * @return  The child projects XML representation, or null if the task's project has no child
+     *          projects with a {@code DashboardTask}.
+     */
+    private Node createChildProjectsXml()
+    {
+        // Get the DashboardTask for all child projects of this task's project.
+        Collection<DashboardTask> aChildTasks = project.childProjects.values().collect()
+        {
+            Projects.getTask(it, DashboardPlugin.DASHBOARD_TASK_NAME, DashboardTask.class)
+        }
+        .findAll
+        {
+            // Filter out all projects that returned a null task.
+            it != null
+        }
+
+        if (aChildTasks.isEmpty())
+            return null;
+
+        Path aBasePath = getReports().getHtml().getDestination().toPath().getParent();
+        Node aRootNode = new Node(null, 'child-projects');
+
+        // Create a node for each child DashboardTask's report.
+        aChildTasks.each {
+            Path aChildReportPath = it.getReports().getHtml().getDestination().toPath();
+            String aRelativePath = aBasePath.relativize(aChildReportPath).toString();
+            aRootNode.append(new Node(null, 'child-project', [name: it.project.name, report: aRelativePath]));
+        }
+
+        return aRootNode;
     }
 
 
