@@ -34,6 +34,12 @@ appeal to the taste of those who work in different ways.
 
 ## Release Notes
 
+### version 1.3
+
+* [Maven Import Plugin](#maven-import-plugin) added.
+* The Reports Dashboard plugin creates links to the dashboard reports of any child projects.
+* PMD and CPD default versions upgraded to 5.5.2.
+
 ### version 1.2
 
 * Quill requires at least Java 1.7 to run.
