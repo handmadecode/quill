@@ -34,6 +34,11 @@ appeal to the taste of those who work in different ways.
 
 ## Release Notes
 
+### version 1.4
+
+* The Maven Import plugin adds methods to the project that sets the group and version from a pom
+  file.
+
 ### version 1.3
 
 * [Maven Import Plugin](#maven-import-plugin) added.
@@ -389,6 +394,27 @@ by the task. The default is the `mavenImport` dependency configuration, see abov
 
 The task will use the Maven settings file specified in the `mavenImport` project extension, or the
 default Maven settings if no explicit settings file has been specified.
+
+### Dynamically setting the group and version
+
+A pom file's `groupId` and `version` can be imported and applied to the Gradle project through the
+dynamic methods `applyGroupFromPomFile` and `applyVersionFromPomFile` that the plugin adds to the
+Gradle project. These methods take the pom file to import from as their only argument. The path to
+the pom file is resolved relative to the project directory.
+
+Specifying
+
+    applyGroupFromPomFile('/path/to/pom.xml')
+
+will set the project's `group` property to the value of the `groupId` element in the effective pom
+of the file passed to the method.
+
+If no file is specified, the default value 'pom.xml' is assumed. Thus, specifying
+
+    applyVersionFromPomFile()
+
+will set the project's `version` property to the value of the `version` element in a file called
+'pom.xml'  in the Gradle project directory.
 
 
 ## Project Metadata Plugin

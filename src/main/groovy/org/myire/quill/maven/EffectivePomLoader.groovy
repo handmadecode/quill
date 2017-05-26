@@ -42,4 +42,25 @@ interface EffectivePomLoader
      *          The returned collection will never be null but may be empty.
      */
     Collection<MavenRepositorySpec> getRepositories();
+
+    /**
+     * Get the group ID from the effective pom, possibly loading it first.
+     *
+     * @return  The project model's group ID.
+     */
+    String getGroupId();
+
+    /**
+     * Get the artifact ID from the effective pom, possibly loading it first.
+     *
+     * @return  The project model's artifact ID.
+     */
+    String getArtifactId();
+
+    /**
+     * Get the version string from the effective pom, possibly loading it first.
+     *
+     * @return  The project model's version string.
+     */
+    String getVersion();
 }

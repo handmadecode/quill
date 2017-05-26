@@ -123,6 +123,45 @@ class EffectivePomLoaderImpl implements EffectivePomLoader
 
 
     /**
+     * Get the group ID from the effective pom. This will cause the effective pom to be loaded
+     * from the file specified in {@code init} if that hasn't been done before.
+     *
+     * @return  The project model's group ID.
+     */
+    String getGroupId()
+    {
+        MavenProject aProject = maybeLoadProject();
+        return aProject.getModel().getGroupId();
+    }
+
+
+    /**
+     * Get the artifact ID from the effective pom. This will cause the effective pom to be loaded
+     * from the file specified in {@code init} if that hasn't been done before.
+     *
+     * @return  The project model's artifact ID.
+     */
+    String getArtifactId()
+    {
+        MavenProject aProject = maybeLoadProject();
+        return aProject.getModel().getArtifactId();
+    }
+
+
+    /**
+     * Get the version string from the effective pom. This will cause the effective pom to be loaded
+     * from the file specified in {@code init} if that hasn't been done before.
+     *
+     * @return  The project model's version string.
+     */
+    String getVersion()
+    {
+        MavenProject aProject = maybeLoadProject();
+        return aProject.getModel().getVersion();
+    }
+
+
+    /**
      * Load the effective pom as a {@code MavenProject} from the pom file specified in {@code init}
      * if that hasn't be done already.
      *
