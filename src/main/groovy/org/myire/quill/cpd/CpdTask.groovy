@@ -29,7 +29,7 @@ import org.myire.quill.report.TransformingReport
  */
 class CpdTask extends SourceTask implements Reporting<CpdReports>
 {
-    static private final String DEFAULT_TOOL_VERSION = '5.5.2'
+    static private final String DEFAULT_TOOL_VERSION = '5.5.7'
 
     static private final String PMD_EXTENSION_NAME = 'pmd'
 

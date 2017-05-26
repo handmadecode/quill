@@ -34,6 +34,13 @@ appeal to the taste of those who work in different ways.
 
 ## Release Notes
 
+### version 1.4
+
+* The Maven Import plugin adds methods to the project that sets the group and version from a pom
+  file.
+* [Core Plugin](#general-usage) added.
+* PMD and CPD default versions upgraded to 5.5.7.
+
 ### version 1.3
 
 * [Maven Import Plugin](#maven-import-plugin) added.
@@ -104,7 +111,7 @@ To use the Quill plugins they must be added to the Gradle build script classpath
     buildscript {
       ...
       dependencies {
-        classpath 'org.myire.quill:quill:1.0'
+        classpath 'org.myire.quill:quill:1.4'
       ...
 
 The Quill plugins can then be applied to the Gradle project:
@@ -117,6 +124,13 @@ will simply apply all Quill plugins to the Gradle project, thus removing the nee
 plugins individually:
 
     apply plugin: 'org.myire.quill.all'
+
+Note that the 'all' plugin applies both the Ivy Module plugin and the Maven Import plugin. The use
+cases where a project uses both Ivy and Maven are probably rare, and most of the time neither of
+them is probably needed. For this majority of the use cases the 'core' plugin is a better choice. It
+applies all plugins except for the Ivy Module plugin and the Maven Import plugin:
+
+    apply plugin: 'org.myire.quill.core'
 
 ### XSL transformation reports
 
@@ -139,8 +153,6 @@ file. It does **not** convert the Ivy module file into a Gradle file; the plugin
 file and dynamically adds the configurations and dependencies to the Gradle project.
 
 ### Usage
-
-The plugin needs to be applied explicitly if the Quill All plugin isn't applied:
 
     apply plugin: 'org.myire.quill.ivy'
 
@@ -233,8 +245,6 @@ Gradle Build Init plugin does. It only operates on the repositories and dependen
 file.
 
 ### Usage
-
-The plugin needs to be applied explicitly if the Quill All plugin isn't applied:
 
     apply plugin: 'org.myire.quill.maven'
 
@@ -389,6 +399,27 @@ by the task. The default is the `mavenImport` dependency configuration, see abov
 
 The task will use the Maven settings file specified in the `mavenImport` project extension, or the
 default Maven settings if no explicit settings file has been specified.
+
+### Dynamically setting the group and version
+
+A pom file's `groupId` and `version` can be imported and applied to the Gradle project through the
+dynamic methods `applyGroupFromPomFile` and `applyVersionFromPomFile` that the plugin adds to the
+Gradle project. These methods take the pom file to import from as their only argument. The path to
+the pom file is resolved relative to the project directory.
+
+Specifying
+
+    applyGroupFromPomFile('/path/to/pom.xml')
+
+will set the project's `group` property to the value of the `groupId` element in the effective pom
+of the file passed to the method.
+
+If no file is specified, the default value 'pom.xml' is assumed. Thus, specifying
+
+    applyVersionFromPomFile()
+
+will set the project's `version` property to the value of the `version` element in a file called
+'pom.xml'  in the Gradle project directory.
 
 
 ## Project Metadata Plugin
@@ -1080,12 +1111,12 @@ corresponding project extension and tasks with some defaults and additions.
 ### Default values
 
 The plugin configures the `pmd` extension in the project to let the build continue even if
-violations are found, and to use version 5.5.2 of PMD. This is equivalent to configuring the
+violations are found, and to use version 5.5.7 of PMD. This is equivalent to configuring the
 extension explicitly in the build script as follows:
 
     pmd {
       ignoreFailures = true
-      toolVersion = '5.5.2'
+      toolVersion = '5.5.7'
     }
 
 Note that using PMD versions >= 5.4.0 requires that the Gradle build is run with Java 7 or later.
@@ -1303,7 +1334,7 @@ through the following properties:
 
 * `toolVersion` - a string specifying the version of CPD to use. The default is the version
 specified in `pmd.toolVersion`, or, if the `pmd` extension isn't available in the project, version
-"5.5.2".
+"5.5.7".
 
 * `cpdClasspath` - a `FileCollection` specifying the classpath containing the CPD classes used by
 the task. The default is the `cpd` dependency configuration (see below).
@@ -1823,7 +1854,7 @@ The JavaNCSS plugin adds a task for calculating source code metrics using the
 
 Note that the JavaNCSS tool hasn't received an update since July 2014 and currently does not support
 Java 8 specific syntax, e.g. lambdas. Because of this, the JavaNCSS plugin is *not* applied by the
-'all' plugin; it must always be applied explicitly.
+'all' plugin or by the 'core' plugin; it must always be applied explicitly.
 
 ### Usage
 

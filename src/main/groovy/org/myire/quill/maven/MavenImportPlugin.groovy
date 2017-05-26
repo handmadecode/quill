@@ -98,6 +98,20 @@ class MavenImportPlugin implements Plugin<Project>
         {
             Object pPomFile -> importMavenRepositories(pPomFile);
         }
+
+        // Add a dynamic method to the project that sets the project's group from a pom file's group
+        // ID.
+        pProject.metaClass.applyGroupFromPomFile
+        {
+            Object pPomFile -> applyGroupToProject(pPomFile);
+        }
+
+        // Add a dynamic method to the project that sets the project's version string from a pom
+        // file's version string.
+        pProject.metaClass.applyVersionFromPomFile
+        {
+            Object pPomFile -> applyVersionToProject(pPomFile);
+        }
     }
 
 
@@ -138,6 +152,38 @@ class MavenImportPlugin implements Plugin<Project>
             cLogger.debug('Adding repository {}', aRepository.url);
             fProject.repositories.maven(aRepository);
         }
+    }
+
+
+    /**
+     * Set the project's {@code group} property to the group ID specified in a pom file.
+     *
+     * @param pPomFile  The pom file to get the group ID from. If null, a file called
+     *                  &quot;pom.xml&quot; in the project directory will be used.
+     */
+    void applyGroupToProject(Object pPomFile)
+    {
+        File aPomFile = fProject.file(pPomFile ?: 'pom.xml');
+        cLogger.debug('Setting group for project {} from \'{}\'',
+                      fProject.name,
+                      aPomFile.absolutePath);
+        fProject.setGroup(fImporters[aPomFile].groupId);
+    }
+
+
+    /**
+     * Set the project's {@code version} property to the version string specified in a pom file.
+     *
+     * @param pPomFile  The pom file to get the version string from. If null, a file called
+     *                  &quot;pom.xml&quot; in the project directory will be used.
+     */
+    void applyVersionToProject(Object pPomFile)
+    {
+        File aPomFile = fProject.file(pPomFile ?: 'pom.xml');
+        cLogger.debug('Setting version for project {} from \'{}\'',
+                      fProject.name,
+                      aPomFile.absolutePath);
+        fProject.setVersion(fImporters[aPomFile].versionString);
     }
 
 

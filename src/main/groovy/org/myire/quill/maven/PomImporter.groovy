@@ -98,6 +98,28 @@ class PomImporter extends ProjectAware
 
 
     /**
+     * Get the group ID from the pom file specified in the constructor.
+     *
+     * @return  The group ID from the pom file.
+     */
+    String getGroupId()
+    {
+        return maybeCreatePomLoader().groupId;
+    }
+
+
+    /**
+     * Get the version string from the pom file specified in the constructor.
+     *
+     * @return  The version string from the pom file.
+     */
+    String getVersionString()
+    {
+        return maybeCreatePomLoader().version;
+    }
+
+
+    /**
      * Create the {@code EffectivePomLoader} if that hasn't be done already. If needed, the
      * {@code EffectivePomLoader} implementation class will be loaded and a new instance of it will
      * be created and initialized with the pom file passed to the constructor and settings file
