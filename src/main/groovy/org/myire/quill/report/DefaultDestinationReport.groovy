@@ -1,20 +1,19 @@
 /*
- * Copyright 2015 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
 package org.myire.quill.report
 
-import org.gradle.api.internal.file.FileResolver
+import org.gradle.api.Project
 import org.gradle.api.reporting.Report
-import org.gradle.api.reporting.internal.SimpleReport
 
 
 /**
  * A report that lazily evaluates its destination through a Closure to a default value if no
  * destination has been specified when {@code getDestination()} is called.
  */
-class DefaultDestinationReport extends SimpleReport
+class DefaultDestinationReport extends SimpleConfigurableReport
 {
     private final Closure<File> fDefaultDestination;
 
@@ -22,6 +21,7 @@ class DefaultDestinationReport extends SimpleReport
     /**
      * Create a new {@code DefaultDestinationReport}.
      *
+     * @param pProject              The project for which the report will be produced.
      * @param pName                 The report's symbolic name.
      * @param pDisplayName          The report's descriptive name.
      * @param pOutputType           The type of output the report produces.
@@ -29,13 +29,13 @@ class DefaultDestinationReport extends SimpleReport
      * @param pDefaultDestination   A closure that will return the report's default destination when
      *                              called.
      */
-    DefaultDestinationReport(String pName,
+    DefaultDestinationReport(Project pProject,
+                             String pName,
                              String pDisplayName,
                              Report.OutputType pOutputType,
-                             FileResolver pFileResolver,
                              Closure<File> pDefaultDestination)
     {
-        super(pName, pDisplayName, pOutputType, pFileResolver);
+        super(pProject, pName, pDisplayName, pOutputType);
         fDefaultDestination = pDefaultDestination;
     }
 
@@ -47,17 +47,14 @@ class DefaultDestinationReport extends SimpleReport
         if (aDestination == null)
         {
             aDestination = fDefaultDestination.call();
-            setDestination(aDestination);
+            // Gradle v4 adds setDestination(File) to ConfigurableReport, but adding that method
+            // to this class (or its superclass) doesn't work with Gradle's dynamic property
+            // handling in versions prior to 2.9.
+            // To handle both situations the File is cast to Object, which avoids calling the
+            // unimplemented setDestination(File) in v4 and trigger a java.lang.AbstractMethodError.
+            setDestination((Object) aDestination);
         }
 
         return aDestination;
-    }
-
-
-    // Override to widen access scope from protected to public.
-    @Override
-    void setDestination(Object pDestination)
-    {
-        super.setDestination(pDestination)
     }
 }
