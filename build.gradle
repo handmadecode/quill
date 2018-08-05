@@ -2,7 +2,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 
 group = 'org.myire'
-version = '1.5-dev.1'
+version = '1.5-dev.2'
 
 repositories
 {

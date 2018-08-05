@@ -43,6 +43,27 @@ final class Projects
 
 
     /**
+     * Get a project's {@code SourceSetContainer}.
+     *
+     * @param pProject  The project.
+     *
+     * @return  The project's source set container, or null if the project has no source set
+     *          container.
+     */
+    static SourceSetContainer getSourceSets(Project pProject)
+    {
+        if (pProject.hasProperty("sourceSets"))
+        {
+            Object aProperty = pProject.property("sourceSets");
+            if (aProperty instanceof SourceSetContainer)
+                return (SourceSetContainer) aProperty;
+        }
+
+        return null;
+    }
+
+
+    /**
      * Get a source set from a project.
      *
      * @param pProject  The project.
@@ -53,14 +74,7 @@ final class Projects
      */
     static SourceSet getSourceSet(Project pProject, String pName)
     {
-        if (pProject.hasProperty("sourceSets"))
-        {
-            Object aProperty = pProject.property("sourceSets");
-            if (aProperty instanceof SourceSetContainer)
-                return aProperty.findByName(pName);
-        }
-
-        return null;
+        return getSourceSets(pProject)?.findByName(pName);
     }
 
 

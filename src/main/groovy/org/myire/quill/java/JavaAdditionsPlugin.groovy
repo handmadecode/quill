@@ -29,6 +29,9 @@ import org.myire.quill.meta.ProjectMetaDataPlugin
  */
 class JavaAdditionsPlugin implements Plugin<Project>
 {
+    static final String SOURCES_JAR_TASK_NAME = 'sourcesJar'
+    static final String JAVADOC_JAR_TASK_NAME = 'javadocJar'
+
     static private final String MANIFEST_ATTRIBUTE_CLASSPATH = "Class-Path"
     static private final String MANIFEST_SECTION_BUILD_INFO = "Build-Info"
 
@@ -116,7 +119,7 @@ class JavaAdditionsPlugin implements Plugin<Project>
         if (aSourceSet == null)
             return;
 
-        Jar aTask = fProject.tasks.create('sourcesJar', Jar.class);
+        Jar aTask = fProject.tasks.create(SOURCES_JAR_TASK_NAME, Jar.class);
         aTask.description = 'Assembles a jar archive containing the main source code.';
         aTask.from aSourceSet.allSource;
         aTask.classifier = 'sources';
@@ -137,7 +140,7 @@ class JavaAdditionsPlugin implements Plugin<Project>
         if (aJavadocTask == null)
             return;
 
-        Jar aTask = fProject.tasks.create('javadocJar', Jar.class);
+        Jar aTask = fProject.tasks.create(JAVADOC_JAR_TASK_NAME, Jar.class);
         aTask.description = 'Assembles a jar archive containing the main JavaDocs.';
         aTask.dependsOn += aJavadocTask;
         aTask.from aJavadocTask.destinationDir;
