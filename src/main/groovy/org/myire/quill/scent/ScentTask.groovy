@@ -30,7 +30,7 @@ import org.myire.quill.report.TransformingReport
 class ScentTask extends SourceTask implements Reporting<ScentReports>
 {
     // The default version of Scent to use.
-    static private final String DEFAULT_TOOL_VERSION = "0.9"
+    static private final String DEFAULT_TOOL_VERSION = "1.0"
 
 
     // Property accessed through getter and setter only.
