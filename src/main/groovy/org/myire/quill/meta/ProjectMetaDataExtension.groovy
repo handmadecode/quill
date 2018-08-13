@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2016 Peter Franzen. All rights reserved.
+ * Copyright 2015-2016, 2018 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -39,6 +39,11 @@ class ProjectMetaDataExtension extends ProjectAware
      */
     String mainPackage
 
+    /**
+     * The fully qualified name of the project's main class, if any.
+     */
+    String mainClass
+
 
     ProjectMetaDataExtension(Project pProject)
     {
@@ -75,6 +80,8 @@ class ProjectMetaDataExtension extends ProjectAware
                 description = aValues.description;
             if (aValues.mainPackage != null)
                 mainPackage = aValues.mainPackage;
+            if (aValues.mainClass != null)
+                mainClass = aValues.mainClass;
         }
         else
             project.logger.warn('File \'{}\' is not readable, using default values for the project meta data',
