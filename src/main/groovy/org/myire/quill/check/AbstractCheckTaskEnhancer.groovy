@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -9,6 +9,7 @@ import org.gradle.api.Task
 import org.gradle.api.reporting.Report
 
 import org.myire.quill.common.Projects
+import org.myire.quill.common.Tasks
 import org.myire.quill.report.AdditionalReportsTask
 import org.myire.quill.report.ReportTransformingReport
 import org.myire.quill.report.TransformingReport
@@ -84,7 +85,7 @@ abstract class AbstractCheckTaskEnhancer<T extends Task>
         fTask.convention.add(TRANSFORMING_REPORT_NAME, aReport);
 
         // The XSL file used to create the transforming report is an input to the task.
-        fTask.inputs.file({ -> aReport.xslFile })
+        Tasks.setOptionalInputFile(fTask, { -> aReport.xslFile });
 
         // Add a check of the report to the task's output up-to-date checks.
         fTask.outputs.upToDateWhen({ aReport.checkUpToDate() });

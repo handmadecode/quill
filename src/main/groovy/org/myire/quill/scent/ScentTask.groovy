@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Peter Franzen. All rights reserved.
+ * Copyright 2016, 2018 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -21,6 +21,7 @@ import org.gradle.api.tasks.TaskAction
 
 import org.myire.quill.common.ClassLoaders
 import org.myire.quill.common.Projects
+import org.myire.quill.common.Tasks
 import org.myire.quill.report.TransformingReport
 
 
@@ -75,7 +76,7 @@ class ScentTask extends SourceTask implements Reporting<ScentReports>
         inputs.property('htmlReportEnabled', { -> this.reports.getHtml().enabled })
 
         // The XSL file used to create the HTML report is an input to the task.
-        inputs.file({ -> this.reports.getHtml().xslFile })
+        Tasks.setOptionalInputFile(this, { -> this.reports.getHtml().xslFile });
 
         // Add both reports' destination as output of this task.
         outputs.file( { -> this.reports.getXml().destination } );
