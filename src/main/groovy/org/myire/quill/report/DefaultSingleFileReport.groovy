@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -8,8 +8,6 @@ package org.myire.quill.report
 import org.gradle.api.Project
 import org.gradle.api.reporting.Report
 import org.gradle.api.reporting.SingleFileReport
-
-import org.myire.quill.common.Projects
 
 
 /**
@@ -31,6 +29,10 @@ class DefaultSingleFileReport extends DefaultDestinationReport implements Single
                             String pDisplayName,
                             Closure<File> pDefaultDestination)
     {
-        super(pName, pDisplayName, Report.OutputType.FILE, Projects.getFileResolver(pProject), pDefaultDestination);
+        super(pProject,
+              pName,
+              pDisplayName,
+              Report.OutputType.FILE,
+              pDefaultDestination);
     }
 }

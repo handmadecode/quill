@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -20,6 +20,7 @@ import org.gradle.api.tasks.TaskAction
 import org.gradle.util.VersionNumber
 
 import org.myire.quill.common.Projects
+import org.myire.quill.common.Tasks
 import org.myire.quill.report.FormatChoiceReport
 import org.myire.quill.report.TransformingReport
 
@@ -190,7 +191,7 @@ class CpdTask extends SourceTask implements Reporting<CpdReports>
         inputs.property('htmlReportEnabled', { -> this.reports.getHtml().enabled })
 
         // The XSL file used to create the HTML report is an input to the task.
-        inputs.file({ -> this.reports.getHtml().xslFile })
+        Tasks.setOptionalInputFile(this, { -> this.reports.getHtml().xslFile });
 
         // Add both reports' destination as output of this task.
         outputs.file( { -> this.reports.getPrimary().destination } );

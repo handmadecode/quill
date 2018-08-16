@@ -1,5 +1,5 @@
 /*
- * Copyright 2014 Peter Franzen. All rights reserved.
+ * Copyright 2014, 2018 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -29,6 +29,10 @@ import org.myire.quill.meta.ProjectMetaDataPlugin
  */
 class JavaAdditionsPlugin implements Plugin<Project>
 {
+    static final String SOURCES_JAR_TASK_NAME = 'sourcesJar'
+    static final String JAVADOC_JAR_TASK_NAME = 'javadocJar'
+
+    static private final String MANIFEST_ATTRIBUTE_MAIN_CLASS = "Main-Class"
     static private final String MANIFEST_ATTRIBUTE_CLASSPATH = "Class-Path"
     static private final String MANIFEST_SECTION_BUILD_INFO = "Build-Info"
 
@@ -116,7 +120,7 @@ class JavaAdditionsPlugin implements Plugin<Project>
         if (aSourceSet == null)
             return;
 
-        Jar aTask = fProject.tasks.create('sourcesJar', Jar.class);
+        Jar aTask = fProject.tasks.create(SOURCES_JAR_TASK_NAME, Jar.class);
         aTask.description = 'Assembles a jar archive containing the main source code.';
         aTask.from aSourceSet.allSource;
         aTask.classifier = 'sources';
@@ -137,7 +141,7 @@ class JavaAdditionsPlugin implements Plugin<Project>
         if (aJavadocTask == null)
             return;
 
-        Jar aTask = fProject.tasks.create('javadocJar', Jar.class);
+        Jar aTask = fProject.tasks.create(JAVADOC_JAR_TASK_NAME, Jar.class);
         aTask.description = 'Assembles a jar archive containing the main JavaDocs.';
         aTask.dependsOn += aJavadocTask;
         aTask.from aJavadocTask.destinationDir;
@@ -161,6 +165,13 @@ class JavaAdditionsPlugin implements Plugin<Project>
             MetaClass aManifestMetaClass = it.manifest.class.metaClass;
             if (aEnhancedClasses.add(aManifestMetaClass))
             {
+                // Add a method that adds a main class attribute to the manifest.
+                aManifestMetaClass.addMainClassAttribute =
+                {
+                    String pMainClass ->
+                        addMainClassAttribute((Manifest) delegate, pMainClass, fProject);
+                }
+
                 // Add a method that adds a Class-Path attribute to the manifest. The attribute's
                 // value will be a space-separated list of the jar files in the specified source
                 // sets' runtime classpath(s).
@@ -185,6 +196,32 @@ class JavaAdditionsPlugin implements Plugin<Project>
                 }
             }
         }
+    }
+
+
+    /**
+     * Add a Main-Class attribute to a jar's manifest. If no explicit class name is given, the value
+     * specified in the project's metadata extension is used (if any).
+     *
+     * @param pManifest     The manifest to add the attribute to.
+     * @param pMainClass    The fully qualified name of the main class, or null to get the
+     *                      attribute's value from the meta data extension.
+     * @param pProject      The project to get the meta data extension from.
+     */
+    static private void addMainClassAttribute(Manifest pManifest, String pMainClass, Project pProject)
+    {
+        if (pMainClass == null)
+        {
+            def aExtension =
+                    Projects.getExtension(
+                            pProject,
+                            ProjectMetaDataPlugin.PROJECT_META_EXTENSION_NAME,
+                            ProjectMetaDataExtension.class);
+            pMainClass = aExtension?.mainClass;
+        }
+
+        if (pMainClass != null)
+            pManifest.attributes.put(MANIFEST_ATTRIBUTE_MAIN_CLASS, pMainClass);
     }
 
 
