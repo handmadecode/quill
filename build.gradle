@@ -2,7 +2,7 @@ apply plugin: 'groovy'
 apply plugin: 'maven'
 
 group = 'org.myire'
-version = '1.5-alpha.2'
+version = '1.5'
 
 repositories
 {
@@ -15,7 +15,7 @@ dependencies
 {
     compile gradleApi()
 
-    compile 'org.myire:scent:0.9'
+    compile 'org.myire:scent:1.0'
 
     compile "org.apache.maven:maven-core:${mavenDependencyVersion}@jar"
     compile "org.apache.maven:maven-builder-support:${mavenDependencyVersion}@jar"

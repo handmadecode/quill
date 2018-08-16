@@ -5,8 +5,9 @@ others provide new functionality. All of the plugins can be used individually; t
 each other.
 
 The Quill plugins are designed for use with Gradle 2.0 or later, except for the Checkstyle Additions
-plugin which requires Gradle 2.7 or later. Any success in using the plugins with earlier versions of
-Gradle than 2.0 is purely coincidental.
+plugin, which requires Gradle 2.7 or later, and the Module Info plugin, which requires Gradle 4.2.1
+or later. Any success in using the plugins with earlier versions of Gradle than 2.0 is purely
+coincidental.
 
 The Quill plugins were developed to support the author's way of working with Gradle. They may not
 appeal to the taste of those who work in different ways. 
@@ -29,10 +30,22 @@ appeal to the taste of those who work in different ways.
 1. [Scent Plugin](#scent-plugin)
 1. [Reports Dashboard Plugin](#reports-dashboard-plugin)
 1. [Pom Plugin](#pom-plugin)
+1. [Module Info Plugin](#module-info-plugin)
 1. [JavaNCSS Plugin](#javancss-plugin)
 
 
 ## Release Notes
+
+### version 1.5
+
+* Gradle 4 compatibility.
+* [Module Info Plugin](#module-info-plugin) added.
+* Property `mainClass` added to the [projectMetaData](#the-projectmetadata-extension) extension.
+* Method [addMainClassAttribute](#main-class-attribute) added to the `manifest` of all `Jar` tasks.
+* The `scope` property of the `JavadocMethod` check in the built-in Checkstyle configuration
+changed from _private_ to  _package_.
+* Scent default version upgraded to 1.0.
+* Fixed incorrect group of the quill artifact in the dependency examples in this document.
 
 ### version 1.4
 
@@ -111,7 +124,7 @@ To use the Quill plugins they must be added to the Gradle build script classpath
     buildscript {
       ...
       dependencies {
-        classpath 'org.myire.quill:quill:1.4'
+        classpath 'org.myire:quill:1.5'
       ...
 
 The Quill plugins can then be applied to the Gradle project:
@@ -162,7 +175,7 @@ to add Ivy to the `buildscript` dependencies:
     buildscript {
       ...
       dependencies {
-        classpath 'org.myire.quill:quill:0.9'
+        classpath 'org.myire:quill:0.9'
         classpath 'org.apache.ivy:ivy:2.4.0'
       ...
 
@@ -462,6 +475,8 @@ opinionated defaults for Gradle build scripts".
 * `mainPackage` - A string with the main package name on a format suitable for a `java.lang.Package`
 specification in a manifest file, for example "org/myire/quill/".
 
+* `mainClass` - A string with the fully qualified name of the project's main class, if applicable.
+
 Setting the properties explicitly in the build script is straight-forward:
 
     projectMetaData {
@@ -470,6 +485,7 @@ Setting the properties explicitly in the build script is straight-forward:
         group = 'org.myire'
         description = 'Additional tasks and opinionated defaults for Gradle build scripts'
         mainPackage = 'org/myire/quill/'
+        mainClass = 'org.myire.quill.Main'
     }
 
 If the properties are loaded from a JSON file, that file should contain a single object with the
@@ -480,7 +496,8 @@ extension properties:
       "longName": "Quill Gradle plugins",
       "group": "org.myire",
       "description": "Additional tasks and opinionated defaults for Gradle build scripts",
-      "mainPackage" : "org/myire/quill/"
+      "mainPackage" : "org/myire/quill/",
+      "mainClass" : "org.myire.quill.Main"
     }
 
 ### The semanticVersion extension
@@ -581,7 +598,31 @@ Both tasks are added to the `archives` project artifact.
 
 ### Manifest enhancements
 
-The plugin adds three methods to the `manifest` of all tasks that have the type `Jar`.
+The plugin adds four methods to the `manifest` of all tasks that have the type `Jar`.
+
+#### Main-Class attribute
+
+The `addMainClassAttribute()` method will add a 'Main-Class' attribute to the manifest. The value
+for this attribute is taken from the parameter passed to the method. If no parameter is passed, the
+value of the property `projectMetaData.mainClass` is used. If none of these two values are
+available, the 'Main-Class' attribute will **not** be added  to the manifest.
+
+The following configuration of the `jar` task will put the value 'org.myire.sample.Main' into the
+manifest's 'Main-Class' attribute:
+
+    jar {
+      manifest {
+        addMainClassAttribute 'org.myire.sample.Main'
+        ...
+      }
+      ...
+    }
+
+The manifest will then look like:
+
+    Manifest-Version: 1.0
+    Main-Class: org.myire.sample.Main
+    ...
 
 #### Class-Path attribute
 
@@ -1459,7 +1500,7 @@ task uses the `main` source set's Java files as input files.
 In addition to the standard source task properties, the `scent` task's behaviour can be configured
 through the following properties:
 
-* `toolVersion` - a string specifying the version of Scent to use. Default is version "0.9".
+* `toolVersion` - a string specifying the version of Scent to use. Default is version "1.0".
 
 * `sourceEncoding` - a string specifying the encoding of the Java files, e.g. "UTF-8". If this
 property isn't specified the platform's default encoding will be used.
@@ -1845,6 +1886,57 @@ Example:
 will filter out all test dependencies.
 
 This method returns the `createPom` task instance to allow method chaining.
+
+
+## Module Info Plugin
+
+The Module Info plugin adds functionality for creating modular jar files for Java 8 projects. It
+adds a task for compiling a module declaration and another task for updating the modular jar file
+with a `ModuleMainClass` attribute in the `module-info.class` entry.
+
+### Usage
+
+    apply plugin: 'org.myire.quill.moduleinfo'
+
+### The compileModuleInfo task
+
+The plugin adds a `compileModuleInfo` task to the project. This task is of type `JavaCompile` and by
+default has the file 'src/main/module-info/module-info.java' as its only source. This default
+location can be changed by setting the `source` property:
+
+    compileModuleInfo.source = 'path/to/module-info.java'
+
+The task's `sourceCompatibility` and `targetCompatibility` properties are both set to '1.9' by
+default, since compiling a module declaration requires at least Java 9. The  default value for the
+`destinationDir` property is taken from the `compileJava` task. This means that the
+'module-info.class' file will be put into the same location as the main java class files, and that
+it thereby will be included in the jar artifact, making that artifact a modular jar file.
+
+The `compileModuleInfo` task has a `moduleVersion` property in addition to the ones inherited from
+`JavaCompile`. The value of this property, which defaults to `project.version`, will be used for the
+module version string in the `module-info` class. If this value is set to null, no version string
+will be compiled into the `module-info` class.
+
+The plugin adds the `compileModuleInfo` task to the `jar` task's dependencies. If the
+[Java Additions plugin](#java-additions-plugin) has been applied to the project, the `sourcesJar`
+task is modified to include the `compileModuleInfo` task's `source`.
+
+### The moduleMainClass task
+
+The plugin adds a `moduleMainClass` task to the project. This task updates the jar artifact with a
+`ModuleMainClass` attribute in the `module-info.class` entry.  The value for this attribute is taken
+from the task's `className` property. If that attribute has no value, the value of the property
+`projectMetaData.mainClass` is used. Should none of those values be present, the task will not
+execute.
+
+The `moduleMainClass` task depends on the `jar` task and is added to the `assemble` task's
+dependencies.
+
+### Requirements
+
+The tasks added by the plugin require a Java toolchain with version 9 or greater, since a module
+declaration must be compiled with at least JDK 9. Running Gradle with Java 9 is supported starting
+with Gradle version 4.2.1.
 
 
 ## JavaNCSS Plugin
