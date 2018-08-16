@@ -49,7 +49,7 @@ class CompileModuleInfoTask extends JavaCompile
         }
 
         // Add an action to configure the compiler arguments before the task is executed.
-        doFirst( { setCompilerArgs() } );
+        doFirst( { configureCompilerArgs() } );
     }
 
 
@@ -79,7 +79,7 @@ class CompileModuleInfoTask extends JavaCompile
      * @param pModuleVersion    The version string, or null to omit the version from the module-info
      *                          class.
      */
-    void setVersion(String pModuleVersion)
+    void setModuleVersion(String pModuleVersion)
     {
         fModuleVersion = pModuleVersion;
     }
@@ -88,7 +88,7 @@ class CompileModuleInfoTask extends JavaCompile
     /**
      * Configure the compiler arguments.
      */
-    void setCompilerArgs()
+    void configureCompilerArgs()
     {
         // Set the module path to the main compile task's classpath to make any modules read by the
         // module being compiled available.
