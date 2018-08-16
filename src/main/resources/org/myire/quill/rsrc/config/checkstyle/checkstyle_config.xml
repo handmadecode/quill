@@ -173,7 +173,7 @@
 <!-- Checks that find incomplete Javadoc documentation. -->
 
         <module name="JavadocMethod">
-            <property name="scope" value="private"/>
+            <property name="scope" value="package"/>
             <property name="allowUndeclaredRTE" value="true"/>
             <property name="allowThrowsTagsForSubclasses" value="true"/>
             <property name="severity" value="${severity.documentation}" default="warning"/>
