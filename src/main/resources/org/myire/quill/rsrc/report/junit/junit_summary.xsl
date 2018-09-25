@@ -4,7 +4,7 @@
  *
  * XSL style sheet for transforming the summary of a JUnitReport XML file into
  * part of an HTML page.
- *                                                        
+ *
  * 2007-03-08 /PF    Created.
  * 2014-04-07 /PF    Added XML timestamp parameters + color coded error/warning
  *					 count.

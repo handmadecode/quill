@@ -3,7 +3,7 @@
  *******************************************************************************
  *
  * XSL style sheet for transforming a Scent XML report into part of an HTML page.
- *                                                        
+ *
  * 2016-10-26 /PF    Created.
  *
  *******************************************************************************
@@ -149,7 +149,7 @@
           <td class="colheader" align="right">Block<br/>comments</td>
           <td class="colheader" align="right">Block<br/>comment lines</td>
         </tr>
- 
+
         <xsl:for-each select="packages/package">
           <xsl:sort data-type="number" order="descending" select="summary/@types"/>
           <tr>

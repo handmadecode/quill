@@ -10,7 +10,7 @@ or later. Any success in using the plugins with earlier versions of Gradle than 
 coincidental.
 
 The Quill plugins were developed to support the author's way of working with Gradle. They may not
-appeal to the taste of those who work in different ways. 
+appeal to the taste of those who work in different ways.
 
 
 ## Contents
@@ -77,7 +77,7 @@ is applied its Reports Dashboard section must be added explicitly.
   and the total number of methods include methods from inner types.
 * The JDepend HTML report correctly displays the number of cycles, previously this value always was 0.
 * The JDepend summary in the Reports Dashboard has the warning background colour if cycles have been
-  detected. 
+  detected.
 * The Cobertura summary in the Reports Dashboard labels the number of types as 'types', not 'files'.
 * Checkstyle default version upgraded to 6.19.
 * PMD and CPD default versions upgraded to 5.5.1.
@@ -170,7 +170,7 @@ file and dynamically adds the configurations and dependencies to the Gradle proj
     apply plugin: 'org.myire.quill.ivy'
 
 The plugin also requires Ivy to be on the build script's classpath. One way of accomplishing this is
-to add Ivy to the `buildscript` dependencies:  
+to add Ivy to the `buildscript` dependencies:
 
     buildscript {
       ...
@@ -387,7 +387,7 @@ as the dynamic method `fromPomFile` described above, but instead of adding the r
 dependencies to the Gradle project the task writes them to a file. This file can then be applied to
 the Gradle build script in future executions.
 
-The `convertPom` task's behaviour can be configured through the following properties: 
+The `convertPom` task's behaviour can be configured through the following properties:
 
 * `pomFile` - the path to the Maven pom file to import from. The path is resolved relative to the
 project directory. Default is 'pom.xml', i.e. a file called 'pom.xml' in the Gradle project
@@ -830,7 +830,7 @@ The Cobertura plugin adds functionality for generating Cobertura test coverage r
 of type `Test`.
 
 Although the plugin offers quite a few configuration options, the default values should be fine for
-most use cases. 
+most use cases.
 
 ### Usage
 
@@ -913,7 +913,7 @@ set. Used as input by the instrumentation task.
 
 * `instrumentedClassesDir` - a `File` specifying the directory containing the instrumented versions
 of the classes to analyze. Default is a directory named `instrumented` in the directory specified by
-`workDir`. Used as output by the instrumentation task and as input by the test task. 
+`workDir`. Used as output by the instrumentation task and as input by the test task.
 
 * `instrumentationDataFile` - a `File` specifying the file holding metadata about the instrumented
 classes. This file contains information about the names of the classes, their method names, line
@@ -945,7 +945,7 @@ When executed, the instrumentation task instruments the classes in `inputClasses
 instrumented versions of those classes to `instrumentedClassesDir`. The task also creates the
 `instrumentationDataFile` file.
 
-### Enhancement of Test tasks 
+### Enhancement of Test tasks
 
 The plugin adds two actions to each enhanced `Test` task.
 
@@ -960,7 +960,7 @@ by setting its classpath and `net.sourceforge.cobertura.datafile` system propert
 had before the preparing action was run.
 
 The instrumentation task associated with an enhanced `Test` task is added to the latter's
-dependencies. 
+dependencies.
 
 ### Report tasks
 
@@ -985,7 +985,7 @@ These two reports can be configured as any Gradle report, e.g.
     coberturaTestReport.reports.xml.enabled = false
     coberturaTestReport.reports.html.destination = "${project.buildDir}/reports/coverage"
 
-A report task depends on the associated enhanced `Test` task. 
+A report task depends on the associated enhanced `Test` task.
 
 The report tasks implement the `Reporting` interface, meaning that the produced reports are picked
 up by the Build Dashboard plugin.
@@ -1048,7 +1048,7 @@ per task, e.g. to use another XSL file than the one distributed in the Quill jar
       quillHtmlReport.xslFile = 'resources/findbugs.xsl'
       quillHtmlReport.destination = "$buildDir/reports/fbugs.html"
     }
-    
+
     findbugsTest.quillHtmlReport.enabled = false
 
 
@@ -1064,7 +1064,7 @@ configures the corresponding project extension and tasks with some defaults and 
 ### Default values
 
 The plugin configures the `checkstyle` extension in the project to let the build continue even if
-violations are found, and to not log every found violation. The Checkstyle version to use is set to 
+violations are found, and to not log every found violation. The Checkstyle version to use is set to
 6.19. This is equivalent to configuring the extension explicitly in the build script as follows:
 
     checkstyle {
@@ -1100,7 +1100,7 @@ doesn't have a work-around for this incompatibility in versions before 2.7.
 * Using Checkstyle versions >= 7.0 requires that the Gradle build is run with Java 8 or later.
 
 This means that by default the Checkstyle Additions plugin requires Gradle version 2.7 or later and
-Java 7 or later. 
+Java 7 or later.
 
 ### Extension additions
 
@@ -1120,7 +1120,7 @@ be configured per task, e.g. to use another XSL file than the one distributed in
       quillHtmlReport.xslFile = 'resources/checkstyle.xsl'
       quillHtmlReport.destination = "$buildDir/reports/checkstyle/checkstyle.html"
     }
-    
+
     checkstyleTest.quillHtmlReport.enabled = false
 
 In Gradle version 2.10 an HTML report was added to the `reports` container of all `Checkstyle`
@@ -1185,14 +1185,14 @@ disabling the `pmdTest` task:
 ### Task additions
 
 The plugin adds an [XSL transformation report](#xsl-transformation-reports) to all tasks of type
-`PMD`. These reports have the name `quillHtmlReport` and are `enabled` by default. They can be 
+`PMD`. These reports have the name `quillHtmlReport` and are `enabled` by default. They can be
 configured per task, e.g. to use another XSL file than the one distributed in the Quill jar:
 
     pmdMain {
       quillHtmlReport.xslFile = 'resources/pmd.xsl'
       quillHtmlReport.destination = "$buildDir/reports/static_analysis/pmd.html"
     }
-    
+
     pmdTest.quillHtmlReport.enabled = false
 
 The the standard HTML report for all tasks of type `PMD` (normally `pmdMain` and `pmdTest`) is
@@ -1220,12 +1220,12 @@ The file is specified relative to the project directory:
     pmdMain {
       filter.file = 'pmd_filters.xml'
     }
- 
+
 It is possible to disable the filter function per task:
 
     pmdTest.filter.enabled = false
 
-The filter file defines a collection of rule violation filters on the format 
+The filter file defines a collection of rule violation filters on the format
 
     <?xml version="1.0"?>
     <rule-violation-filters>
@@ -1329,7 +1329,7 @@ configured per task, e.g. to use another XSL file than the one distributed in th
       quillHtmlReport.xslFile = 'resources/jdepend.xsl'
       quillHtmlReport.destination = "$buildDir/reports/tools/jdepend.html"
     }
-    
+
     jdependTest.quillHtmlReport.enabled = false
 
 The plugin also adds a read-only property `jdependProperties` to all tasks of type `JDepend`. This
@@ -1342,7 +1342,7 @@ The properties file resolved relative to the project directory and is configured
 
     jdependMain {
         jdependProperties.file = 'jdepend.properties'
-    }  
+    }
 
 If no properties file is explicitly configured the plugin uses a file bundled with the Quill jar
 that excludes the `java.lang` package from the JDepend analysis:
@@ -1371,7 +1371,7 @@ files to analyze, such as include and exclude patterns. By default, the `cpd` ta
 source set's Java files as input files.
 
 In addition to the standard source task properties, the `cpd` task's behaviour can be configured
-through the following properties: 
+through the following properties:
 
 * `toolVersion` - a string specifying the version of CPD to use. The default is the version
 specified in `pmd.toolVersion`, or, if the `pmd` extension isn't available in the project, version
@@ -1442,7 +1442,7 @@ The default report file is located in a directory called "cpd" in the project's 
 if no project report directory is defined, in a directory called "cpd" in the project's build
 directory.
 
-* `html` - a `SingleFileReport` that will be created if the primary report is `enabled` and its 
+* `html` - a `SingleFileReport` that will be created if the primary report is `enabled` and its
 `format` is "xml". This report produces an HTML version of the tasks's XML report by applying an XSL transformation. By default, the HTML report is created in the same directory as the XML report
 and given the same base name as the XML report (e.g. "cpd.html" if the XML report has the name
 "cpd.xml"). The XSL style sheet to use can be specified through the `xslFile` property. This
@@ -1569,7 +1569,7 @@ where `<toolVersion>` is the value of the `scent` task's `toolVersion` property.
 ## Reports Dashboard Plugin
 
 The Reports Dashboard plugin creates a one-page HTML report containing a summary of some other
-reports generated during a build. 
+reports generated during a build.
 
 ### Usage
 
@@ -1797,11 +1797,11 @@ but it produces a much richer summary than simply adding links to all available 
 at the price of needing to have explicit knowledge about the reports it summarizes. This means that
 the plugin cannot produce a summary for any unknown reports generated during a build.
 
-The two Dashboard plugins can be used together, but a bug in Gradle versions 2.1 and earlier can  
+The two Dashboard plugins can be used together, but a bug in Gradle versions 2.1 and earlier can
 cause the following error:
 
     java.lang.IndexOutOfBoundsException: Index: 0, Size: 0
- 
+
 when the both plugins are applied and the `build` task is executed. This bug is described
 [here](https://issues.gradle.org/browse/GRADLE-2957) and was resolved in Gradle 2.2.
 
@@ -2002,7 +2002,7 @@ The default report file is located in a directory called "javancss" in the proje
 directory or, if no project report directory is defined, in a directory called "javancss" in the
 project's build directory.
 
-* `html` - a `SingleFileReport` that will be created if the primary report is `enabled` and its 
+* `html` - a `SingleFileReport` that will be created if the primary report is `enabled` and its
 `format` is "xml". This report produces an HTML version of the tasks's XML report by applying an XSL transformation. By default, the HTML report is created in the same directory as the XML report
 and given the same base name as the XML report (e.g. "javancss.html" if the XML report has the name
 "javancss.xml"). The XSL style sheet to use can be specified through the `xslFile` property. This

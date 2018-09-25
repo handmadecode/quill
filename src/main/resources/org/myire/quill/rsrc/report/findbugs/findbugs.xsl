@@ -4,7 +4,7 @@
  *
  * XSL style sheet for transforming a FindBugs XML report into part of an HTML
  * page.
- *                                                  
+ *
  * 2007-03-05 /PF    Created.
  * 2009-01-07 /PF    Using div's and style classes more consistently.
  * 2009-02-11 /PF    The total number of bugs is calculated by counting
@@ -136,11 +136,11 @@
         <tr>
           <td class="colheader">Pattern</td>
           <td class="colheader" align="right">Count</td>
-          <td/>	
+          <td/>
           <td class="colheader">Description</td>
           <td class="colheader">Category</td>
         </tr>
- 
+
         <xsl:for-each select="BugPattern">
           <!-- Sort the list on the number of occurrences of the problem -->
           <xsl:sort data-type="number" order="descending"

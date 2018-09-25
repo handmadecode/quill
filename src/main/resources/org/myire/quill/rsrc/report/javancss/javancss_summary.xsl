@@ -4,7 +4,7 @@
  *
  * XSL style sheet for transforming a JavaNCSS XML report into part of an HTML
  * page.
- *                                                        
+ *
  * 2014-04-08 /PF    Created from the full report XSL.
  * 2015-11-25 /PF    Updated to new dashboard look.
  *
