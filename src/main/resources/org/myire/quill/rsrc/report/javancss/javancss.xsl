@@ -4,7 +4,7 @@
  *
  * XSL style sheet for transforming a JavaNCSS XML report into part of an HTML
  * page.
- *                                                        
+ *
  * 2008-04-07 /PF    Created.
  * 2009-01-07 /PF    Using div's and style classes more consistently.
  * 2014-04-08 /PF    Added XML timestamp parameters.
@@ -84,7 +84,7 @@
           <td class="colheader" align="right">Single line comments</td>
           <td class="colheader" align="right">Block comment lines</td>
         </tr>
- 
+
         <xsl:for-each select="packages/package">
           <xsl:sort data-type="number" order="descending" select="classes"/>
           <tr>

@@ -220,7 +220,7 @@
         </xsl:when>
        <xsl:otherwise><xsl:value-of select="@name"/></xsl:otherwise>
       </xsl:choose>
-      : <xsl:value-of select="count(error[@severity='error'])"/> error(s), 
+      : <xsl:value-of select="count(error[@severity='error'])"/> error(s),
       <xsl:value-of select="count(error[@severity='warning'])"/> warning(s)
     </div>
     <table class="level2sectionitem" width="100%" cellpadding="2" cellspacing="0" border="0">

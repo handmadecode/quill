@@ -148,7 +148,7 @@
           <td class="colheader" align="right">Files</td>
           <td class="colheader" align="right">Count</td>
         </tr>
- 
+
         <!-- The select expression generates a set with the first error node for
              each unique error source -->
         <xsl:for-each select="file/violation[generate-id() = generate-id(key('rule', @rule)[1])]">
