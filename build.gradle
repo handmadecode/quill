@@ -1,35 +1,55 @@
-apply plugin: 'groovy'
-apply plugin: 'maven'
+plugins
+{
+    id 'java-gradle-plugin'
+    id 'groovy'
+    id 'maven'
+}
 
 group = 'org.myire'
-version = '1.5'
+version = '2.0-dev.1'
 
 repositories
 {
     mavenCentral()
 }
 
-ext.mavenDependencyVersion = '3.3.9'
-
 dependencies
 {
-    compile gradleApi()
+    // The scent plugin requires the scent artifact to compile.
+    compileOnly 'org.myire:scent:1.0'
 
-    compile 'org.myire:scent:1.0'
+    // The ivy module plugin requires the ivy artifact to compile.
+    compileOnly 'org.apache.ivy:ivy:2.4.0'
 
-    compile "org.apache.maven:maven-core:${mavenDependencyVersion}@jar"
-    compile "org.apache.maven:maven-builder-support:${mavenDependencyVersion}@jar"
-    compile "org.apache.maven:maven-embedder:${mavenDependencyVersion}@jar"
-    compile "org.apache.maven:maven-model-builder:${mavenDependencyVersion}@jar"
-    compile "org.apache.maven:maven-settings-builder:${mavenDependencyVersion}@jar"
-    compile 'org.codehaus.plexus:plexus-classworlds:2.5.2@jar'
-    compile 'org.eclipse.aether:aether-api:1.1.0@jar'
-    compile 'org.eclipse.sisu:org.eclipse.sisu.plexus:0.3.3@jar'
+    // The maven import plugin requires the maven-embedder artifact but only some of its transitive
+    // dependencies.
+    compileOnly('org.apache.maven:maven-embedder:3.5.4')
+    {
+        exclude group: 'javax.annotation'
+        exclude group: 'javax.inject'
+        exclude group: 'javax.enterprise'
+        exclude group: 'com.google.guava'
+        exclude group: 'com.google.inject'
+        exclude group: 'commons-cli'
+        exclude group: 'commons-io'
+        exclude group: 'org.apache.commons'
+        exclude group: 'org.apache.maven', module: 'maven-plugin-api'
+        exclude group: 'org.apache.maven', module: 'maven-resolver-provider'
+        exclude group: 'org.apache.maven', module: 'maven-resolver-impl'
+        exclude group: 'org.apache.maven.resolver', module: 'maven-resolver-impl'
+        exclude group: 'org.apache.maven.resolver', module: 'maven-resolver-spi'
+        exclude group: 'org.apache.maven.resolver', module: 'maven-resolver-util'
+        exclude group: 'org.apache.maven.shared'
+        exclude group: 'org.sonatype.plexus'
+        exclude group: 'org.slf4j'
+    }
 
+    // The unit tests use JUnit 4.
     testCompile 'junit:junit:4.12'
 }
 
-ext.sourceAndTargetCompatibility = 1.7
+
+ext.sourceAndTargetCompatibility = JavaVersion.VERSION_1_8
 
 tasks.withType(GroovyCompile)
 {

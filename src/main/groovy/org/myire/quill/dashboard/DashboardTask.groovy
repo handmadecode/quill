@@ -5,6 +5,7 @@
  */
 package org.myire.quill.dashboard
 
+import org.gradle.api.Action
 import org.gradle.api.Task
 import org.gradle.api.internal.AbstractTask
 import org.gradle.api.reporting.Report
@@ -141,6 +142,14 @@ class DashboardTask extends AbstractTask implements Reporting<DashboardReports>
     DashboardReports reports(Closure pClosure)
     {
         return fReports.configure(pClosure);
+    }
+
+
+    @Override
+    DashboardReports reports(Action<? super DashboardReports> pAction)
+    {
+        pAction.execute(fReports);
+        return fReports;
     }
 
 

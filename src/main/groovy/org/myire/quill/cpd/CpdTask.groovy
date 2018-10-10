@@ -5,6 +5,7 @@
  */
 package org.myire.quill.cpd
 
+import org.gradle.api.Action
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.FileTree
 import org.gradle.api.plugins.quality.PmdExtension
@@ -222,6 +223,14 @@ class CpdTask extends SourceTask implements Reporting<CpdReports>
     CpdReports reports(Closure pClosure)
     {
         return fReports.configure(pClosure);
+    }
+
+
+    @Override
+    CpdReports reports(Action<? super CpdReports> pAction)
+    {
+        pAction.execute(fReports);
+        return fReports;
     }
 
 

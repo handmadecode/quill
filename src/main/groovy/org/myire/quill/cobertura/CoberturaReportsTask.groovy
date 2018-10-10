@@ -5,6 +5,7 @@
  */
 package org.myire.quill.cobertura
 
+import org.gradle.api.Action
 import org.gradle.api.file.FileCollection
 import org.gradle.api.reporting.DirectoryReport
 import org.gradle.api.reporting.Reporting
@@ -60,6 +61,14 @@ class CoberturaReportsTask extends AbstractCoberturaTask implements Reporting<Co
     @Override
     CoberturaReports getReports()
     {
+        return fReports;
+    }
+
+
+    @Override
+    CoberturaReports reports(Action<? super CoberturaReports> pAction)
+    {
+        pAction.execute(fReports);
         return fReports;
     }
 

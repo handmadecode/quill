@@ -5,6 +5,8 @@
  */
 package org.myire.quill.scent
 
+import org.gradle.api.Action
+
 import java.nio.charset.Charset
 
 import org.gradle.api.file.FileCollection
@@ -107,6 +109,14 @@ class ScentTask extends SourceTask implements Reporting<ScentReports>
     ScentReports reports(Closure pClosure)
     {
         return fReports.configure(pClosure);
+    }
+
+
+    @Override
+    ScentReports reports(Action<? super ScentReports> pAction)
+    {
+        pAction.execute(fReports);
+        return fReports;
     }
 
 

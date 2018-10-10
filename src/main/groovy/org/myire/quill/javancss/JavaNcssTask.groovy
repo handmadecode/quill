@@ -5,6 +5,7 @@
  */
 package org.myire.quill.javancss
 
+import org.gradle.api.Action
 import org.gradle.api.file.FileCollection
 import org.gradle.api.file.FileTree
 import org.gradle.api.reporting.Reporting
@@ -122,6 +123,14 @@ public class JavaNcssTask extends SourceTask implements Reporting<JavaNcssReport
     JavaNcssReports reports(Closure pClosure)
     {
         return fReports.configure(pClosure);
+    }
+
+
+    @Override
+    JavaNcssReports reports(Action<? super JavaNcssReports> pAction)
+    {
+        pAction.execute(fReports);
+        return fReports;
     }
 
 

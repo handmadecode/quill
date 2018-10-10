@@ -7,6 +7,7 @@
 package org.myire.quill.report
 
 import org.gradle.api.Project
+import org.gradle.api.provider.Provider
 import org.gradle.api.reporting.ConfigurableReport
 import org.gradle.api.reporting.Report
 import org.gradle.util.ConfigureUtil
@@ -75,9 +76,24 @@ class SimpleConfigurableReport extends ProjectAware implements ConfigurableRepor
     }
 
 
+    @Override
     void setDestination(Object pDestination)
     {
         fDestination = pDestination;
+    }
+
+
+    @Override
+    void setDestination(File pFile)
+    {
+        fDestination = pFile;
+    }
+
+
+    @Override
+    void setDestination(Provider<File> pProvider)
+    {
+        fDestination = pProvider;
     }
 
 
@@ -87,9 +103,18 @@ class SimpleConfigurableReport extends ProjectAware implements ConfigurableRepor
     }
 
 
+    @Override
     void setEnabled(boolean pEnabled)
     {
         fEnabled = pEnabled;
+    }
+
+
+
+    @Override
+    void setEnabled(Provider<Boolean> pProvider)
+    {
+        fEnabled = pProvider.get().booleanValue();
     }
 
 
