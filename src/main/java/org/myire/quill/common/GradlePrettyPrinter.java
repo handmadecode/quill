@@ -1,14 +1,19 @@
 /*
- * Copyright 2017 Peter Franzen. All rights reserved.
+ * Copyright 2017, 2018 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
-package org.myire.quill.common
+package org.myire.quill.common;
+
+import java.io.PrintWriter;
+import static java.util.Objects.requireNonNull;
+
 
 /**
- * Base class for Gradle pretty printing. All printing is delegated to a {@code PrintWriter}.
+ * Base class for Gradle build script pretty printing. All printing is delegated to a
+ * {@code PrintWriter}.
  */
-class GradlePrettyPrinter
+public class GradlePrettyPrinter
 {
     private final PrintWriter fWriter;
 
@@ -22,9 +27,9 @@ class GradlePrettyPrinter
      *
      * @throws NullPointerException if {@code pWriter} is null.
      */
-    GradlePrettyPrinter(PrintWriter pWriter)
+    public GradlePrettyPrinter(PrintWriter pWriter)
     {
-        fWriter = Objects.requireNonNull(pWriter);
+        fWriter = requireNonNull(pWriter);
     }
 
 
@@ -33,11 +38,11 @@ class GradlePrettyPrinter
      *
      * @param pName The name of the closure, possibly null.
      */
-    void printClosureStart(String pName)
+    public void printClosureStart(String pName)
     {
-        if (pName)
+        if (pName != null)
             printIndentedLine(pName);
-        printIndentedLine('{');
+        printIndentedLine("{");
         fIndentationLevel++;
     }
 
@@ -45,10 +50,10 @@ class GradlePrettyPrinter
     /**
      * Decrement the indentation level and print the end of a closure at the new level.
      */
-    void printClosureEnd()
+    public void printClosureEnd()
     {
         fIndentationLevel--;
-        printIndentedLine('}');
+        printIndentedLine("}");
     }
 
 
@@ -59,10 +64,10 @@ class GradlePrettyPrinter
      * @param pKey      The closure's key.
      * @param pValue    The closure's value.
      */
-    void printSingleLineClosure(String pName, String pKey, String pValue)
+    public void printSingleLineClosure(String pName, String pKey, String pValue)
     {
         printIndentation();
-        if (pName)
+        if (pName != null)
         {
             fWriter.print(pName);
             fWriter.print(' ');
@@ -82,7 +87,7 @@ class GradlePrettyPrinter
      * @param pKey      The key to print.
      * @param pValue    The value to print.
      */
-    void printKeyValue(String pKey, String pValue)
+    public void printKeyValue(String pKey, String pValue)
     {
         printIndentation();
         fWriter.print(pKey);
@@ -92,13 +97,13 @@ class GradlePrettyPrinter
 
 
     /**
-     * Print a line containing a name followed by and argument string inside parentheses at the
+     * Print a line containing a name followed by an argument string inside parentheses at the
      * current indentation level.
      *
      * @param pName The name to print.
      * @param pArgs The argument string to print inside parentheses.
      */
-    void printNameAndArgs(String pName, String pArgs)
+    public void printNameAndArgs(String pName, String pArgs)
     {
         printIndentation();
         fWriter.print(pName);
@@ -113,7 +118,7 @@ class GradlePrettyPrinter
      *
      * @param pString   The string to print.
      */
-    void printIndentedLine(String pString)
+    private void printIndentedLine(String pString)
     {
         printIndentation();
         fWriter.println(pString);
@@ -123,10 +128,10 @@ class GradlePrettyPrinter
     /**
      * Print the current indentation. Each indentation level is represented by two spaces.
      */
-    void printIndentation()
+    private void printIndentation()
     {
         for (int i=0; i<fIndentationLevel; i++)
-            fWriter.print('  ');
+            fWriter.print("  ");
     }
 
 
@@ -137,12 +142,8 @@ class GradlePrettyPrinter
      *
      * @return  The quoted value.
      */
-    static String quote(String pValue)
+    static public String quote(String pValue)
     {
-        return new StringBuilder()
-            .append("'")
-            .append(pValue.replace("'", "\\'"))
-            .append("'")
-            .toString();
+        return '\'' + pValue.replace("'", "\\'") + '\'';
     }
 }

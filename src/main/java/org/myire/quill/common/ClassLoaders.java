@@ -1,22 +1,35 @@
 /*
- * Copyright 2016 Peter Franzen. All rights reserved.
+ * Copyright 2016-2018 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
 
-package org.myire.quill.common
+package org.myire.quill.common;
 
-import java.lang.reflect.Method
+import java.io.File;
+import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 
-import org.gradle.api.file.FileCollection
-import org.gradle.api.logging.Logging
+import org.gradle.api.file.FileCollection;
+import org.gradle.api.logging.Logging;
 
 
 /**
  * Class loader related utility methods.
  */
-class ClassLoaders
+public final class ClassLoaders
 {
+    /**
+     * Private constructor to disallow instantiations of utility method class.
+     */
+    private ClassLoaders()
+    {
+        // Empty default ctor, defined to override access scope.
+    }
+
+
     /**
      * Inject the files in a {@code FileCollection} into a {@code ClassLoader}, thus adding them to
      * the locations where the class loader looks for classes to load.
@@ -29,35 +42,39 @@ class ClassLoaders
      *
      * @throws RuntimeException if any reflective operation used for injecting the files fails.
      */
-    static void inject(ClassLoader pClassLoader, FileCollection pFileCollection)
+    @Deprecated
+    static public void inject(ClassLoader pClassLoader, FileCollection pFileCollection)
     {
         if (pClassLoader instanceof URLClassLoader)
         {
             try
             {
                 // Get the 'addURL' method from the class loader's class.
-                Method aMethod = findAddUrlMethod(pClassLoader.class);
+                Method aMethod = findAddUrlMethod(pClassLoader.getClass());
 
-                // Create a set of the class loader's current URLs.
-                Set<URI> aCurrentURIs = new HashSet<URI>();
-                ((URLClassLoader) pClassLoader).URLs.each { aCurrentURIs.add(it.toURI()) }
-
-                // Add the files from the file collection whose URLs aren't already in the class
-                // loader's current set of URLs.
-                pFileCollection.files.each
+                for (File aFile : pFileCollection.getFiles())
                 {
-                    URI aURI = it.toURI();
-                    if (!aCurrentURIs.contains(aURI))
-                        aMethod.invoke(pClassLoader, aURI.toURL());
+                    try
+                    {
+                        aMethod.invoke(pClassLoader, aFile.toURI().toURL());
+                    }
+                    catch (MalformedURLException mue)
+                    {
+                        Logging.getLogger(ClassLoaders.class).debug(
+                            "Cannot convert file " + aFile + " to an URL, not adding to class loader");
+                    }
                 }
             }
-            catch (Throwable t)
+            catch (ReflectiveOperationException e)
             {
-                throw new RuntimeException("Could not injects files into class loader " + pClassLoader.class.name, t);
+                throw new RuntimeException(
+                    "Could not injects files into class loader " + pClassLoader.getClass().getName(),
+                    e);
             }
         }
         else
-            Logging.getLogger(ClassLoaders.class).debug('Cannot inject files into a ' + pClassLoader.class.name);
+            Logging.getLogger(ClassLoaders.class).warn(
+                "Cannot inject files into a " + pClassLoader.getClass().getName());
     }
 
 
@@ -72,7 +89,7 @@ class ClassLoaders
      * @throws NoSuchMethodException    if the &quot;addURL&quot; method isn't found in the
      *                                  specified class loader or any of its superclasses.
      */
-    static private Method findAddUrlMethod(Class<?> pClass)
+    static private Method findAddUrlMethod(Class<?> pClass) throws NoSuchMethodException
     {
         try
         {

@@ -1,27 +1,29 @@
 /*
- * Copyright 2014, 2016 Peter Franzen. All rights reserved.
+ * Copyright 2014, 2016, 2018 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
-package org.myire.quill.common
+package org.myire.quill.common;
 
-import org.gradle.api.Project
-import org.gradle.api.Task
-import org.gradle.api.UnknownTaskException
-import org.gradle.api.internal.file.AbstractFileResolver
-import org.gradle.api.internal.file.FileResolver
-import org.gradle.api.internal.file.TemporaryFileProvider
-import org.gradle.api.internal.project.ProjectInternal
-import org.gradle.api.reporting.ReportingExtension
-import org.gradle.api.tasks.SourceSet
-import org.gradle.api.tasks.SourceSetContainer
-import org.gradle.util.GFileUtils
+import java.io.File;
+
+import org.gradle.api.Project;
+import org.gradle.api.Task;
+import org.gradle.api.UnknownTaskException;
+import org.gradle.api.internal.file.AbstractFileResolver;
+import org.gradle.api.internal.file.FileResolver;
+import org.gradle.api.internal.file.TemporaryFileProvider;
+import org.gradle.api.internal.project.ProjectInternal;
+import org.gradle.api.reporting.ReportingExtension;
+import org.gradle.api.tasks.SourceSet;
+import org.gradle.api.tasks.SourceSetContainer;
+import org.gradle.util.GFileUtils;
 
 
 /**
  * Project related utility methods.
  */
-final class Projects
+public final class Projects
 {
     // When using the Gradle daemon, loading resources from the JAR file sometimes fails. This
     // seems to be related to the URL cache, but instantiating a URLConnection that sets the
@@ -30,15 +32,33 @@ final class Projects
     // https://discuss.gradle.org/t/getresourceasstream-returns-null-in-plugin-in-daemon-mode/2385
     static
     {
-        new URLConnection(new URL("file:///")) {
+        try
+        {
+            new java.net.URLConnection(new java.net.URL("file:///"))
             {
-                setDefaultUseCaches(false);
-            }
-            @Override
-            void connect()
-            {
-            }
+                {
+                    setDefaultUseCaches(false);
+                }
+
+                @Override
+                public void connect()
+                {
+                }
+            };
         }
+        catch (java.net.MalformedURLException mue)
+        {
+            // Should not happen
+        }
+    }
+
+
+    /**
+     * Private constructor to disallow instantiations of utility method class.
+     */
+    private Projects()
+    {
+        // Empty default ctor, defined to override access scope.
     }
 
 
@@ -49,8 +69,10 @@ final class Projects
      *
      * @return  The project's source set container, or null if the project has no source set
      *          container.
+     *
+     * @throws NullPointerException if {@code pProject} is null.
      */
-    static SourceSetContainer getSourceSets(Project pProject)
+    static public SourceSetContainer getSourceSets(Project pProject)
     {
         if (pProject.hasProperty("sourceSets"))
         {
@@ -71,10 +93,13 @@ final class Projects
      *
      * @return  The source set with the specified name, or null if there is no source set with that
      *          name in the project (including if the project has no source sets at all).
+     *
+     * @throws NullPointerException if {@code pProject} is null.
      */
-    static SourceSet getSourceSet(Project pProject, String pName)
+    static public SourceSet getSourceSet(Project pProject, String pName)
     {
-        return getSourceSets(pProject)?.findByName(pName);
+        SourceSetContainer aContainer = getSourceSets(pProject);
+        return aContainer != null ? aContainer.findByName(pName) : null;
     }
 
 
@@ -86,14 +111,17 @@ final class Projects
      * @param pTaskClass    The task's class (or a superclass of its class).
      *
      * @return  The task with the specified name, or null if there is no task with that name in the
-     *          project. Null is also returned if there is a task with the specified name that is
-     *          not a subtype of the specified task class.
+     *          project. Null is also returned if there is a task with the specified name whose
+     *          class is not (a subtype of) the specified task class.
+     *
+     * @throws NullPointerException if {@code pProject} or {@code pTaskClass} is null.
      */
-    static <T extends Task> T getTask(Project pProject, String pName, Class<T> pTaskClass)
+    @SuppressWarnings("unchecked")
+    static public <T extends Task> T getTask(Project pProject, String pName, Class<T> pTaskClass)
     {
         try
         {
-            Task aTask = pProject.tasks.getByName(pName);
+            Task aTask = pProject.getTasks().getByName(pName);
             if (aTask != null && pTaskClass.isAssignableFrom(aTask.getClass()))
                 return (T) aTask;
         }
@@ -116,11 +144,14 @@ final class Projects
      *
      * @return  The extension with the specified name, or null if there is no extension with that
      *          name in the project. Null is also returned if there is an extension with the
-     *          specified name that is not a subtype of the specified extension class.
+     *          specified name whose class is not (a subtype of) the specified extension class.
+     *
+     * @throws NullPointerException if {@code pProject} or {@code pExtensionClass} is null.
      */
-    static <T> T getExtension(Project pProject, String pName, Class<T> pExtensionClass)
+    @SuppressWarnings("unchecked")
+    static public <T> T getExtension(Project pProject, String pName, Class<T> pExtensionClass)
     {
-        Object aExtension = pProject.extensions.findByName(pName);
+        Object aExtension = pProject.getExtensions().findByName(pName);
         if (aExtension != null && pExtensionClass.isAssignableFrom(aExtension.getClass()))
             return (T) aExtension;
         else
@@ -138,11 +169,14 @@ final class Projects
      *
      * @return  The plugin with the specified name, or null if there is no plugin with that name in
      *          the project's convention. Null is also returned if there is a plugin with the
-     *          specified name that is not a subtype of the specified plugin class.
+     *          specified name whose class is not (a subtype of) the specified plugin class.
+     *
+     * @throws NullPointerException if {@code pProject} or {@code pPluginClass} is null.
      */
-    static <T> T getConventionPlugin(Project pProject, String pName, Class<T> pPluginClass)
+    @SuppressWarnings("unchecked")
+    static public <T> T getConventionPlugin(Project pProject, String pName, Class<T> pPluginClass)
     {
-        Object aPlugin = pProject.convention.plugins[pName];
+        Object aPlugin = pProject.getConvention().getPlugins().get(pName);
         if (aPlugin != null && pPluginClass.isAssignableFrom(aPlugin.getClass()))
             return (T) aPlugin;
         else
@@ -162,13 +196,16 @@ final class Projects
      *                              create the file spec for. If null, the file spec for the main
      *                              report directory will be returned.
      *
-     * @return  A file spec for the specified report directory and directory item.
+     * @return  A file specification for the specified report directory and directory item.
+     *
+     * @throws NullPointerException if {@code pProject} is null.
      */
-    static File createReportDirectorySpec(Project pProject, String pDirectoryItemName)
+    static public File createReportDirectorySpec(Project pProject, String pDirectoryItemName)
     {
-        ReportingExtension aExtension = getExtension(pProject, ReportingExtension.NAME, ReportingExtension.class);
-        File aBaseDir = aExtension?.baseDir ?: pProject.buildDir;
-        return pDirectoryItemName ? new File(aBaseDir, pDirectoryItemName) : aBaseDir;
+        ReportingExtension aExtension =
+            getExtension(pProject, ReportingExtension.NAME, ReportingExtension.class);
+        File aBaseDir = aExtension != null ? aExtension.getBaseDir() : pProject.getBuildDir();
+        return pDirectoryItemName != null ? new File(aBaseDir, pDirectoryItemName) : aBaseDir;
     }
 
 
@@ -181,23 +218,25 @@ final class Projects
      *                              the file spec for. If null, the file spec for the project's
      *                              temporary directory itself will be returned.
      *
-     * @return  A file spec for the specified work directory.
+     * @return  A file specification for the specified work directory.
+     *
+     * @throws NullPointerException if {@code pProject} is null.
      */
-    static File createTemporaryDirectorySpec(Project pProject, String pDirectoryItemName)
+    static public File createTemporaryDirectorySpec(Project pProject, String pDirectoryItemName)
     {
         if (pProject instanceof ProjectInternal)
         {
             TemporaryFileProvider aProvider =
-                    ((ProjectInternal) pProject).services.get(TemporaryFileProvider.class);
+                    ((ProjectInternal) pProject).getServices().get(TemporaryFileProvider.class);
             if (pDirectoryItemName != null)
                 return aProvider.newTemporaryFile(pDirectoryItemName);
             else
-                return aProvider.newTemporaryFile('placeholder').parentFile;
+                return aProvider.newTemporaryFile("ignore").getParentFile();
         }
         else
         {
-            File aTmpDir = new File(pProject.buildDir, 'tmp');
-            return pDirectoryItemName ? new File(aTmpDir, pDirectoryItemName) : aTmpDir;
+            File aTmpDir = new File(pProject.getBuildDir(), "tmp");
+            return pDirectoryItemName != null ? new File(aTmpDir, pDirectoryItemName) : aTmpDir;
         }
     }
 
@@ -210,10 +249,10 @@ final class Projects
      * @return  The project's file resolver, or null if the project is not of a type known to have a
      *          file resolver.
      */
-    static FileResolver getFileResolver(Project pProject)
+    static public FileResolver getFileResolver(Project pProject)
     {
         if (pProject instanceof ProjectInternal)
-            return ((ProjectInternal) pProject).fileResolver;
+            return ((ProjectInternal) pProject).getFileResolver();
         else
             return null;
     }
@@ -229,7 +268,7 @@ final class Projects
      *
      * @return  A new {@code FileResolver}, or null if one couldn't be created.
      */
-    static FileResolver createBaseDirectoryFileResolver(Project pProject, Object pBaseDirectory)
+    static public FileResolver createBaseDirectoryFileResolver(Project pProject, Object pBaseDirectory)
     {
         FileResolver aProjectResolver = getFileResolver(pProject);
         if (aProjectResolver instanceof AbstractFileResolver)
@@ -249,14 +288,29 @@ final class Projects
      * @return  True if the file was created and the resource extracted to it, false if the file
      *          already existed (in which case it is left unmodified).
      */
-    static boolean extractResource(String pResource, File pFile)
+    static public boolean extractResource(String pResource, File pFile)
     {
         if (pFile.exists())
             return false;
 
-        pFile.parentFile.mkdirs();
+        ensureParentExists(pFile);
         GFileUtils.copyURLToFile(Projects.class.getResource(pResource), pFile);
 
         return true;
+    }
+
+
+    /**
+     * Ensure the parent directory of a file specification exists.
+     *
+     * @param pFile The file for which to ensure the parent exists.
+     *
+     * @throws NullPointerException if {@code pFile} is null.
+     */
+    static public void ensureParentExists(File pFile)
+    {
+        File aParent = pFile.getParentFile();
+        if (aParent != null)
+            aParent.mkdirs();
     }
 }
