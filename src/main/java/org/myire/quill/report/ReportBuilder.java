@@ -1,26 +1,39 @@
 /*
- * Copyright 2015 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
-package org.myire.quill.report
+package org.myire.quill.report;
 
-import java.nio.charset.Charset
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
-import javax.xml.transform.Transformer
-import javax.xml.transform.TransformerException
-import javax.xml.transform.TransformerFactory
-import javax.xml.transform.stream.StreamResult
-import javax.xml.transform.stream.StreamSource
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.stream.StreamResult;
+import javax.xml.transform.stream.StreamSource;
 
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
+import org.myire.quill.common.Projects;
 
 
 /**
  * A report builder incrementally writes the contents of a report to its destination.
  */
-class ReportBuilder
+public class ReportBuilder
 {
     static private final Logger cLogger = Logging.getLogger(ReportBuilder.class);
 
@@ -38,11 +51,14 @@ class ReportBuilder
      * Create a new {@code ReportBuilder}.
      *
      * @param pDestination  The file to write the report to.
+     *
+     * @throws FileNotFoundException  if {@code pDestination} cannot be created or opened.
+     * @throws NullPointerException if {@code pDestination} is null.
      */
-    ReportBuilder(File pDestination)
+    public ReportBuilder(File pDestination) throws FileNotFoundException
     {
         fDestination = pDestination;
-        pDestination.parentFile?.mkdirs();
+        Projects.ensureParentExists(pDestination);
         fOutputStream = new FileOutputStream(pDestination);
     }
 
@@ -64,25 +80,26 @@ class ReportBuilder
      */
     void close()
     {
-        fOutputStream.close();
+        try
+        {
+            fOutputStream.close();
+        }
+        catch (IOException ioe)
+        {
+            cLogger.error("Failed to close report file", ioe);
+        }
     }
 
 
     /**
-     * Write a string to this builder's destination.
+     * Write a string to this builder's destination. The string will be encoded with the platform's
+     * default charset.
      *
      * @param pString   The string to write.
      */
     void write(String pString)
     {
-        try
-        {
-            fOutputStream.write(pString.getBytes());
-        }
-        catch (IOException ioe)
-        {
-            cLogger.error('Failed to write string \'{}\'', pString, ioe);
-        }
+        write(pString, Charset.defaultCharset());
     }
 
 
@@ -100,7 +117,7 @@ class ReportBuilder
         }
         catch (IOException ioe)
         {
-            cLogger.error('Failed to write string \'{}\'', pString, ioe);
+            cLogger.error("Failed to write string '{}'", pString, ioe);
         }
     }
 
@@ -112,19 +129,13 @@ class ReportBuilder
      */
     void copy(File pFile)
     {
-        FileInputStream aInputStream = null;
         try
         {
-            aInputStream = new FileInputStream(pFile);
-            fOutputStream << aInputStream;
+            Files.copy(pFile.toPath(), fOutputStream);
         }
         catch (IOException ioe)
         {
-            cLogger.error('Failed to copy file \'{}\'', pFile.absolutePath, ioe);
-        }
-        finally
-        {
-            aInputStream?.close();
+            cLogger.error("Failed to copy file '{}'", pFile.getAbsolutePath(), ioe);
         }
     }
 
@@ -137,21 +148,21 @@ class ReportBuilder
      */
     void copy(String pResource)
     {
-        InputStream aResourceStream = getClass().getResourceAsStream(pResource);
-        try
+        try (InputStream aResourceStream = getClass().getResourceAsStream(pResource))
         {
             if (aResourceStream != null)
-                fOutputStream << aResourceStream;
+            {
+                int aNumBytes;
+                byte[] aBuffer = new byte[8192];
+                while ((aNumBytes = aResourceStream.read(aBuffer)) >= 0)
+                    fOutputStream.write(aBuffer, 0, aNumBytes);
+            }
             else
-                cLogger.debug('Resource \'{}\' is not available, skipping', pResource);
+                cLogger.debug("Resource '{}' is not available, skipping", pResource);
         }
         catch (IOException ioe)
         {
-            cLogger.error('Failed to copy resource \'{}\'', pResource, ioe);
-        }
-        finally
-        {
-            aResourceStream?.close();
+            cLogger.error("Failed to copy resource '{}'", pResource, ioe);
         }
     }
 
@@ -162,13 +173,12 @@ class ReportBuilder
      *
      * @param pXmlFile      The XML file to transform.
      * @param pXslFile      The XSL file with the style sheet to apply.
-     * @param pParameters   Any XSL parameters to pass to the transformation.
      */
-    void transform(File pXmlFile, File pXslFile, Map<String, Object> pParameters = null)
+    void transform(File pXmlFile, File pXslFile)
     {
         Transformer aTransformer = createTransformer(pXslFile);
         if (aTransformer != null)
-            doTransform(aTransformer, pXmlFile, pParameters);
+            doTransform(aTransformer, pXmlFile);
     }
 
 
@@ -179,13 +189,12 @@ class ReportBuilder
      *
      * @param pXmlFile      The XML file to transform.
      * @param pXslResource  The XSL resource with the style sheet to apply.
-     * @param pParameters   Any XSL parameters to pass to the transformation.
      */
-    void transform(File pXmlFile, String pXslResource, Map<String, Object> pParameters = null)
+    void transform(File pXmlFile, String pXslResource)
     {
         Transformer aTransformer = createTransformer(pXslResource);
         if (aTransformer != null)
-            doTransform(aTransformer, pXmlFile, pParameters);
+            doTransform(aTransformer, pXmlFile);
     }
 
 
@@ -194,38 +203,29 @@ class ReportBuilder
      *
      * @param pTransformer  The transformer to use.
      * @param pXmlFile      The XML file to transform.
-     * @param pParameters   Any XSL parameters to pass to the transformation.
      */
-    private void doTransform(Transformer pTransformer, File pXmlFile, Map<String, Object> pParameters)
+    private void doTransform(Transformer pTransformer, File pXmlFile)
     {
         // Set the XSL parameters holding the date and time of the XML file's last modification
         // timestamp, those parameters are used by the built-in XSL style sheets.
-        Date aLastModified = new Date(pXmlFile.lastModified());
-        pTransformer.setParameter('xml-modified-date', aLastModified.format("yyyy-MM-dd"));
-        pTransformer.setParameter('xml-modified-time', aLastModified.format("HH:mm:ss"));
+        LocalDateTime aLastModified =
+            LocalDateTime.ofInstant(Instant.ofEpochMilli(pXmlFile.lastModified()), ZoneId.systemDefault());
+        pTransformer.setParameter("xml-modified-date", DateTimeFormatter.ISO_LOCAL_DATE.format(aLastModified));
+        pTransformer.setParameter("xml-modified-time", DateTimeFormatter.ISO_LOCAL_TIME.format(aLastModified));
 
-        // Set any XSL parameters passed explicitly.
-        pParameters?.each{ name, value -> pTransformer.setParameter(name, value) };
-
-        InputStream aFileStream = null;
-        try
+        // Wrap the XML file in a stream that filters out any DOCTYPE XML declaration to avoid
+        // potential network access when validating the input XML.
+        try (InputStream aFileStream = new DocTypeFilterStream(new FileInputStream(pXmlFile)))
         {
-            // Wrap the XML file in a stream that filters out any DOCTYPE XML declaration to avoid
-            // potential network access when validating the input XML.
-            aFileStream = new DocTypeFilterStream(new FileInputStream(pXmlFile));
             pTransformer.transform(new StreamSource(aFileStream), new StreamResult(fOutputStream));
         }
         catch (IOException e)
         {
-            cLogger.error('Failed to access file \'{}\'', pXmlFile.absolutePath, e);
+            cLogger.error("Failed to access XML file '{}'", pXmlFile.getAbsolutePath(), e);
         }
         catch (TransformerException e)
         {
-            cLogger.error('Failed to transform file \'{}\'', pXmlFile.absolutePath, e);
-        }
-        finally
-        {
-            aFileStream?.close();
+            cLogger.error("Failed to transform XML file '{}'", pXmlFile.getAbsolutePath(), e);
         }
     }
 
@@ -241,12 +241,12 @@ class ReportBuilder
     {
         try
         {
-            cLogger.debug('Creating transformer from file \'{}\'', pXslFile.absolutePath);
+            cLogger.debug("Creating transformer from file '{}'", pXslFile.getAbsolutePath());
             return cFactory.newTransformer(new StreamSource(pXslFile));
         }
         catch (TransformerException e)
         {
-            cLogger.error('Failed to create a transformer from file \'{}\'', pXslFile.absolutePath, e);
+            cLogger.error("Failed to create a transformer from file '{}'", pXslFile.getAbsolutePath(), e);
             return null;
         }
     }
@@ -262,31 +262,29 @@ class ReportBuilder
      */
     static private Transformer createTransformer(String pXslResource)
     {
-        cLogger.debug('Loading XSL resource \'{}\'', pXslResource);
+        cLogger.debug("Loading XSL resource '{}'", pXslResource);
 
-        InputStream aResourceStream = null;
-        try
+        // Try to load the resource.
+        try (InputStream aResourceStream = ReportBuilder.class.getResourceAsStream(pXslResource))
         {
-            // Try to load the resource.
-            aResourceStream = ReportBuilder.class.getResourceAsStream(pXslResource);
             if (aResourceStream != null)
             {
                 // Resource loaded, create a transformer from it.
-                cLogger.debug('Creating transformer from XSL resource \'{}\'', pXslResource);
+                cLogger.debug("Creating transformer from XSL resource '{}'", pXslResource);
                 return cFactory.newTransformer(new StreamSource(aResourceStream));
             }
             else
                 // Resource not found.
-                cLogger.error('Could not load XSL resource \'{}\'', pXslResource);
+                cLogger.error("Could not load XSL resource '{}'", pXslResource);
         }
-        catch (TransformerException e)
+        catch (IOException ioe)
+        {
+            cLogger.error("Could not load XSL resource '{}'", pXslResource, ioe);
+        }
+        catch (TransformerException te)
         {
             // Malformed XSL in the resource.
-            cLogger.error('Failed to create a transformer from resource \'{}\'', pXslResource, e);
-        }
-        finally
-        {
-            aResourceStream?.close();
+            cLogger.error("Failed to create a transformer from resource '{}'", pXslResource, te);
         }
 
         return null;

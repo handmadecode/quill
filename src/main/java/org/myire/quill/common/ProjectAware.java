@@ -8,6 +8,7 @@ package org.myire.quill.common;
 import static java.util.Objects.requireNonNull;
 
 import org.gradle.api.Project;
+import org.gradle.api.logging.Logger;
 
 
 /**
@@ -39,5 +40,16 @@ public class ProjectAware
     public Project getProject()
     {
         return fProject;
+    }
+
+
+    /**
+     * Get the project's {@code Logger} instance.
+     *
+     * @return  The project's {@code Logger} instance.
+     */
+    public Logger getProjectLogger()
+    {
+        return fProject.getLogger();
     }
 }

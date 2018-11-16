@@ -3,17 +3,21 @@
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
-package org.myire.quill.report
+package org.myire.quill.report;
 
-import org.gradle.api.Project
-import org.gradle.api.reporting.DirectoryReport
-import org.gradle.api.reporting.Report
+import java.io.File;
+
+import groovy.lang.Closure;
+
+import org.gradle.api.Project;
+import org.gradle.api.reporting.DirectoryReport;
+import org.gradle.api.reporting.Report;
 
 
 /**
  * A {@code DirectoryReport} with a lazily evaluated default destination.
  */
-class DefaultDirectoryReport extends DefaultDestinationReport implements DirectoryReport
+public class DefaultDirectoryReport extends DefaultDestinationReport implements DirectoryReport
 {
     private final String fEntryPointRelativePath;
 
@@ -29,12 +33,15 @@ class DefaultDirectoryReport extends DefaultDestinationReport implements Directo
      *                              to use the destination as entry point.
      * @param pDefaultDestination   A closure that will return the report's default directory
      *                              destination when called.
+     *
+     * @throws NullPointerException if {@code pProject} or {@code pDefaultDestination} is null.
      */
-    DefaultDirectoryReport(Project pProject,
-                           String pName,
-                           String pDisplayName,
-                           String pEntryPointRelativePath,
-                           Closure<File> pDefaultDestination)
+    public DefaultDirectoryReport(
+        Project pProject,
+        String pName,
+        String pDisplayName,
+        String pEntryPointRelativePath,
+        Closure<File> pDefaultDestination)
     {
         super(pProject,
               pName,
@@ -46,8 +53,11 @@ class DefaultDirectoryReport extends DefaultDestinationReport implements Directo
 
 
     @Override
-    File getEntryPoint()
+    public File getEntryPoint()
     {
-        return fEntryPointRelativePath ? new File(getDestination(), fEntryPointRelativePath) : getDestination();
+        if  (fEntryPointRelativePath != null)
+            return new File(getDestination(), fEntryPointRelativePath);
+        else
+            return getDestination();
     }
 }

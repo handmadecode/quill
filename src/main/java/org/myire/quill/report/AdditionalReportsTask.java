@@ -1,17 +1,19 @@
 /*
- * Copyright 2015 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
-package org.myire.quill.report
+package org.myire.quill.report;
 
-import org.gradle.api.Action
-import org.gradle.api.Project
-import org.gradle.api.internal.AbstractTask
-import org.gradle.api.reporting.ReportContainer
-import org.gradle.api.reporting.Reporting
+import groovy.lang.Closure;
 
-import org.myire.quill.common.Projects
+import org.gradle.api.Action;
+import org.gradle.api.Project;
+import org.gradle.api.DefaultTask;
+import org.gradle.api.reporting.ReportContainer;
+import org.gradle.api.reporting.Reporting;
+
+import org.myire.quill.common.Projects;
 
 
 /**
@@ -20,7 +22,7 @@ import org.myire.quill.common.Projects
  * immutable report containers. By adding those additional reports to this task they can still be
  * picked up by the {@code build-dashboard} plugin.
  */
-class AdditionalReportsTask extends AbstractTask implements Reporting<ReportContainer>
+public class AdditionalReportsTask extends DefaultTask implements Reporting<ReportContainer>
 {
     static private final String TASK_NAME = "additionalReports";
 
@@ -41,8 +43,8 @@ class AdditionalReportsTask extends AbstractTask implements Reporting<ReportCont
         AdditionalReportsTask aTask = Projects.getTask(pProject, TASK_NAME, AdditionalReportsTask.class);
         if (aTask == null)
         {
-            aTask = pProject.tasks.create(TASK_NAME, AdditionalReportsTask.class)
-            aTask.description = 'Placeholder task for reports logically produced by other tasks';
+            aTask = pProject.getTasks().create(TASK_NAME, AdditionalReportsTask.class);
+            aTask.setDescription("Placeholder task for reports logically produced by other tasks");
             aTask.createReports();
         }
 
@@ -50,33 +52,33 @@ class AdditionalReportsTask extends AbstractTask implements Reporting<ReportCont
     }
 
 
-    /**
-     * Create the task's report container.
-     */
-    void createReports()
-    {
-        fReports = new MutableReportContainer(this);
-    }
-
-
     @Override
-    ReportContainer getReports()
+    public ReportContainer getReports()
     {
         return fReports;
     }
 
 
     @Override
-    ReportContainer reports(Closure pClosure)
+    public ReportContainer reports(Closure pClosure)
     {
         return fReports.configure(pClosure);
     }
 
 
     @Override
-    ReportContainer reports(Action<? super ReportContainer> pAction)
+    public ReportContainer reports(Action<? super ReportContainer> pAction)
     {
         pAction.execute(fReports);
         return fReports;
+    }
+
+
+    /**
+     * Create the task's report container.
+     */
+    private void createReports()
+    {
+        fReports = new MutableReportContainer(this);
     }
 }

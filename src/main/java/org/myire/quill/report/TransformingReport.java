@@ -1,20 +1,22 @@
 /*
- * Copyright 2015 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
-package org.myire.quill.report
+package org.myire.quill.report;
 
-import org.gradle.api.reporting.SingleFileReport
-import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
+import java.io.File;
+
+import org.gradle.api.reporting.SingleFileReport;
+import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.Optional;
 
 
 /**
- * A single file report that is created by applying an XSL transformation on some XML input. The
+ * A single file report that is created by applying an XSL transformation to some XML input. The
  * result of the transformation will be written to the report's destination.
  */
-interface TransformingReport extends SingleFileReport
+public interface TransformingReport extends SingleFileReport
 {
     /**
      * Get the XSL file that will be used to transform the XML input.
@@ -29,8 +31,7 @@ interface TransformingReport extends SingleFileReport
     /**
      * Set the file containing the style sheet to use when transforming the XML input.
      *
-     * @param pFile The file specification, will be resolved using {@code Project.file()}. If the
-     *              file is null an identity transformation will be performed.
+     * @param pFile The file specification, will be resolved using {@code Project.file()}.
      */
     void setXslFile(Object pFile);
 

@@ -3,17 +3,21 @@
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
-package org.myire.quill.report
+package org.myire.quill.report;
 
-import org.gradle.api.Project
-import org.gradle.api.reporting.Report
-import org.gradle.api.reporting.SingleFileReport
+import java.io.File;
+
+import groovy.lang.Closure;
+
+import org.gradle.api.Project;
+import org.gradle.api.reporting.Report;
+import org.gradle.api.reporting.SingleFileReport;
 
 
 /**
  * A {@code SingleFileReport} with a lazily evaluated default destination.
  */
-class DefaultSingleFileReport extends DefaultDestinationReport implements SingleFileReport
+public class DefaultSingleFileReport extends DefaultDestinationReport implements SingleFileReport
 {
     /**
      * Create a new {@code DefaultSingleFileReport}.
@@ -23,11 +27,14 @@ class DefaultSingleFileReport extends DefaultDestinationReport implements Single
      * @param pDisplayName          The report's descriptive name.
      * @param pDefaultDestination   A closure that will return the report's default file destination
      *                              when called.
+     *
+     * @throws NullPointerException if {@code pProject} or {@code pDefaultDestination} is null.
      */
-    DefaultSingleFileReport(Project pProject,
-                            String pName,
-                            String pDisplayName,
-                            Closure<File> pDefaultDestination)
+    public DefaultSingleFileReport(
+        Project pProject,
+        String pName,
+        String pDisplayName,
+        Closure<File> pDefaultDestination)
     {
         super(pProject,
               pName,
