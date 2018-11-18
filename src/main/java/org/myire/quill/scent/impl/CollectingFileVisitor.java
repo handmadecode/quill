@@ -1,42 +1,47 @@
 /*
- * Copyright 2016 Peter Franzen. All rights reserved.
+ * Copyright 2018 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
-package org.myire.quill.scent
+package org.myire.quill.scent.impl;
 
-import java.nio.charset.Charset
-import java.nio.file.FileVisitResult
-import java.nio.file.Path
-import java.nio.file.attribute.BasicFileAttributes
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 
-import org.gradle.api.logging.Logger
-import org.gradle.api.logging.Logging
+import org.gradle.api.logging.Logger;
+import org.gradle.api.logging.Logging;
 
-import org.myire.scent.collect.JavaMetricsCollector
-import org.myire.scent.file.JavaFileMetricsCollector
-import org.myire.scent.metrics.PackageMetrics
+import org.myire.scent.collect.JavaMetricsCollector;
+import org.myire.scent.file.JavaFileMetricsCollector;
 
 
 /**
- * Extension of {@code JavaFileMetricsCollector} that logs progress and errors through Gradle
- * logging.
+ * A {@code SimpleFileVisitor} that collects metrics for all visited Java files and logs progress
+ * and errors through Gradle logging.
  */
-class LoggingFileMetricsCollector extends JavaFileMetricsCollector
+class CollectingFileVisitor extends SimpleFileVisitor<Path>
 {
     static private final String ERROR_LOG_TEMPLATE = "Failed to collect source code metrics from %s: %s";
 
-    private final Logger fLogger = Logging.getLogger(LoggingFileMetricsCollector.class);
+    private final JavaFileMetricsCollector fDelegate;
+    private final Logger fLogger = Logging.getLogger(CollectingFileVisitor.class);
 
 
     /**
-     * Create a new {@code LoggingFileMetricsCollector}.
+     * Create a new {@code CollectingFileVisitor}.
      *
+     * @param pCollector    The instance to collect metrics with.
      * @param pFileEncoding The charset the Java files are encoded with.
+     *
+     * @throws NullPointerException if any of the parameters is null.
      */
-    LoggingFileMetricsCollector(Charset pFileEncoding)
+    CollectingFileVisitor(JavaMetricsCollector pCollector, Charset pFileEncoding)
     {
-        super(new JavaMetricsCollector(), pFileEncoding);
+        fDelegate = new JavaFileMetricsCollector(pCollector, pFileEncoding);
     }
 
 
@@ -51,7 +56,7 @@ class LoggingFileMetricsCollector extends JavaFileMetricsCollector
     @Override
     public FileVisitResult preVisitDirectory(Path pDirectory, BasicFileAttributes pAttributes)
     {
-        fLogger.debug('Collecting source code metrics for Java files in ' + pDirectory);
+        fLogger.debug("Collecting source code metrics for Java files in " + pDirectory);
         return FileVisitResult.CONTINUE;
     }
 
@@ -70,11 +75,11 @@ class LoggingFileMetricsCollector extends JavaFileMetricsCollector
     {
         try
         {
-            return super.visitFile(pFile, pAttributes);
+            return fDelegate.visitFile(pFile, pAttributes);
         }
         catch (IOException e)
         {
-            fLogger.error(String.format(ERROR_LOG_TEMPLATE, pFile, e.message));
+            fLogger.error(String.format(ERROR_LOG_TEMPLATE, pFile, e.getMessage()));
             return FileVisitResult.CONTINUE;
         }
     }
@@ -91,7 +96,7 @@ class LoggingFileMetricsCollector extends JavaFileMetricsCollector
     @Override
     public FileVisitResult visitFileFailed(Path pFile, IOException pException)
     {
-        fLogger.error(String.format(ERROR_LOG_TEMPLATE, pFile, pException.message));
+        fLogger.error(String.format(ERROR_LOG_TEMPLATE, pFile, pException.getMessage()));
         return FileVisitResult.CONTINUE;
     }
 
@@ -99,7 +104,7 @@ class LoggingFileMetricsCollector extends JavaFileMetricsCollector
     /**
      * Log any exception thrown when iterating over the items in a directory.
      *
-     * @param pFile         The path to the file.
+     * @param pDirectory    The path to the directory.
      * @param pException    The exception, or null if the directory was visited successfully.
      *
      * @return  Always {@code FileVisitResult.CONTINUE}.
@@ -108,19 +113,9 @@ class LoggingFileMetricsCollector extends JavaFileMetricsCollector
     public FileVisitResult postVisitDirectory(Path pDirectory, IOException pException)
     {
         if (pException != null)
-            fLogger.error(String.format(ERROR_LOG_TEMPLATE, pDirectory, pException.message));
+            fLogger.error(String.format(ERROR_LOG_TEMPLATE, pDirectory, pException.getMessage()));
 
+        fLogger.debug("Done collecting source code metrics in " + pDirectory);
         return FileVisitResult.CONTINUE;
-    }
-
-
-    /**
-     * Get the metrics collected by this instance.
-     *
-     * @return  The collected metrics, never null.
-     */
-    Iterable<PackageMetrics> getCollectedMetrics()
-    {
-        return getDelegate().collectedMetrics;
     }
 }

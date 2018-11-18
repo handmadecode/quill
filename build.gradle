@@ -16,7 +16,7 @@ repositories
 dependencies
 {
     // The scent plugin requires the scent artifact to compile.
-    compileOnly 'org.myire:scent:1.0'
+    compileOnly 'org.myire:scent:2.0'
 
     // The ivy module plugin requires the ivy artifact to compile.
     compileOnly 'org.apache.ivy:ivy:2.4.0'

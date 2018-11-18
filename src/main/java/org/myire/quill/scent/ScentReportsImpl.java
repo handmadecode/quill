@@ -1,5 +1,5 @@
 /*
- * Copyright 2016 Peter Franzen. All rights reserved.
+ * Copyright 2016, 2018 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -9,21 +9,22 @@ import java.io.File;
 
 import groovy.lang.Closure;
 
+import org.gradle.api.Project;
 import org.gradle.api.reporting.ConfigurableReport;
 import org.gradle.api.reporting.Report;
 import org.gradle.api.reporting.SingleFileReport;
 import org.gradle.api.reporting.internal.TaskReportContainer;
 
+import org.myire.quill.common.Projects;
 import org.myire.quill.report.DefaultSingleFileReport;
 import org.myire.quill.report.ReportTransformingReport;
 import org.myire.quill.report.TransformingReport;
 
 
 /**
- * Default implementation of {@code ScentReports}. See {@link org.myire.quill.cpd.CpdReportsImpl}
- * for a discussion on why the implementation is in Java rather than Groovy.
+ * Default implementation of {@code ScentReports}.
  */
-public class ScentReportsImpl extends TaskReportContainer<Report> implements ScentReports
+class ScentReportsImpl extends TaskReportContainer<Report> implements ScentReports
 {
     static private final String XML_REPORT_NAME = "scentXml";
     static private final String HTML_REPORT_NAME = "scentHtml";
@@ -39,16 +40,18 @@ public class ScentReportsImpl extends TaskReportContainer<Report> implements Sce
     {
         super(ConfigurableReport.class, pTask);
 
+        Project aProject = pTask.getProject();
+
         // Add the XML report.
         SingleFileReport aXmlReport = add(DefaultSingleFileReport.class,
-                                          pTask.getProject(),
+                                          aProject,
                                           XML_REPORT_NAME,
                                           "Scent XML report",
-                                          new DefaultXmlReportDestination(pTask));
+                                          new DefaultXmlReportDestination(aProject));
 
         // Add the HTML report.
         TransformingReport aHtmlReport = add(ReportTransformingReport.class,
-                                             pTask.getProject(),
+                                             aProject,
                                              HTML_REPORT_NAME,
                                              "Scent HTML report",
                                              aXmlReport,
@@ -92,17 +95,17 @@ public class ScentReportsImpl extends TaskReportContainer<Report> implements Sce
      */
     static private class DefaultXmlReportDestination extends Closure<File>
     {
-        private final ScentTask fTask;
+        private final Project fProject;
 
-        DefaultXmlReportDestination(ScentTask pTask)
+        DefaultXmlReportDestination(Project pProject)
         {
             super(null);
-            fTask = pTask;
+            fProject = pProject;
         }
 
         public File doCall(Object pValue)
         {
-            return fTask.defaultXmlDestination();
+            return new File(Projects.createReportDirectorySpec(fProject, "scent"), "scent.xml");
         }
     }
 }
