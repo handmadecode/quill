@@ -6,6 +6,8 @@
 package org.myire.quill.common;
 
 import java.io.PrintWriter;
+import java.util.function.Consumer;
+
 import static java.util.Objects.requireNonNull;
 
 
@@ -38,90 +40,104 @@ public class GradlePrettyPrinter
      *
      * @param pName The name of the closure, possibly null.
      */
-    public void printClosureStart(String pName)
+    public void printClosure(String pName, Consumer<GradlePrettyPrinter> pBodyAction)
     {
         if (pName != null)
             printIndentedLine(pName);
+
         printIndentedLine("{");
+
         fIndentationLevel++;
-    }
-
-
-    /**
-     * Decrement the indentation level and print the end of a closure at the new level.
-     */
-    public void printClosureEnd()
-    {
+        pBodyAction.accept(this);
         fIndentationLevel--;
+
         printIndentedLine("}");
     }
 
 
     /**
-     * Print a closure on a single line at the current indentation level.
+     * Print a line with an assignment of a string attribute. The line is printed at the current
+     * indentation level. If the value is null, nothing is printed.
      *
-     * @param pName     The name of the closure, possibly null.
-     * @param pKey      The closure's key.
-     * @param pValue    The closure's value.
+     * @param pName     The name of the attribute.
+     * @param pValue    The value of the attribute, possibly null.
      */
-    public void printSingleLineClosure(String pName, String pKey, String pValue)
+    public void printAttribute(String pName, String pValue)
     {
-        printIndentation();
-        if (pName != null)
+        if (pValue != null)
         {
+            printIndentation();
             fWriter.print(pName);
-            fWriter.print(' ');
+            fWriter.print(" = ");
+            fWriter.println(PrettyPrintable.quote(pValue));
         }
-
-        fWriter.print('{');
-        fWriter.print(pKey);
-        fWriter.print(' ');
-        fWriter.print(pValue);
-        fWriter.println('}');
     }
 
 
     /**
-     * Print a line containing a key and a value at the current indentation level.
+     * Print a line with an assignment of a boolean attribute. The line is printed at the current
+     * indentation level.
      *
-     * @param pKey      The key to print.
-     * @param pValue    The value to print.
+     * @param pName     The name of the attribute.
+     * @param pValue    The value of the attribute.
      */
-    public void printKeyValue(String pKey, String pValue)
+    public void printAttribute(String pName, boolean pValue)
     {
         printIndentation();
-        fWriter.print(pKey);
-        fWriter.print(' ');
+        fWriter.print(pName);
+        fWriter.print(" = ");
         fWriter.println(pValue);
     }
 
 
     /**
-     * Print a line containing a name followed by an argument string inside parentheses at the
-     * current indentation level.
+     * Print a line containing a method call with a string argument. The string will be put inside
+     * single quotes, and not surrounded by parentheses, i.e. the call will be on the format
+     *<pre>
+     * name 'arg'
+     *</pre>
+     * The line is printed at the current indentation level. If the argument is null, nothing is
+     * printed.
      *
-     * @param pName The name to print.
-     * @param pArgs The argument string to print inside parentheses.
+     * @param pName             The name of the method.
+     * @param pArgument         The argument to the method, possibly null.
+     * @param pQuote            If true, the string argument will be put inside quotes.
+     * @param pWithParentheses  If true, the string argument will be enclosed in parentheses.
      */
-    public void printNameAndArgs(String pName, String pArgs)
+    public void printMethodCall(String pName, String pArgument, boolean pQuote, boolean pWithParentheses)
     {
-        printIndentation();
-        fWriter.print(pName);
-        fWriter.print('(');
-        fWriter.print(pArgs);
-        fWriter.println(')');
+        if (pArgument != null)
+        {
+            if (pQuote)
+                pArgument = PrettyPrintable.quote(pArgument);
+
+            printIndentation();
+            fWriter.print(pName);
+
+            if (pWithParentheses)
+            {
+                fWriter.print('(');
+                fWriter.print(pArgument);
+                fWriter.println(')');
+            }
+            else
+            {
+                fWriter.print(' ');
+                fWriter.println(pArgument);
+            }
+        }
     }
 
 
     /**
      * Print a line at the current indentation level. The line consists of a single string.
      *
-     * @param pString   The string to print.
+     * @param pLine The line to print.
      */
-    private void printIndentedLine(String pString)
+    public void printIndentedLine(String pLine)
     {
         printIndentation();
-        fWriter.println(pString);
+        fWriter.println(pLine);
     }
 
 
@@ -132,18 +148,5 @@ public class GradlePrettyPrinter
     {
         for (int i=0; i<fIndentationLevel; i++)
             fWriter.print("  ");
-    }
-
-
-    /**
-     * Enclose a value in quotes and escape any quotes in the value.
-     *
-     * @param pValue    The value quote.
-     *
-     * @return  The quoted value.
-     */
-    static public String quote(String pValue)
-    {
-        return '\'' + pValue.replace("'", "\\'") + '\'';
     }
 }
