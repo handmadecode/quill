@@ -18,6 +18,7 @@ import org.gradle.api.reporting.Reporting;
 import org.gradle.api.reporting.SingleFileReport;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
+import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.Optional;
 import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.SourceSet;
@@ -133,6 +134,7 @@ public class ScentTask extends SourceTask implements Reporting<ScentReports>
      * @return  The reports.
      */
     @Override
+    @Nested
     public ScentReports getReports()
     {
         return fReports;

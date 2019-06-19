@@ -8,7 +8,7 @@ package org.myire.quill.report;
 import java.io.File;
 
 import org.gradle.api.reporting.SingleFileReport;
-import org.gradle.api.tasks.Input;
+import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Optional;
 
 
@@ -24,7 +24,7 @@ public interface TransformingReport extends SingleFileReport
      * @return  The XSL file. If this file is null the implementation may use a default style sheet
      *          to perform the transformation.
      */
-    @Input
+    @InputFile
     @Optional
     File getXslFile();
 

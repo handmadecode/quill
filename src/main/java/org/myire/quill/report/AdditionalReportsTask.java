@@ -12,6 +12,7 @@ import org.gradle.api.Project;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.reporting.ReportContainer;
 import org.gradle.api.reporting.Reporting;
+import org.gradle.api.tasks.Nested;
 
 import org.myire.quill.common.Projects;
 
@@ -53,6 +54,7 @@ public class AdditionalReportsTask extends DefaultTask implements Reporting<Repo
 
 
     @Override
+    @Nested
     public ReportContainer getReports()
     {
         return fReports;

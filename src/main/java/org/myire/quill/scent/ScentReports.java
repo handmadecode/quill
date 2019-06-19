@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, 2018 Peter Franzen. All rights reserved.
+ * Copyright 2016, 2018-2019 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -8,6 +8,7 @@ package org.myire.quill.scent;
 import org.gradle.api.reporting.Report;
 import org.gradle.api.reporting.ReportContainer;
 import org.gradle.api.reporting.SingleFileReport;
+import org.gradle.api.tasks.Nested;
 
 import org.myire.quill.report.TransformingReport;
 
@@ -22,6 +23,7 @@ public interface ScentReports extends ReportContainer<Report>
      *
      * @return The XML file report.
      */
+    @Nested
     SingleFileReport getXml();
 
     /**
@@ -30,5 +32,6 @@ public interface ScentReports extends ReportContainer<Report>
      *
      * @return The HTML file report.
      */
+    @Nested
     TransformingReport getHtml();
 }
