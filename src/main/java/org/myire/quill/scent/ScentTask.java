@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, 2018 Peter Franzen. All rights reserved.
+ * Copyright 2016, 2018-2019 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -24,7 +24,7 @@ import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
 
-import org.myire.quill.common.InterceptingClassLoader;
+import org.myire.quill.common.ExternalToolLoader;
 import org.myire.quill.common.Projects;
 import org.myire.quill.common.Tasks;
 import org.myire.quill.report.TransformingReport;
@@ -40,7 +40,7 @@ public class ScentTask extends SourceTask implements Reporting<ScentReports>
 
     // Fully qualified name of the ScentRunner implementation class to use.
     static private final String IMPLEMENTATION_PACKAGE = "org.myire.quill.scent.impl.";
-    static private final String IMPLEMENTATION_CLASS = IMPLEMENTATION_PACKAGE + "ScentRunnerImpl";
+    static private final String IMPLEMENTATION_CLASS = "ScentRunnerImpl";
 
 
     // Task properties.
@@ -252,7 +252,8 @@ public class ScentTask extends SourceTask implements Reporting<ScentReports>
         }
         catch (ClassNotFoundException | IllegalAccessException | InstantiationException e)
         {
-            getLogger().error("Could not create an instance of '{}'",
+            getLogger().error("Could not create an instance of '{}{}'",
+                              IMPLEMENTATION_PACKAGE,
                               IMPLEMENTATION_CLASS,
                               e);
         }
@@ -280,23 +281,13 @@ public class ScentTask extends SourceTask implements Reporting<ScentReports>
     private ScentRunner loadScentRunner()
         throws ClassNotFoundException, InstantiationException, IllegalAccessException
     {
-        // Create a class loader that loads classes from the scent classpath and from the
-        // implementation package, and delegates the loading of all other classes to the class
-        // loader of the ScentRunner interface.
-        InterceptingClassLoader aClassLoader =
-            new InterceptingClassLoader(
-                getScentClasspath().getFiles(),
-                ScentTask::isImplementationClass,
-                ScentRunner.class.getClassLoader());
+        ExternalToolLoader<ScentRunner> aLoader =
+            new ExternalToolLoader<>(
+                ScentRunner.class,
+                IMPLEMENTATION_PACKAGE,
+                IMPLEMENTATION_CLASS,
+                this::getScentClasspath);
 
-        // Load the implementation class and return a new instance.
-        Class<?> aScentRunnerClass = Class.forName(IMPLEMENTATION_CLASS, false, aClassLoader);
-        return (ScentRunner) aScentRunnerClass.newInstance();
-    }
-
-
-    static private boolean isImplementationClass(String pClassName)
-    {
-        return pClassName.startsWith(IMPLEMENTATION_PACKAGE);
+        return aLoader.createToolProxy();
     }
 }
