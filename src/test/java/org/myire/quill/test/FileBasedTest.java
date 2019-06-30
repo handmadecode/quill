@@ -6,6 +6,7 @@
 package org.myire.quill.test;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -58,5 +59,30 @@ public class FileBasedTest
         fCreatedFiles.add(aPath);
         Files.write(aPath, pLines);
         return aPath;
+    }
+
+
+    /**
+     * Delete the file system object denoted by a {@code Path}, including any file system objects
+     * contained within it.
+     *
+     * @param pPath The path to the file system object to delete.
+     */
+    static void deepDelete(Path pPath)
+    {
+        try
+        {
+            if (Files.isDirectory(pPath))
+            {
+                Files.newDirectoryStream(pPath).forEach(FileBasedTest::deepDelete);
+                Files.delete(pPath);
+            }
+            else if (Files.isRegularFile(pPath))
+                Files.delete(pPath);
+        }
+        catch (IOException ioe)
+        {
+            throw new UncheckedIOException(ioe);
+        }
     }
 }

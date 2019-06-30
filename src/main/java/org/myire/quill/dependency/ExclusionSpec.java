@@ -20,7 +20,7 @@ import static org.myire.quill.common.PrettyPrintable.quote;
  *
  * @author <a href="mailto:peter@myire.org">Peter Franzen</a>
  */
-class ExclusionSpec implements PrettyPrintable
+public class ExclusionSpec implements PrettyPrintable
 {
     static private final String KEY_EXCLUDE = "exclude";
     static private final String ATTRIBUTE_GROUP = "group";

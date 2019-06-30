@@ -264,13 +264,19 @@ file.
 ### Project extension
 
 The plugin adds an extension with the name `mavenImport` to the Gradle project. This extension
-allows a Maven settings file to be specified:
+allows controlling the pom file conversion through number of properties:
+
+#### Maven settings file
+
+The Maven settings file to use is specified in the `settingsFile` property:
 
     mavenImport.settingsFile = '/path/to/settings.xml'
 
 The path to the settings file is resolved relative to the project directory. If no settings file is
 specified, the default Maven settings will be used, as specified in the
 [Maven documentation](https://maven.apache.org/settings.html#Quick_Overview).
+
+#### Scope mapping
 
 The extension's property `scopeToConfiguration` contains the mapping from Maven dependency scope to
 Gradle configuration used by the dependency import. This property is a map from scope name to
@@ -285,44 +291,47 @@ By default this property contains the mappings
 * 'provided' -> 'compileOnly'
 
 meaning that the scopes 'compile', 'runtime', and 'system' will be mapped to configurations with the
-same names. Note that the configuration 'compileOnly' was introduced in Gradle version 2.12. If an
-older version of Gradle is used it may be necessary to define a different mapping for the 'provided'
-scope.
+same names.
 
 Example: to ignore all dependencies with scope 'system' and to map the 'provided' scope to the
-'compile' configuration instead of 'compileOnly' the mapping should be configured as
+'compile' configuration instead of 'compileOnly', the mapping should be configured as
 
     mavenImport.scopeToConfiguration['system'] = null
     mavenImport.scopeToConfiguration['provided'] = 'compile'
 
-The extension also allows the versions of the third-party libraries used by the plugin to be
-specified in the following properties:
+#### Maven version
 
-* `mavenVersion` - a string specifying the version of the Maven libraries to use. Default is version
-"3.3.9".
-* `sisuPlexusVersion` - a string specifying the version of the
-[org.eclipse.sisu.plexus](http://www.eclipse.org/sisu/) library to use. Default is version "0.3.3".
-* `sisuGuiceVersion` - a string specifying the version of the
-[sisu-guice](https://github.com/sonatype/sisu-guice) library to use. Default is version "3.2.6".
-* `aetherVersion` - a string specifying the version of the
-[org.eclipse.aether](http://www.eclipse.org/aether/) library to use. Default is version "1.1.0".
+The extension also allows the version of Maven used by the plugin to be specified in the property
+`mavenVersion`. By default version 3.6.1 is used.
+
+Example:
+
+    mavenImport.mavenVersion = '3.3.9'
+
+#### Maven class path
+
+If more fine-grained control over the Maven classes used in needed, the extension property
+`mavenClassPath` can be set to a `FileCollection` containing the desired Maven classes. The easiest
+way to do this is through a dependency configuration.
+
+    configurations { customMavenImport }
+    dependencies {
+        customMavenImport 'org.apache.maven:maven-embedder:3.3.3'
+        customMavenImport 'org.slf4j:slf4j-simple:1.7.25'
+    }
+    mavenImport.mavenClassPath = configurations['customMavenImport']
 
 ### Dependency configuration
 
 The Maven Import plugin adds a dependency configuration with the name `mavenImport` to the project.
-This configuration specifies the default classpath for the Maven classes used by the plugin. By
-default, this configuration contains dependencies equivalent to:
+This configuration specifies the default classpath for the Maven classes used by the plugin, and it
+contains dependencies equivalent to:
 
-    mavenImport 'org.apache.maven:maven-core:<mavenVersion>'
     mavenImport 'org.apache.maven:maven-embedder:<mavenVersion>'
-    mavenImport 'org.eclipse.sisu:org.eclipse.sisu.plexus:<sisuPlexusVersion>@jar'
-    mavenImport 'org.sonatype.sisu:sisu-guice:<sisuGuiceVersion>:no_aop@jar'
-    mavenImport 'org.eclipse.aether:aether-connector-basic:<aetherVersion>'
-    mavenImport 'org.eclipse.aether:aether-transport-file:<aetherVersion>'
-    mavenImport 'org.eclipse.aether:aether-transport-http:<aetherVersion>'
+    mavenImport 'org.slf4j:slf4j-nop:1.7.26'
 
-where `<mavenVersion>`, `<sisuPlexusVersion>`, `<sisuGuiceVersion>`, and `<aetherVersion>` are the
-values of the `mavenImport` extension's properties with the corresponding names.
+where `<mavenVersion>` is the value of the `mavenImport` extension's property with the corresponding
+name, see above.
 
 ### Dynamically importing repositories and dependencies
 
@@ -354,21 +363,22 @@ possible to mix repositories and dependencies from a pom file with explicitly de
     }
     dependencies {
         fromPomFile()
-        testRuntime 'org.slf4j:slf4j-nop:1.7.22'
+        testRuntime 'com.h2database:h2:1.4.199'
     }
 
-In the example above the repositories are imported from the default pom file and the dependencies
-from an explicit pom file. It is also possible to import repositories or dependencies from several
+In the example above the repositories are imported from an explicit pom file and the dependencies
+from the default pom file. It is also possible to import repositories or dependencies from several
 pom files.
 
 Note that importing repositories creates a chicken-and-egg situation. In order to import a pom file
-the plugin needs the external libraries from the `mavenImport` dependency configuration, and these
-libraries must be retrieved from a repository. If this repository is defined in the pom file, it
-will not be available when resolving the dependency configuration.
+the plugin needs the external libraries from the `mavenImport` dependency configuration (unless
+another class path has been specified in the extension property `mavenClassPath`, see above), and
+these libraries must be retrieved from a repository. If this repository is defined in the pom file,
+it will not be available when resolving the dependency configuration.
 
 To handle this situation, the plugin uses a temporary repository if no repositories are available
 when the `mavenImport` configuration is about to be resolved. This temporary repository is specified
-in the `mavenImport` extension property `classpathRepository`, and defaults to the repository
+in the `mavenImport` extension's property `classpathRepository`, and defaults to the repository
 returned by `project.repositories.mavenCentral()`.
 
 The property should be set to an `ArtifactRepository` or to a closure that returns an instance of
@@ -381,9 +391,9 @@ Example:
 
 ### Converting repositories and dependencies
 
-Repositories and dependencies can be imported and written to a Gradle file with the `convertPom`
-task. This task imports and converts Maven repositories and dependencies in the same way
-as the dynamic method `fromPomFile` described above, but instead of adding the repositories and
+Repositories and dependencies can be read from a pom file and written to a Gradle file with the
+`convertPom` task. This task imports and converts Maven repositories and dependencies in the same
+way as the dynamic methods `fromPomFile` described above, but instead of adding the repositories and
 dependencies to the Gradle project the task writes them to a file. This file can then be applied to
 the Gradle build script in future executions.
 
@@ -406,9 +416,6 @@ from the pom file. Default is `true`.
 
 * `convertDependencies` - a boolean specifying whether or not to import and convert dependencies
 from the pom file. Default is `true`.
-
-* `mavenClasspath` - a `FileCollection` specifying the classpath containing the Maven classes used
-by the task. The default is the `mavenImport` dependency configuration, see above.
 
 The task will use the Maven settings file specified in the `mavenImport` project extension, or the
 default Maven settings if no explicit settings file has been specified.

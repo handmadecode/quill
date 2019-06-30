@@ -8,10 +8,12 @@ plugins
 group = 'org.myire'
 version = '2.0-dev.1'
 
+
 repositories
 {
     mavenCentral()
 }
+
 
 dependencies
 {
@@ -21,9 +23,9 @@ dependencies
     // The ivy module plugin requires the ivy artifact to compile.
     compileOnly 'org.apache.ivy:ivy:2.4.0'
 
-    // The maven import plugin requires the maven-embedder artifact but only some of its transitive
-    // dependencies.
-    compileOnly('org.apache.maven:maven-embedder:3.5.4')
+    // The maven import plugin requires the maven-embedder artifact to compile, but only some of its
+    // transitive dependencies.
+    compileOnly('org.apache.maven:maven-embedder:3.6.1')
     {
         exclude group: 'javax.annotation'
         exclude group: 'javax.inject'
@@ -44,8 +46,8 @@ dependencies
         exclude group: 'org.slf4j'
     }
 
-    // The unit tests use JUnit 4.
     testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:2.27.0'
 }
 
 

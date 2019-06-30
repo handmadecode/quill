@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Peter Franzen. All rights reserved.
+ * Copyright 2018-2019 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -9,6 +9,7 @@ import java.io.File;
 import java.util.concurrent.Callable;
 
 import org.gradle.api.Task;
+import org.gradle.api.file.FileCollection;
 
 
 /**
@@ -82,6 +83,21 @@ public final class Tasks
     static public void optionalInputFile(Task pTask, Callable<File> pFile)
     {
         pTask.getInputs().file(pFile).optional(true);
+    }
+
+
+    /**
+     * Specify an input file collection for a task. This method is defined primarily to allow
+     * setting input file collection values with lambda expressions.
+     *
+     * @param pTask     The task.
+     * @param pFiles    A {@code Callable} that returns the file collection.
+     *
+     * @throws NullPointerException if {@code pTask} is null.
+     */
+    static public void inputFiles(Task pTask, Callable<FileCollection> pFiles)
+    {
+        pTask.getInputs().files(pFiles);
     }
 
 

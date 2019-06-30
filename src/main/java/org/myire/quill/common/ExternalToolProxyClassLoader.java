@@ -12,8 +12,10 @@ import java.net.URLClassLoader;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import static java.util.Objects.requireNonNull;
 
+import org.gradle.api.file.FileCollection;
 import org.gradle.api.logging.Logging;
 
 
@@ -64,7 +66,8 @@ import org.gradle.api.logging.Logging;
 public class ExternalToolProxyClassLoader extends URLClassLoader
 {
     private final Predicate<String> fProxyClassPredicate;
-    private final URLClassLoader fExternalToolClassLoader;
+    private final Supplier<FileCollection> fExternalToolLocations;
+    private URLClassLoader fExternalToolClassLoader;
 
 
     /**
@@ -81,7 +84,7 @@ public class ExternalToolProxyClassLoader extends URLClassLoader
      *
      */
     public ExternalToolProxyClassLoader(
-        Collection<File> pExternalToolLocations,
+        Supplier<FileCollection> pExternalToolLocations,
         Predicate<String> pProxyClassPredicate,
         ClassLoader pParent)
     {
@@ -89,10 +92,7 @@ public class ExternalToolProxyClassLoader extends URLClassLoader
         // location as the parent class loader loads classes from.
         super(getUrls(pParent), pParent);
 
-        // The external tool classes are loaded with a separate class loader to ensure they aren't
-        // picked up from the parent.
-        fExternalToolClassLoader = new URLClassLoader(createUrls(pExternalToolLocations), null);
-
+        fExternalToolLocations = requireNonNull(pExternalToolLocations);
         fProxyClassPredicate = requireNonNull(pProxyClassPredicate);
     }
 
@@ -105,6 +105,11 @@ public class ExternalToolProxyClassLoader extends URLClassLoader
             // First try to load the class from the external tool class locations.
             try
             {
+                // Lazily create the class loader for the external tool classes to allow its file
+                // locations to be resolved as late as possible.
+                if (fExternalToolClassLoader == null)
+                    fExternalToolClassLoader = createExternalToolClassLoader();
+
                 return fExternalToolClassLoader.loadClass(pName);
             }
             catch (ClassNotFoundException cnfe)
@@ -132,6 +137,15 @@ public class ExternalToolProxyClassLoader extends URLClassLoader
                 // hierarchy.
                 return super.loadClass(pName, pResolve);
         }
+    }
+
+
+    /**
+     * Create a class loader that loads from the external tool locations passed to the constructor.
+     */
+    private URLClassLoader createExternalToolClassLoader()
+    {
+        return new URLClassLoader(createUrls(fExternalToolLocations.get().getFiles()), null);
     }
 
 

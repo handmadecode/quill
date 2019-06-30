@@ -62,7 +62,7 @@ public class ExternalToolLoader<T>
         // delegated to the class loader of the proxy class/interface.
         fToolClassLoader =
             new ExternalToolProxyClassLoader(
-                pToolClassPathSource.get().getFiles(),
+                pToolClassPathSource,
                 s -> s.startsWith(pProxyImplementationPackage),
                 fProxyClass.getClassLoader());
 
