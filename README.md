@@ -16,7 +16,7 @@ appeal to the taste of those who work in different ways.
 ## Contents
 1. [Release Notes](#release-notes)
 1. [General Usage](#general-usage)
-1. [Ivy Module Plugin](#ivy-module-plugin)
+1. [Ivy Import Plugin](#ivy-import-plugin)
 1. [Maven Import Plugin](#maven-import-plugin)
 1. [Project Metadata Plugin](#project-metadata-plugin)
 1. [Java Additions Plugin](#java-additions-plugin)
@@ -159,92 +159,150 @@ directory. If no XSL file is specified the tasks will use a default style sheet 
 Quill jar file.
 
 
-## Ivy Module Plugin
+## Ivy Import Plugin
 
-The Ivy Module plugin imports dependency and/or configuration definitions from an Apache Ivy module
-file. It does **not** convert the Ivy module file into a Gradle file; the plugin reads the module
-file and dynamically adds the configurations and dependencies to the Gradle project.
+The Ivy Import plugin imports dependency and/or configuration definitions from an Apache Ivy module
+file.  The dependencies and configurations can either by dynamically added to the Gradle project for
+the current execution only, or be written to file for later inclusion.
 
 ### Usage
 
     apply plugin: 'org.myire.quill.ivy'
 
-The plugin also requires Ivy to be on the build script's classpath. One way of accomplishing this is
-to add Ivy to the `buildscript` dependencies:
-
-    buildscript {
-      ...
-      dependencies {
-        classpath 'org.myire:quill:0.9'
-        classpath 'org.apache.ivy:ivy:2.4.0'
-      ...
-
 ### Project extension
 
-The plugin adds an extension with the name `ivyModule` to the Gradle project. The Ivy module file to
-import from is specified as a property in the extension:
+The plugin adds an extension with the name `ivyImport` to the Gradle project. This extension allows
+configuring the Ivy module import through a number of properties:
 
-    ivyModule.from = '/path/to/ivy.xml'
+#### Ivy settings file
+                                                                              
+The Ivy settings file to use is specified in the `settingsFile` property:
 
-The path to the module file is resolved relative to the project directory. The default value of this
-path is 'ivy.xml', which resolves to a file called 'ivy.xml' in the Gradle project directory.
+    ivyImport.settingsFile = '/path/to/ivy-settings.xml'
 
-An Ivy settings file can also be specified in the `ivyModule` extension:
+The path to the settings file is resolved relative to the project directory. If no settings file is
+specified, the default Ivy settings will be used. If a settings file is specified but does not exist
+or is inaccessible in some other way, the plugin will fall back to the default Ivy settings.
 
-    ivyModule {
-      from = '/path/to/ivy.xml'
-      settings = '/path/to/ivy.settings'
-    }
+#### Ivy version
 
-The path to the settings file is also resolved relative to the project directory. If no settings
-file is specified, the default Ivy settings will be used. If a settings file is specified but does
-not exist or is inaccessible in some other way, the plugin will fall back to the default Ivy
-settings.
+The extension also allows the version of Ivy used for the import to be specified in the property
+`ivyVersion`. By default version 2.4.0 is used.
 
-### Loading configurations and dependencies
+Example:
 
-The properties in the `ivyModule` extension only specify the Ivy module file and Ivy settings file
-to use. No configurations or dependencies will be added to the project unless explicitly specified.
+    ivyImport.ivyVersion = '2.5.0-rc1'
 
-Configurations are loaded and added through the dynamic method `fromIvyModule` that the plugin adds
-to the Gradle project's `ConfigurationContainer`.
+#### Ivy class path
+
+If more fine-grained control over the Ivy classes used is needed than just specifying the Ivy
+version, the extension property `ivyClassPath` can be set to a `FileCollection` containing the
+desired Ivy classes.
+
+Example:
+
+    ivyImport.ivyClassPath = files('/path/to/customIvy.jar')
+
+
+### Dynamically importing configurations and dependencies
+
+Configurations and dependencies can be imported and dynamically added to the Gradle project through
+the dynamic methods `fromIvyFile` that the plugin adds to the Gradle project's
+`ConfigurationContainer` and `DependencyHandler`. These methods take the Ivy module file to import
+from as the only argument. The path to the Ivy module file is resolved relative to the project
+directory. If no file is passed as argument to `fromIvyFile`, a file called `ivy.xml` in the project
+directory will be used.
 
 Specifying
 
-    configurations.fromIvyModule()
+    configurations.fromIvyFile('/path/to/ivy.xml')
 
-in the build script will dynamically add the configurations defined in the Ivy module file to the
-project.
-
-Similarly, the plugin adds a dynamic method called `fromIvyModule` to the Gradle project's
-`DependencyHandler`.
+in the build script will dynamically add the configurations defined in the specified Ivy module file
+to the project.
 
 Specifying
 
-    dependencies.fromIvyModule()
+    dependencies.fromIvyFile()
 
-in the build script will dynamically add the dependencies defined in the Ivy module file to the
-project. Only dependencies with a configuration that exists in the Gradle project will be added, all
-others will be ignored. This means that if only the dependencies are imported from an Ivy module file
-and some of the dependencies in that file have configurations that are not defined elsewhere,
-implicitly or explicitly, those dependencies will **not** be added to the project.
+in the build script will dynamically add the dependencies defined in the file `ivy.xml` in the
+project directory to the Gradle project.
 
-Note that the loading of configurations and dependencies from an Ivy module file is additive. Any
-configurations or dependencies defined in the Gradle build script will not be overwritten. It is
-thus possible to mix configurations and dependencies from an Ivy module file with explicitly defined
-ones:
+If a configuration or dependency imported from the Ivy module file already is defined in the Gradle
+build script, it will not be overwritten. 
+
+Only dependencies with a configuration that exists in the Gradle project will be added, all others
+will be ignored. This means that if only dependencies are imported from an Ivy module file, and some
+of the dependencies in that file specify a configuration that is not defined elsewhere, those
+dependencies will **not** be added to the project.
+
+Note that importing configurations and dependencies from an Ivy module file is additive. It is thus
+possible to mix configurations and dependencies from an Ivy module file with explicitly defined
+ones, and to import from multiple Ivy files:
 
     configurations {
       myExplicitConfiguration
-      fromIvyModule()
+      fromIvyFile()
     }
-
-and
 
     dependencies {
-        fromIvyModule()
+        fromIvyFile('/another/ivy.xml')
         testCompile "org.mockito:mockito-core:1.10.19"
     }
+
+### Dynamically setting the group and version
+
+An Ivy module file's `organisation` and `revision` can be imported and applied to the Gradle project
+through the dynamic methods `setGroupFromIvyFile` and `setVersionFromIvyFile` that the plugin adds
+to the Gradle project. These methods take the Ivy file to import from as their only argument. The
+path to the Ivy file is resolved relative to the project directory.
+
+Specifying
+
+    setGroupFromIvyFile('/path/to/ivy.xml')
+
+will set the project's `group` property to the value of the `organisation` attribute in the Ivy
+file's `info` element.
+
+Similarly, the dynamic method `setVersionFromIvyFile` will set the  project's `version` property to
+the value of the `revision` attribute in the Ivy file's `info` element.
+
+If no file is specified, the default value 'ivy.xml' is assumed. Thus, specifying
+
+    setGroupFromIvyFile()
+
+will set the project's `group` property to the value of the `organisation` element in a file called
+'ivy.xml' in the Gradle project directory.
+
+### Converting configurations and dependencies
+
+Configurations and dependencies can be read from an Ivy module file and written to a Gradle file
+with the `convertIvyModule` task. This task imports and converts Ivy configurations and dependencies
+in the same way as the dynamic methods `fromIvyFile` described above, but instead of adding the
+configurations and dependencies to the Gradle project the task writes them to a file. This file can
+then be applied to the Gradle build script in future executions.
+
+The `convertIvyModule` task's behaviour can be configured through the following properties:
+
+* `ivyFile` - the path to the Ivy module file to import from. The path is resolved relative to the
+project directory. Default is 'ivy.xml', i.e. a file called 'ivy.xml' in the Gradle project
+directory.
+
+* `destination` - the path to the file to write the converted configurations and dependencies to.
+The path is resolved relative to the project directory. Default is a file called
+'dependencies.gradle' in the same directory as the Ivy file.
+
+* `overwrite` - a boolean specifying whether or not to replace the destination file if it exists. If
+this property is `false` and the file specified in the `destination` property exists, the task will
+do nothing. Default is `true`.
+
+* `convertConfigurations` - a boolean specifying whether or not to import and convert configurations
+from the Ivy file. Default is `true`.
+
+* `convertDependencies` - a boolean specifying whether or not to import and convert dependencies
+from the Ivy file. Default is `true`.
+
+The task will use the Ivy settings file specified in the `ivyImport` project extension, or the
+default Ivy settings if no explicit settings file has been specified.
 
 
 ## Maven Import Plugin
@@ -261,10 +319,22 @@ file.
 
     apply plugin: 'org.myire.quill.maven'
 
+### Dependency configuration
+
+The Maven Import plugin adds a dependency configuration with the name `mavenImport` to the project.
+This configuration specifies the default classpath for the Maven classes used by the plugin, and it
+contains dependencies equivalent to:
+
+    mavenImport 'org.apache.maven:maven-embedder:<mavenVersion>'
+    mavenImport 'org.slf4j:slf4j-nop:1.7.26'
+
+where `<mavenVersion>` is the value of the `mavenImport` extension's property with the corresponding
+name, see below.
+
 ### Project extension
 
 The plugin adds an extension with the name `mavenImport` to the Gradle project. This extension
-allows controlling the pom file conversion through number of properties:
+allows configuring the pom file import through a number of properties:
 
 #### Maven settings file
 
@@ -310,9 +380,9 @@ Example:
 
 #### Maven class path
 
-If more fine-grained control over the Maven classes used in needed, the extension property
-`mavenClassPath` can be set to a `FileCollection` containing the desired Maven classes. The easiest
-way to do this is through a dependency configuration.
+If more fine-grained control over the Maven classes used is needed, the extension property
+`mavenClassPath` can be set to a `FileCollection` containing the desired Maven classes. One way to
+do this is through a dependency configuration:
 
     configurations { customMavenImport }
     dependencies {
@@ -320,18 +390,6 @@ way to do this is through a dependency configuration.
         customMavenImport 'org.slf4j:slf4j-simple:1.7.25'
     }
     mavenImport.mavenClassPath = configurations['customMavenImport']
-
-### Dependency configuration
-
-The Maven Import plugin adds a dependency configuration with the name `mavenImport` to the project.
-This configuration specifies the default classpath for the Maven classes used by the plugin, and it
-contains dependencies equivalent to:
-
-    mavenImport 'org.apache.maven:maven-embedder:<mavenVersion>'
-    mavenImport 'org.slf4j:slf4j-nop:1.7.26'
-
-where `<mavenVersion>` is the value of the `mavenImport` extension's property with the corresponding
-name, see above.
 
 ### Dynamically importing repositories and dependencies
 
@@ -389,6 +447,27 @@ Example:
 
     mavenImport.classpathRepository = { project.jcenter() }
 
+### Dynamically setting the group and version
+
+A pom file's `groupId` and `version` can be imported and applied to the Gradle project through the
+dynamic methods `applyGroupFromPomFile` and `applyVersionFromPomFile` that the plugin adds to the
+Gradle project. These methods take the pom file to import from as their only argument. The path to
+the pom file is resolved relative to the project directory.
+
+Specifying
+
+    applyGroupFromPomFile('/path/to/pom.xml')
+
+will set the project's `group` property to the value of the `groupId` element in the effective pom
+of the file passed to the method.
+
+If no file is specified, the default value 'pom.xml' is assumed. Thus, specifying
+
+    applyVersionFromPomFile()
+
+will set the project's `version` property to the value of the `version` element in a file called
+'pom.xml'  in the Gradle project directory.
+
 ### Converting repositories and dependencies
 
 Repositories and dependencies can be read from a pom file and written to a Gradle file with the
@@ -419,27 +498,6 @@ from the pom file. Default is `true`.
 
 The task will use the Maven settings file specified in the `mavenImport` project extension, or the
 default Maven settings if no explicit settings file has been specified.
-
-### Dynamically setting the group and version
-
-A pom file's `groupId` and `version` can be imported and applied to the Gradle project through the
-dynamic methods `applyGroupFromPomFile` and `applyVersionFromPomFile` that the plugin adds to the
-Gradle project. These methods take the pom file to import from as their only argument. The path to
-the pom file is resolved relative to the project directory.
-
-Specifying
-
-    applyGroupFromPomFile('/path/to/pom.xml')
-
-will set the project's `group` property to the value of the `groupId` element in the effective pom
-of the file passed to the method.
-
-If no file is specified, the default value 'pom.xml' is assumed. Thus, specifying
-
-    applyVersionFromPomFile()
-
-will set the project's `version` property to the value of the `version` element in a file called
-'pom.xml'  in the Gradle project directory.
 
 
 ## Project Metadata Plugin

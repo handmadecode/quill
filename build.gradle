@@ -20,7 +20,7 @@ dependencies
     // The scent plugin requires the scent artifact to compile.
     compileOnly 'org.myire:scent:2.0'
 
-    // The ivy module plugin requires the ivy artifact to compile.
+    // The ivy import plugin requires the ivy artifact to compile.
     compileOnly 'org.apache.ivy:ivy:2.4.0'
 
     // The maven import plugin requires the maven-embedder artifact to compile, but only some of its

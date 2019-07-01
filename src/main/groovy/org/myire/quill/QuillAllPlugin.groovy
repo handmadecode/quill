@@ -8,7 +8,7 @@ package org.myire.quill
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-import org.myire.quill.ivy.IvyPlugin
+import org.myire.quill.ivy.IvyImportPlugin
 import org.myire.quill.maven.MavenImportPlugin
 
 
@@ -22,7 +22,7 @@ class QuillAllPlugin implements Plugin<Project>
     {
         // Apply all Quill plugins to the project.
         pProject.plugins.apply(QuillCorePlugin.class);
-        pProject.plugins.apply(IvyPlugin.class);
+        pProject.plugins.apply(IvyImportPlugin.class);
         pProject.plugins.apply(MavenImportPlugin.class);
     }
 }
