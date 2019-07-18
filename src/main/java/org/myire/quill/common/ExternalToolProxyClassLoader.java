@@ -6,6 +6,9 @@
 package org.myire.quill.common;
 
 import java.io.File;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -83,7 +86,7 @@ public class ExternalToolProxyClassLoader extends URLClassLoader
      *                              {@code pProxyClassPredicate} is null.
      *
      */
-    public ExternalToolProxyClassLoader(
+    ExternalToolProxyClassLoader(
         Supplier<FileCollection> pExternalToolLocations,
         Predicate<String> pProxyClassPredicate,
         ClassLoader pParent)
@@ -145,7 +148,31 @@ public class ExternalToolProxyClassLoader extends URLClassLoader
      */
     private URLClassLoader createExternalToolClassLoader()
     {
-        return new URLClassLoader(createUrls(fExternalToolLocations.get().getFiles()), null);
+        return new URLClassLoader(createUrls(fExternalToolLocations.get().getFiles()), getPlatformClassLoader());
+    }
+
+
+    /**
+     * Get the platform class loader, if available.
+     *
+     * @return  The platform class, or null if there is none.
+     */
+    static private ClassLoader getPlatformClassLoader()
+    {
+        try
+        {
+            MethodHandle aMethodHandle =
+                MethodHandles.lookup().findStatic(
+                    ClassLoader.class,
+                    "getPlatformClassLoader",
+                    MethodType.methodType(ClassLoader.class));
+
+            return (ClassLoader) aMethodHandle.invokeExact();
+        }
+        catch (Throwable t)
+        {
+            return null;
+        }
     }
 
 

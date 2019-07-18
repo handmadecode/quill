@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Peter Franzen. All rights reserved.
+ * Copyright 2018, 2019 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -59,6 +59,17 @@ public class FileBasedTest
         fCreatedFiles.add(aPath);
         Files.write(aPath, pLines);
         return aPath;
+    }
+
+
+    /**
+     * Add a file created elsewhere to the files that should be deleted when the test has finished.
+     *
+     * @param pPath The path to the file.
+     */
+    protected void addTemporaryFile(Path pPath)
+    {
+        fCreatedFiles.add(pPath);
     }
 
 

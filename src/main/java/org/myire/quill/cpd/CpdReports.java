@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2019 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -7,6 +7,7 @@ package org.myire.quill.cpd;
 
 import org.gradle.api.reporting.Report;
 import org.gradle.api.reporting.ReportContainer;
+import org.gradle.api.tasks.Nested;
 
 import org.myire.quill.report.FormatChoiceReport;
 import org.myire.quill.report.TransformingReport;
@@ -22,13 +23,16 @@ public interface CpdReports extends ReportContainer<Report>
     String FORMAT_CSV = "csv";
     String FORMAT_TEXT = "text";
     String FORMAT_CSV_LINECOUNT = "csv_with_linecount_per_file";
+    String FORMAT_VS = "vs";
 
 
     /**
-     * Get the primary report, which is a single file report on either the XML, CSV, or text format.
+     * Get the primary report, which is a single file report on either the XML, CSV, text, or
+     * Visual Studio format.
      *
      * @return The primary report.
      */
+    @Nested
     FormatChoiceReport getPrimary();
 
     /**
@@ -37,5 +41,6 @@ public interface CpdReports extends ReportContainer<Report>
      *
      * @return The HTML file report.
      */
+    @Nested
     TransformingReport getHtml();
 }

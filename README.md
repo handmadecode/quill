@@ -1423,6 +1423,8 @@ directory.
 The CPD plugin adds a verification task for copy-paste detection using the CPD tool that is part of
 the [PMD](https://pmd.github.io/latest) distribution.
 
+The plugin works with CPD version 6.1 or later.
+
 ### Usage
 
     apply plugin: 'org.myire.quill.cpd'
@@ -1436,11 +1438,13 @@ files to analyze, such as include and exclude patterns. By default, the `cpd` ta
 source set's Java files as input files.
 
 In addition to the standard source task properties, the `cpd` task's behaviour can be configured
-through the following properties:
+through the properties described below. Most of these properties are direct equivalents to one of the
+[CPD command line options](https://pmd.github.io/latest/pmd_userdocs_cpd.html#cli-options-reference).
 
 * `toolVersion` - a string specifying the version of CPD to use. The default is the version
 specified in `pmd.toolVersion`, or, if the `pmd` extension isn't available in the project, version
-"5.5.7".
+"6.16.0". Note however that `pmd.toolVersion` is only used if it is equal to or greater than the
+minimum CPD version "6.1.0".
 
 * `cpdClasspath` - a `FileCollection` specifying the classpath containing the CPD classes used by
 the task. The default is the `cpd` dependency configuration (see below).
@@ -1449,70 +1453,64 @@ the task. The default is the `cpd` dependency configuration (see below).
 the report. The platform's default encoding will be used if this property isn't specified.
 
 * `language` - a string specifying the language of the source files to analyze, e.g. "cpp", "java",
-"php", "ruby", or "ecmascript". See the CPD documentation at the
-[PMD site](https://pmd.github.io/latest)  for the list of languages supported by the different
-versions of CPD. The default is "java". Note that this property can only be used with CPD
-version 3.6 or newer.
+"php", "ruby", or "ecmascript". See the
+[CPD documentation](https://pmd.github.io/latest/pmd_userdocs_cpd.html#supported-languages) for a
+list of the languages supported by CPD. The default is "java".
 
-* `minimumTokenCount` - an integer specifying the minimum duplicate size to be reported. Defaults to
-100.
+* `minimumTokenCount` - an integer specifying the minimum duplicate size to be reported. Defaults
+to 100.
 
 * `ignoreLiterals` - if this boolean is true, CPD ignores literal value differences when evaluating
 a duplicate block. This means `foo=42;` and `foo=43;` will be seen as equivalent. Default is false.
-Note that this property can only be used with CPD version 2.2 or newer.
 
 * `ignoreIdentifiers` - a boolean similar to `ignoreLiterals`, differences in e.g. variable names
-and method names will be ignored. Default is false. Note that this property can only be used with
-CPD version 2.2 or newer.
+and method names will be ignored. Default is false.
 
 * `ignoreAnnotations` - if this boolean is true, annotations will be ignored. This property can be
-useful when analyzing J2EE code where annotations become very repetitive. Default is false. Note
-that this property can only be used with CPD version 5.0.1 or newer.
+useful when analyzing code based one some frameworks where annotations become very repetitive.
+Default is false.
 
 * `skipDuplicateFiles` - if this boolean is true, CPD will ignore multiple copies of files with the
-same name and length in comparison. Default is false. Note that this property can only be used with
-CPD version 5.1.1 or newer.
+same name and length. Default is false.
 
 * `skipLexicalErrors` - if this boolean is true, CPD will skip files which can't be tokenized due to
-invalid characters instead of aborting the analysis. Default is false. Note that this property can
-only be used with CPD version 5.1.1 or newer.
+invalid characters instead of aborting the analysis. Default is false.
 
-* `skipBlocks` - if this boolean is true, skipping of blocks is enabled with the patterns specified
-in the `skipBlocksPattern` property. Default is false. Note that this property can only be used with
-CPD version 5.2.2 or newer.
+* `skipBlocks` - if this boolean is true, blocks with the pattern specified in the
+`skipBlocksPattern` property will be excluded from the analysis. Default is false.
 
 * `skipBlocksPattern` - a string specifying the pattern to find the blocks to skip when `skipBlocks`
 is true. The value contains two parts, separated by a `|`. The first part is the start pattern, the
-second part is the ending pattern. The default value is "#if 0|#endif". Note that this property can
-only be used with CPD version 5.2.2 or newer.
+second part is the ending pattern. The default value is "#if 0|#endif".
 
-* `ignoreUsings` - if this boolean is true, *using directives* in C# will be ignored in the
-analysis. Default is false. Note that this property can only be used with CPD version 5.4.1 or
-newer.
+* `ignoreUsings` - if this boolean is true, *using* directives in C# will be ignored in the
+analysis. Default is false.
 
 * `reports` - a `ReportContainer` holding the reports created by the task, see below.
 
 ### Reports
 
 The `cpd` task creates a primary report with the result of the copy-paste detection. This report can
-be on one of the formats XML, CSV, or text. If the primary report is on the XML format, the task can
-optionally produce an HTML report by applying an XSL transformation on the XML report.
+be on one of the formats supported by CPD, see the
+[documentation](https://pmd.github.io/latest/pmd_userdocs_cpd.html#available-report-formats). If the
+primary report is on the XML format, the task can optionally produce an HTML report by applying an
+XSL transformation on the XML report.
 
 The two reports are configured through the `reports` property of the `cpd` task:
 
 * `primary` - a `SingleFileReport` that also allows the format to be specified in its `format`
-property. Valid values for the format are "xml", "csv", or "text", with "xml" as the default value.
-The default report is a file called "cpd.*ext*" where *ext* is the value of the `format` property.
-The default report file is located in a directory called "cpd" in the project's report directory or,
-if no project report directory is defined, in a directory called "cpd" in the project's build
-directory.
+property. Valid values for the format are "xml", "text", "csv", "csv_with_linecount_per_file", or
+"vs", with "xml" as the default value. The default report is a file called "cpd.*ext*" where *ext*
+is the value of the `format` property. The default report file is located in a directory called
+"cpd" in the project's report directory or, if no project report directory is defined, in a
+directory called "cpd" in the project's build directory.
 
 * `html` - a `SingleFileReport` that will be created if the primary report is `enabled` and its
 `format` is "xml". This report produces an HTML version of the tasks's XML report by applying an XSL transformation. By default, the HTML report is created in the same directory as the XML report
 and given the same base name as the XML report (e.g. "cpd.html" if the XML report has the name
 "cpd.xml"). The XSL style sheet to use can be specified through the `xslFile` property. This
 property is a `File` that is resolved relative to the project directory. If no XSL file is specified
-the default style sheet bundled with the GaQuillar file will be used.
+the default style sheet bundled with the Quill jar file will be used.
 
 The reports can be configured with a closure, just as any other `ReportContainer`:
 

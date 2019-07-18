@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2019 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -20,11 +20,7 @@ import org.myire.quill.report.TransformingReport;
 
 
 /**
- * Default implementation of {@code CpdReports}. For some reason the Groovy compiler cannot handle
- * the covariant return types of some overridden methods in {@code NamedDomainObjectSet}. The Java
- * compiler has no problems handling it, so this implementation is in Java. Note that all subclasses
- * of {@code TaskReportContainer} in the Gradle distribution (e.g. {@code FindBugsReportsImpl} and
- * {@code DefaultTestTaskReports} are Java classes.
+ * Default implementation of {@code CpdReports}.
  */
 public class CpdReportsImpl extends TaskReportContainer<Report> implements CpdReports
 {
@@ -43,25 +39,27 @@ public class CpdReportsImpl extends TaskReportContainer<Report> implements CpdRe
         super(ConfigurableReport.class, pTask);
 
         // Add the primary report.
-        DefaultFormatChoiceReport aPrimaryReport = add(DefaultFormatChoiceReport.class,
-                                                       pTask,
-                                                       PRIMARY_REPORT_NAME,
-                                                       "CPD primary report",
-                                                       FORMAT_XML,
-                                                       new DefaultPrimaryReportDestination(pTask));
+        DefaultFormatChoiceReport aPrimaryReport =
+            add(
+                DefaultFormatChoiceReport.class,
+                pTask.getProject(),
+                PRIMARY_REPORT_NAME,
+                "CPD primary report",
+                FORMAT_XML,
+                new DefaultPrimaryReportDestination(pTask));
 
-        // CSV and text are also legal format for the primary report.
-        // CSL with linecount per file was introduced in CPD v5.3, but there is a bug in the CPD ant
-        // task that prevents the Gradle task from using it.
-        aPrimaryReport.addLegalFormats(FORMAT_CSV, FORMAT_TEXT/*, FORMAT_CSV_LINECOUNT*/);
+        // CSV, text, and Visual Studio are also legal format for the primary report.
+        aPrimaryReport.addLegalFormats(FORMAT_CSV, FORMAT_TEXT, FORMAT_CSV_LINECOUNT, FORMAT_VS);
 
         // Add the HTML report.
-        TransformingReport aHtmlReport = add(FormatChoiceReportTransformingReport.class,
-                                             pTask.getProject(),
-                                             HTML_REPORT_NAME,
-                                             "CPD HTML report",
-                                             aPrimaryReport,
-                                             BUILTIN_CPD_XSL);
+        TransformingReport aHtmlReport =
+            add(
+                FormatChoiceReportTransformingReport.class,
+                pTask.getProject(),
+                HTML_REPORT_NAME,
+                "CPD HTML report",
+                aPrimaryReport,
+                BUILTIN_CPD_XSL);
 
         // Both reports are enabled by default.
         aPrimaryReport.setEnabled(true);

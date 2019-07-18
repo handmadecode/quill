@@ -46,6 +46,20 @@ dependencies
         exclude group: 'org.slf4j'
     }
 
+    // The cpd plugin requires the pmd-core artifact to compile, but none of its transitive
+    // dependencies.
+    compileOnly('net.sourceforge.pmd:pmd-core:6.1.0')
+    {
+        exclude group: 'com.beust', module: 'jcommander'
+        exclude group: 'com.google.code.gson'
+        exclude group: 'commons-io'
+        exclude group: 'jaxen', module: 'jaxen'
+        exclude group: 'net.java.dev.javacc'
+        exclude group: 'net.sourceforge.saxon'
+        exclude group: 'org.apache.commons', module: 'commons-lang3'
+        exclude group: 'org.ow2.asm'
+    }
+
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.27.0'
 }
