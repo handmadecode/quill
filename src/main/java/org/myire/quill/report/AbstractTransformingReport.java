@@ -129,7 +129,7 @@ abstract class AbstractTransformingReport extends DefaultSingleFileReport implem
             if (fXslFile != null)
             {
                 // An XSL file has been specified, use only its style sheet for the transformation.
-                aReportBuilder.transform(pXmlFile, fXslFile);
+                aReportBuilder.transform(pXmlFile, fXslFile, null);
             }
             else
             {
@@ -140,7 +140,7 @@ abstract class AbstractTransformingReport extends DefaultSingleFileReport implem
                 aReportBuilder.write("</title><style type=\"text/css\">");
                 aReportBuilder.copy(HTML_RESOURCE_REPORT_CSS);
                 aReportBuilder.write("</style></head><body>");
-                aReportBuilder.transform(pXmlFile, fXslResource);
+                aReportBuilder.transform(pXmlFile, fXslResource, null);
                 aReportBuilder.write("</body></html>");
             }
 

@@ -167,7 +167,7 @@ public class CpdTask extends SourceTask implements Reporting<CpdReports>
      */
     @Input
     @Optional
-    String getEncoding()
+    public String getEncoding()
     {
         return fCpdParameters.getEncoding();
     }

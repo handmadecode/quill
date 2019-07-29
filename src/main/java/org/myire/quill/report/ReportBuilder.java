@@ -18,6 +18,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Map;
 
 import javax.xml.transform.Transformer;
 import javax.xml.transform.TransformerException;
@@ -68,7 +69,7 @@ public class ReportBuilder
      *
      * @return  The report file being created.
      */
-    File getDestination()
+    public File getDestination()
     {
         return fDestination;
     }
@@ -78,7 +79,7 @@ public class ReportBuilder
      * Close the builder's underlying destination. Future calls to other methods on this instance
      * will fail.
      */
-    void close()
+    public void close()
     {
         try
         {
@@ -97,7 +98,7 @@ public class ReportBuilder
      *
      * @param pString   The string to write.
      */
-    void write(String pString)
+    public void write(String pString)
     {
         write(pString, Charset.defaultCharset());
     }
@@ -109,7 +110,7 @@ public class ReportBuilder
      * @param pString   The string to write.
      * @param pCharset  The charset to encode the string with.
      */
-    void write(String pString, Charset pCharset)
+    public void write(String pString, Charset pCharset)
     {
         try
         {
@@ -127,7 +128,7 @@ public class ReportBuilder
      *
      * @param pFile The file to copy.
      */
-    void copy(File pFile)
+    public void copy(File pFile)
     {
         try
         {
@@ -146,7 +147,7 @@ public class ReportBuilder
      *
      * @param pResource The name of the resource to copy.
      */
-    void copy(String pResource)
+    public void copy(String pResource)
     {
         try (InputStream aResourceStream = getClass().getResourceAsStream(pResource))
         {
@@ -173,12 +174,13 @@ public class ReportBuilder
      *
      * @param pXmlFile      The XML file to transform.
      * @param pXslFile      The XSL file with the style sheet to apply.
+     * @param pParameters   Any XSL parameters to pass to the transformation.
      */
-    void transform(File pXmlFile, File pXslFile)
+    public void transform(File pXmlFile, File pXslFile, Map<String, Object> pParameters)
     {
         Transformer aTransformer = createTransformer(pXslFile);
         if (aTransformer != null)
-            doTransform(aTransformer, pXmlFile);
+            doTransform(aTransformer, pXmlFile, pParameters);
     }
 
 
@@ -189,12 +191,30 @@ public class ReportBuilder
      *
      * @param pXmlFile      The XML file to transform.
      * @param pXslResource  The XSL resource with the style sheet to apply.
+     * @param pParameters   Any XSL parameters to pass to the transformation.
      */
-    void transform(File pXmlFile, String pXslResource)
+    public void transform(File pXmlFile, String pXslResource, Map<String, Object> pParameters)
     {
         Transformer aTransformer = createTransformer(pXslResource);
         if (aTransformer != null)
-            doTransform(aTransformer, pXmlFile);
+            doTransform(aTransformer, pXmlFile, pParameters);
+    }
+
+
+    /**
+     * Transform an XML string by applying the style sheet from an XSL resource and write the result
+     * to this builder's destination. The resource will be accessed through the class loader of this
+     * builder.
+     *
+     * @param pXml          The XML string to transform.
+     * @param pXslResource  The XSL resource with the style sheet to apply.
+     * @param pParameters   Any XSL parameters to pass to the transformation.
+     */
+    public void transform(String pXml, String pXslResource, Map<String, Object> pParameters)
+    {
+        Transformer aTransformer = createTransformer(pXslResource);
+        if (aTransformer != null)
+            doTransform(aTransformer, pXml, pParameters);
     }
 
 
@@ -203,8 +223,9 @@ public class ReportBuilder
      *
      * @param pTransformer  The transformer to use.
      * @param pXmlFile      The XML file to transform.
+     * @param pParameters   Any XSL parameters to pass to the transformation.
      */
-    private void doTransform(Transformer pTransformer, File pXmlFile)
+    private void doTransform(Transformer pTransformer, File pXmlFile, Map<String, Object> pParameters)
     {
         // Set the XSL parameters holding the date and time of the XML file's last modification
         // timestamp, those parameters are used by the built-in XSL style sheets.
@@ -212,6 +233,10 @@ public class ReportBuilder
             LocalDateTime.ofInstant(Instant.ofEpochMilli(pXmlFile.lastModified()), ZoneId.systemDefault());
         pTransformer.setParameter("xml-modified-date", DateTimeFormatter.ISO_LOCAL_DATE.format(aLastModified));
         pTransformer.setParameter("xml-modified-time", DateTimeFormatter.ISO_LOCAL_TIME.format(aLastModified));
+
+        // Set any additional XSL parameters.
+        if (pParameters != null)
+            pParameters.forEach(pTransformer::setParameter);
 
         // Wrap the XML file in a stream that filters out any DOCTYPE XML declaration to avoid
         // potential network access when validating the input XML.
@@ -226,6 +251,32 @@ public class ReportBuilder
         catch (TransformerException e)
         {
             cLogger.error("Failed to transform XML file '{}'", pXmlFile.getAbsolutePath(), e);
+        }
+    }
+
+
+    /**
+     * Perform an XSL transformation.
+     *
+     * @param pTransformer  The transformer to use.
+     * @param pXml          The XML string to transform.
+     * @param pParameters   Any XSL parameters to pass to the transformation.
+     */
+    private void doTransform(Transformer pTransformer, String pXml, Map<String, Object> pParameters)
+    {
+        // Set any additional XSL parameters.
+        if (pParameters != null)
+            pParameters.forEach(pTransformer::setParameter);
+
+        // Wrap the XML file in a stream that filters out any DOCTYPE XML declaration to avoid
+        // potential network access when validating the input XML.
+        try
+        {
+            pTransformer.transform(new StreamSource(pXml), new StreamResult(fOutputStream));
+        }
+        catch (TransformerException e)
+        {
+            cLogger.error("Failed to transform XML '{}'", pXml, e);
         }
     }
 
