@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Peter Franzen. All rights reserved.
+ * Copyright 2014-2015, 2019 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -13,6 +13,7 @@ import org.gradle.api.reporting.SingleFileReport
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
 
@@ -59,6 +60,7 @@ class CoberturaReportsTask extends AbstractCoberturaTask implements Reporting<Co
      * @return  The reports.
      */
     @Override
+    @Nested
     CoberturaReports getReports()
     {
         return fReports;

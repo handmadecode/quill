@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2019 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -9,6 +9,7 @@ import org.gradle.api.reporting.DirectoryReport
 import org.gradle.api.reporting.Report
 import org.gradle.api.reporting.ReportContainer
 import org.gradle.api.reporting.SingleFileReport
+import org.gradle.api.tasks.Nested
 
 
 /**
@@ -21,6 +22,7 @@ interface CoberturaReports extends ReportContainer<Report>
      *
      * @return  The XML file report.
      */
+    @Nested
     SingleFileReport getXml();
 
     /**
@@ -28,5 +30,6 @@ interface CoberturaReports extends ReportContainer<Report>
      *
      * @return  The HTML directory report.
      */
+    @Nested
     DirectoryReport getHtml();
 }
