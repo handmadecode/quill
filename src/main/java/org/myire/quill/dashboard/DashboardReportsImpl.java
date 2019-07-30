@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2019 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -22,7 +22,7 @@ import org.myire.quill.report.DefaultSingleFileReport;
 /**
  * Default implementation of {@code DashboardReports}.
  */
-public class DashboardReportsImpl extends TaskReportContainer<Report> implements DashboardReports
+class DashboardReportsImpl extends TaskReportContainer<Report> implements DashboardReports
 {
     static private final String HTML_REPORT_NAME = "html";
 
@@ -37,13 +37,14 @@ public class DashboardReportsImpl extends TaskReportContainer<Report> implements
         super(ConfigurableReport.class, pTask);
 
         // Add the HTML report.
-        SingleFileReport aHtmlReport = add(DefaultSingleFileReport.class,
-                                           pTask.getProject(),
-                                           HTML_REPORT_NAME,
-                                           "Dashboard HTML report",
-                                           new DefaultReportDestination(pTask.getProject()));
+        SingleFileReport aHtmlReport =
+            add(DefaultSingleFileReport.class,
+                pTask.getProject(),
+                HTML_REPORT_NAME,
+                "Dashboard HTML report",
+                new DefaultReportDestination(pTask.getProject()));
 
-         // The report is enabled by default.
+        // The report is enabled by default.
         aHtmlReport.setEnabled(true);
     }
 

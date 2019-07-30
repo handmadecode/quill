@@ -1689,8 +1689,9 @@ the task's XSL transformation report, if one exists (see the
 [FindBugs Additions plugin](#findbugs-additions-plugin)).
 
 * The `checkstyleMain` task. The summarized report is the task's `xml` report and the linked report
-is the task's XSL transformation report, if one exists (see the
-[Checkstyle Additions plugin](#checkstyle-additions-plugin)).
+is the task's XSL transformation report (see the
+[Checkstyle Additions plugin](#checkstyle-additions-plugin)) or, if that report hasn't been added to
+the task, the task's `html` report.
 
 * The `pmdMain` task. The summarized report is the task's `xml` report and the linked report is the
 task's XSL transformation report (see the [PMD Additions plugin](#pmd-additions-plugin)) or, if that
@@ -1711,7 +1712,7 @@ produces the XML report as section name.
 An existing report section's XSL file can be changed:
 
     reportsDashboard {
-        sections['findbugsMain']?.xslFile = 'src/main/resources/xsl/findbugs_summary.xsl'
+        sections['scent']?.xslFile = 'src/main/resources/xsl/scent_summary.xsl'
         ....
     }
 
@@ -1735,9 +1736,9 @@ New sections can be added with the method `addSection`:
 The detailed report can be omitted when adding a new section:
 
     reportsDashboard {
-        addSection('findbugsTest',
-                   findbugsTest.reports.xml,
-                   'src/main/resources/xsl/findbugs_summary.xsl')
+        addSection('pmdTest',
+                   pmdTest.reports.xml,
+                   'src/main/resources/xsl/pmd_summary.xsl')
         ....
     }
 
@@ -1754,7 +1755,7 @@ type `javancss`.
 
 The sections will appear in the order they were added to the `LinkedHashMap`. The default sections
 are added in the order they are listed above. New sections will thereby appear last in the report.
-One way to rearrange the sections is to remove a report and add it back:
+One way to rearrange the default sections is to remove a report and add it back:
 
     reportsDashboard {
         def testsection = sections.remove('test')
@@ -1766,32 +1767,29 @@ One way to rearrange the sections is to remove a report and add it back:
 
 The HTML report contains the following parts:
 
-* The header, which is the entire `<head>` tag, the opening `<body>` tag and any HTML code that
+* _The header_, which is the entire `<head>` tag, the opening `<body>` tag and any HTML code that
 should appear before the sections. The default layout has a `<head>` tag containing the CSS style
 sheet expected by the XSL files distributed with the Quill jar, and the opening `<body>` tag is
-followed by a headline on the format "<Project name> build report summary".
+followed by a headline on the format "<project name> build report summary".
 
-* The sections, which are output in a logical matrix with a configurable number of columns. This
+* _The sections_, which are output in a logical matrix with a configurable number of columns. This
 matrix, each of its rows and each of its cells are all enclosed in an opening and an closing HTML
 snippet, see below. The HTML snippet for each cell, i.e. report section, is created by applying the
 XSL transformation to the XML report.
 
-* The footer, which least must contain the closing `</body>` and `</html>` tags. It may also contain
-additional HTML code that should appear after the sections.
+* _The footer_, which least must contain the closing `</body>` and `</html>` tags. It may also
+contain additional HTML code that should appear after the sections.
 
 ### Configuring the report layout
 
-The following properties on the `reportsDashboard` task are used to configure the report layout:
+The `layout` property of the `reportsDashboard` task is used to configure the report layout. It has
+the following nested properties:
 
-* `columns` - an int specifying the number of columns in the sections matrix. Default is 2.
-
-* `htmlTitle` - a string to put inside the `<title>` tag in the HTML `<head>`. Default is
-"<project name> build reports summary". This property is ignored if a custom header is specified in
-the `headerHtmlFile` property.
+* `numColumns` - an int specifying the number of columns in the sections matrix. Default is 2.
 
 * `headlineHtmlCode` - a string with an HTML snippet to put between the header and the sections.
-Default is `<p class="headline">htmlTitle</p>`, where "htmlTitle" is the value of the `htmlTitle`
-property.
+Default is `<p class="headline">project-name build reports summary</p>`, where "project-name" is the
+project's name..
 
 * `sectionsStartHtmlCode` - a string with an HTML snippet to put directly before the sections.
 Default is `<table width="100%">`.
@@ -1806,8 +1804,8 @@ matrix. Default is `<tr>`.
 matrix. Default is `</tr>`.
 
 * `cellStartHtmlCode` - a string with an HTML snippet to put directly before each section in the
-sections matrix. Default is `<td valign="top" width="x%">` where "x" is 100/`columns`. For instance,
-if `columns` is 3, each table cell will have a width of 33%.
+sections matrix. Default is `<td valign="top" width="x%">` where "x" is 100/`numColumns`. For
+instance, if `numColumns` is 3, each table cell will have a width of 33%.
 
 * `cellEndHtmlCode` - a string with an HTML snippet to put directly after each section in the
 sections matrix. Default is `</td>`.
@@ -1819,7 +1817,7 @@ header, to contain the CSS style sheet used by those transformations. Default is
 that an internally created HTML snippet should be used.
 
 * `footerHtmlFile` - a file with the footer of the HTML report. This file contains the HTML code
-that should appear after the sections. The minimum is the closing `<body>` and `<html>` tags.
+that should appear after the sections. The minimum is the closing `</body>` and `</html>` tags.
 Default is no file, meaning that an internally created HTML snippet should be used.
 
 Examples:
@@ -1827,21 +1825,25 @@ Examples:
 To make the sections matrix only occupy 80% of its container's width:
 
     reportsDashboard {
-        sectionsStartHtmlCode = '<table width="80%">'
+        layout.sectionsStartHtmlCode = '<table width="80%">'
         ...
     }
 
 To make all report sections have gray background:
 
     reportsDashboard {
-        rowStartHtmlCode = '<tr bgcolor="#999999">'
+        layout {
+            rowStartHtmlCode = '<tr bgcolor="#999999">'
+        }
         ...
     }
 
 To make all report sections align with the bottom of each other:
 
     reportsDashboard {
-        cellStartHtmlCode = '<td valign="bottom">'
+        layout {
+            cellStartHtmlCode = '<td valign="bottom">'
+        }
         ...
     }
 
@@ -1849,7 +1851,7 @@ To add a timestamp after the sections:
 
     reportsDashboard {
         def tstamp = new java.text.SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date())
-        sectionsEndHtmlCode = "</table><p>${tstamp}</p>"
+        layout.sectionsEndHtmlCode = "</table><p>${tstamp}</p>"
         ...
     }
 
@@ -1860,13 +1862,8 @@ but it produces a much richer summary than simply adding links to all available 
 at the price of needing to have explicit knowledge about the reports it summarizes. This means that
 the plugin cannot produce a summary for any unknown reports generated during a build.
 
-The two Dashboard plugins can be used together, but a bug in Gradle versions 2.1 and earlier can
-cause the following error:
-
-    java.lang.IndexOutOfBoundsException: Index: 0, Size: 0
-
-when the both plugins are applied and the `build` task is executed. This bug is described
-[here](https://issues.gradle.org/browse/GRADLE-2957) and was resolved in Gradle 2.2.
+The two Dashboard plugins can be used together, in which case the Build Dashboard report will
+contain a link to the Reports Dashboard report.
 
 
 ## Pom Plugin
