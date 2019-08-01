@@ -6,8 +6,7 @@
 package org.myire.quill.dashboard;
 
 import java.io.File;
-import java.io.Serializable;
-import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import org.gradle.api.Project;
@@ -20,6 +19,7 @@ import org.gradle.api.tasks.Optional;
 
 import org.myire.quill.common.ProjectAware;
 import org.myire.quill.report.ReportBuilder;
+import org.myire.quill.report.TransformingReport;
 
 
 /**
@@ -29,7 +29,7 @@ import org.myire.quill.report.ReportBuilder;
  *<p>
  * The summary is created by applying an XSL transformation to the underlying report's XML version.
  */
-public class DashboardSection extends ProjectAware implements Serializable
+public class DashboardSection extends ProjectAware
 {
     private final String fName;
     private final Report fReport;
@@ -48,7 +48,7 @@ public class DashboardSection extends ProjectAware implements Serializable
      * @param pDetailedReport   Any detailed report the section should refer to.
      * @param pXslResource      The XSL resource to use if no XSL file is specified.
      */
-    public DashboardSection(
+    DashboardSection(
         Project pProject,
         String pName,
         Report pReport,
@@ -72,7 +72,7 @@ public class DashboardSection extends ProjectAware implements Serializable
      * @param pDetailedReport   Any detailed report the section should refer to.
      * @param pXslFile          The XSL file to transform the report with.
      */
-    public DashboardSection(
+    DashboardSection(
         Project pProject,
         String pName,
         Report pReport,
@@ -204,37 +204,41 @@ public class DashboardSection extends ProjectAware implements Serializable
         }
         else
         {
-            Map<String, Object> aTransformerParams = createDetailedReportParameter(pReportBuilder.getDestination());
+            Map<String, Object> aXslParams = createXslParameters(pReportBuilder.getDestination());
             if (fXslFile != null)
                 // An XSL file has been specified, use its style sheet for the transformation.
-                pReportBuilder.transform(aInputFile, fXslFile, aTransformerParams);
+                pReportBuilder.transform(aInputFile, fXslFile, aXslParams);
             else
                 // No XSL file specified, use the default resource.
-                pReportBuilder.transform(aInputFile, fXslResource, aTransformerParams);
+                pReportBuilder.transform(aInputFile, fXslResource, aXslParams);
         }
     }
 
 
     /**
-     * Create a map with the XSL parameter for the path to the detailed report. The value of the
-     * parameter will be the path to the detailed report's destination relative to the dashboard
-     * report file's path.
+     * Create a map with the XSL parameters for the dashboard section XSL transformation. The
+     * parameters will always contain the Gradle project's root directory path. If the section has a
+     * detailed report that exists, the parameters will contain the path to that report, relative to
+     * the dashboard report file's path.
      *
      * @param pDashboardReportFile  The dashboard report file, used as the starting point for the
      *                              relative path to the detailed report.
      *
-     * @return  A map with the parameter, or null if there is no detailed report.
+     * @return  A map with the parameter(s).
      */
-    private Map<String, Object> createDetailedReportParameter(File pDashboardReportFile)
+    private Map<String, Object> createXslParameters(File pDashboardReportFile)
     {
+        Map<String, Object> aParams = new HashMap<>();
+        TransformingReport.applyProjectRootXslParameter(getProject(), aParams::put);
+
         File aDetailedReport = getDetailedReportFile();
         if (aDetailedReport != null && aDetailedReport.exists())
         {
             String aRelativePath = pDashboardReportFile.toPath().getParent().relativize(aDetailedReport.toPath()).toString();
-            return Collections.singletonMap("detailed-report-path", aRelativePath);
+            aParams.put("detailed-report-path", aRelativePath);
         }
-        else
-            return null;
+
+        return aParams;
     }
 
 

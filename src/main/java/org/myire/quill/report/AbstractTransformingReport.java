@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2018 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018, 2019 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -7,6 +7,8 @@ package org.myire.quill.report;
 
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.util.Collections;
+import java.util.Map;
 
 import groovy.lang.Closure;
 
@@ -24,6 +26,7 @@ abstract class AbstractTransformingReport extends DefaultSingleFileReport implem
 
     private final String fXslResource;
     private File fXslFile;
+    private final Map<String, Object> fXslParameters;
 
 
     /**
@@ -48,6 +51,7 @@ abstract class AbstractTransformingReport extends DefaultSingleFileReport implem
     {
         super(pProject, pName, pDisplayName, pDefaultDestination);
         fXslResource = pXslResource;
+        fXslParameters = TransformingReport.applyProjectRootXslParameter(pProject, Collections::singletonMap);
     }
 
 
@@ -129,7 +133,7 @@ abstract class AbstractTransformingReport extends DefaultSingleFileReport implem
             if (fXslFile != null)
             {
                 // An XSL file has been specified, use only its style sheet for the transformation.
-                aReportBuilder.transform(pXmlFile, fXslFile, null);
+                aReportBuilder.transform(pXmlFile, fXslFile, fXslParameters);
             }
             else
             {
@@ -140,7 +144,7 @@ abstract class AbstractTransformingReport extends DefaultSingleFileReport implem
                 aReportBuilder.write("</title><style type=\"text/css\">");
                 aReportBuilder.copy(HTML_RESOURCE_REPORT_CSS);
                 aReportBuilder.write("</style></head><body>");
-                aReportBuilder.transform(pXmlFile, fXslResource, null);
+                aReportBuilder.transform(pXmlFile, fXslResource, fXslParameters);
                 aReportBuilder.write("</body></html>");
             }
 

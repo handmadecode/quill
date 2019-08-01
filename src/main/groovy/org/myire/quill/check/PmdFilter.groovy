@@ -1,9 +1,11 @@
 /*
- * Copyright 2015 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2019 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
 package org.myire.quill.check
+
+import groovy.xml.QName
 
 import org.gradle.api.plugins.quality.Pmd
 
@@ -140,7 +142,7 @@ class PmdFilter extends ProjectAware
         pPmdReport.children().each
         {
             Node aNode ->
-                if (aNode.name().equals('file'))
+                if (getLocalName(aNode.name()).equals('file'))
                 {
                     aNumFilteredViolations += filterFileNode(aNode, pMatchers);
                     if (aNode.children().isEmpty())
@@ -185,7 +187,7 @@ class PmdFilter extends ProjectAware
         pFileNode.children().each
         {
             Node aNode ->
-                if (aNode.name().equals('violation') && matches(aFileName, aNode, pMatchers))
+                if (getLocalName(aNode.name()).equals('violation') && matches(aFileName, aNode, pMatchers))
                     // This violation node was matched by the filter, mark it for removal.
                     aMatchingNodes += aNode;
         }
@@ -236,6 +238,17 @@ class PmdFilter extends ProjectAware
         }
 
         return false;
+    }
+
+
+    static private String getLocalName(Object pNodeName)
+    {
+        if (pNodeName instanceof QName)
+            return ((QName) pNodeName).localPart;
+        else if (pNodeName != null)
+            return pNodeName.toString();
+        else
+            return '';
     }
 
 

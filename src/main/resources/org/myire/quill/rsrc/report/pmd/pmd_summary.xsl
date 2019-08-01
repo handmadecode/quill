@@ -5,16 +5,15 @@
  * XSL style sheet for transforming the summary of a PMD XML report into part of
  * an HTML page.
  *
- * 2014-03-14 /PF    Created from the full report XSL.
- * 2015-11-25 /PF    Updated to new dashboard look.
- *
  *******************************************************************************
 -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+<xsl:stylesheet version="1.0"
+                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:pmd="http://pmd.sourceforge.net/report/2.0.0">
   <xsl:output method="html"/>
 
   <!-- Key use to get unique rule names -->
-  <xsl:key name="rule" match="violation" use="@rule"/>
+  <xsl:key name="rule" match="pmd:violation" use="@rule"/>
 
   <!-- Parameters where the XML file's modification timestamp are passed by the
        caller -->
@@ -27,16 +26,16 @@
 
   <!-- Main template for the document root -->
   <xsl:template match="/">
-    <xsl:apply-templates select="pmd"/>
+    <xsl:apply-templates select="pmd:pmd"/>
   </xsl:template>
 
 
   <!-- Template for the pmd element, which is the top-level element in the PMD
        report -->
-  <xsl:template match="pmd">
+  <xsl:template match="pmd:pmd">
 
     <!-- Count the number of files with violations -->
-    <xsl:variable name="num-files-with-violations" select="count(file)"/>
+    <xsl:variable name="num-files-with-violations" select="count(pmd:file)"/>
 
     <!-- The PMD summary section -->
     <div class="summarysection">
@@ -56,7 +55,7 @@
       <div class="summarysectionitem">
         <xsl:call-template name="output-summary-table">
           <xsl:with-param name="num-files-with-violations" select="$num-files-with-violations"/>
-          <xsl:with-param name="num-violations" select="count(file/violation)"/>
+          <xsl:with-param name="num-violations" select="count(pmd:file/pmd:violation)"/>
         </xsl:call-template>
       </div>
 

@@ -27,20 +27,6 @@ public final class Tasks
 
 
     /**
-     * Specify a file as input to a task, and mark it as an optional input if supported by the
-     * runtime Gradle version.
-     *
-     * @param pTask The task.
-     * @param pFile The input file.
-     */
-    @Deprecated
-    static public void setOptionalInputFile(Task pTask, Object pFile)
-    {
-        pTask.getInputs().file(pFile).optional(true);
-    }
-
-
-    /**
      * Specify an input property value for a task. This method is defined primarily to allow setting
      * input property values with lambda expressions.
      *

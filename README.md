@@ -1217,15 +1217,13 @@ corresponding project extension and tasks with some defaults and additions.
 ### Default values
 
 The plugin configures the `pmd` extension in the project to let the build continue even if
-violations are found, and to use version 5.5.7 of PMD. This is equivalent to configuring the
+violations are found, and to use version 6.17.0 of PMD. This is equivalent to configuring the
 extension explicitly in the build script as follows:
 
     pmd {
       ignoreFailures = true
-      toolVersion = '5.5.7'
+      toolVersion = '6.17.0'
     }
-
-Note that using PMD versions >= 5.4.0 requires that the Gradle build is run with Java 7 or later.
 
 The plugin removes the built-in PMD rule sets from the extension's configuration and specifies that
 the rule set file bundled with the Quill jar is used. This file is extracted to the path
@@ -1236,7 +1234,7 @@ extension is configured to use another rule set file through the incubating `rul
 property, the built-in rule set file will still be in use. It must be explicitly disabled by setting
 `ruleSetFiles` to en empty file collection, e.g. `pmd.ruleSetFiles = files()`.
 
-Note that the built-in rule set file requires at least version 5.4.0 of PMD. When setting
+Note that the built-in rule set file requires at least version 6.12.0 of PMD. When setting
 `toolVersion` to an older version of PMD, another rule set file must be explicitly configured.
 
 ### Extension additions
@@ -1260,10 +1258,12 @@ configured per task, e.g. to use another XSL file than the one distributed in th
 
     pmdTest.quillHtmlReport.enabled = false
 
-The the standard HTML report for all tasks of type `PMD` (normally `pmdMain` and `pmdTest`) is
+Note that the default XSL file requires XML reports produced by PMD 6.0 or later.
+
+The the standard HTML report for all tasks of type `Pmd` (normally `pmdMain` and `pmdTest`) is
 disabled. This is equivalent to the build script
 
-     tasks.withType(PMD) {
+    tasks.withType(Pmd) {
       reports.html.enabled = false
     }
 

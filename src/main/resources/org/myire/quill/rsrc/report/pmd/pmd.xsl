@@ -4,70 +4,62 @@
  *
  * XSL style sheet for transforming a PMD XML report into part of an HTML page.
  *
- * 2007-03-05 /PF    Created.
- * 2008-04-07 /PF    Moved generate-id() construct into output-rules-table
- *					 template as work-around for JDK 1.5 xsl bug.
- * 2008-04-18 /PF    Support for PMD 4.x beginline/endline + handling of
- *					 absent method names.
- * 2009-01-07 /PF    Using div's and style classes more consistently.
- * 2014-04-10 /PF    Added XML timestamp parameters + color coded error/warning
- *					 count.
- *
  *******************************************************************************
 -->
-<xsl:stylesheet xmlns:xsl="http://www.w3.org/1999/XSL/Transform" version="1.0">
+<xsl:stylesheet version="1.0"
+                xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
+                xmlns:pmd="http://pmd.sourceforge.net/report/2.0.0">
   <xsl:output method="html"/>
 
-  <!-- This part of the path to the source files should not be used when
-       converting the file path to qualified class names -->
-  <xsl:param name="source-file-base" select="'src/java/'"/>
-
   <!-- Key use to get unique rule names -->
-  <xsl:key name="rule" match="violation" use="@rule"/>
+  <xsl:key name="rule" match="pmd:violation" use="@rule"/>
 
   <!-- Parameters where the XML file's modification timestamp are passed by the
        caller -->
   <xsl:param name="xml-modified-date"/>
   <xsl:param name="xml-modified-time"/>
 
+  <!-- Parameter with the root directory path of the gradle project. This part of the path to the
+       source files should not be displayed. -->
+  <xsl:param name="gradle-project-root"/>
+  <xsl:param name="gradle-project-root-slash" select="concat($gradle-project-root, '/')"/>
+
 
   <!-- Main template for the document root -->
   <xsl:template match="/">
-    <xsl:apply-templates select="pmd"/>
+    <xsl:apply-templates select="pmd:pmd"/>
   </xsl:template>
 
   <!-- Template for the pmd element, which is the top-level element in the PMD
        report -->
-  <xsl:template match="pmd">
+  <xsl:template match="pmd:pmd">
 
     <div class="mainsection">
 
       <!-- Report header -->
       <div class="mainheader">PMD Report</div>
 
-        <!-- Analysis run timestamp table -->
+      <!-- Analysis run timestamp table -->
       <xsl:call-template name="output-timestamp-table" />
 
       <!-- Statistics table -->
       <xsl:call-template name="output-statistics-table">
         <xsl:with-param name="version" select="@version"/>
-        <xsl:with-param name="num-files-with-violations" select="count(file)"/>
-        <xsl:with-param name="num-violations" select="count(file/violation)"/>
+        <xsl:with-param name="num-files-with-violations" select="count(pmd:file)"/>
+        <xsl:with-param name="num-violations" select="count(pmd:file/pmd:violation)"/>
       </xsl:call-template>
 
       <!-- Output violation summary and file details if there were any
            violations -->
-      <xsl:if test="file[violation]">
+      <xsl:if test="pmd:file[pmd:violation]">
         <!-- Table with summary of the rules that were violated -->
         <xsl:call-template name="output-rules-table"/>
         <!-- Details for each file with violations -->
         <div class="level1section">
           <div class="level1header">File details</div>
-          <xsl:for-each select="file">
-            <xsl:sort data-type="number" order="descending" select="count(violation)"/>
-            <xsl:call-template name="output-file-violations">
-              <xsl:with-param name="file" select="."/>
-            </xsl:call-template>
+          <xsl:for-each select="pmd:file">
+            <xsl:sort data-type="number" order="descending" select="count(pmd:violation)"/>
+            <xsl:call-template name="output-file-violations"/>
           </xsl:for-each>
         </div>
       </xsl:if>
@@ -76,19 +68,19 @@
   </xsl:template>
 
 
-    <!-- Output a table with the analysis run timestamp-->
-    <xsl:template name="output-timestamp-table">
-        <table class="mainsectionitem" width="100%" cellpadding="2" cellspacing="0" border="0">
-            <tr>
-                <td class="data">
-                    Analysis run on<xsl:text>&#32;</xsl:text>
-                    <xsl:value-of select="$xml-modified-date"/>
-                    <xsl:text>&#32;</xsl:text>
-                    <xsl:value-of select="$xml-modified-time"/>
-                </td>
-            </tr>
-        </table>
-    </xsl:template>
+  <!-- Output a table with the analysis run timestamp-->
+  <xsl:template name="output-timestamp-table">
+    <table class="mainsectionitem" width="100%" cellpadding="2" cellspacing="0" border="0">
+      <tr>
+        <td class="data">
+          Analysis run on<xsl:text>&#32;</xsl:text>
+          <xsl:value-of select="$xml-modified-date"/>
+          <xsl:text>&#32;</xsl:text>
+          <xsl:value-of select="$xml-modified-time"/>
+        </td>
+      </tr>
+    </table>
+  </xsl:template>
 
 
   <!-- Output a table with some overall statistics of the PMD run -->
@@ -141,7 +133,7 @@
       <div class="level1header">Violated rules summary</div>
       <table class="level1sectionitem" width="60%" cellpadding="2" cellspacing="0" border="0">
         <colgroup>
-            <col width="70%"/><col width="15%"/><col width="15%"/>
+          <col width="70%"/><col width="15%"/><col width="15%"/>
         </colgroup>
         <tr>
           <td class="colheader">Rule</td>
@@ -151,12 +143,12 @@
 
         <!-- The select expression generates a set with the first error node for
              each unique error source -->
-        <xsl:for-each select="file/violation[generate-id() = generate-id(key('rule', @rule)[1])]">
+        <xsl:for-each select="pmd:file/pmd:violation[generate-id() = generate-id(key('rule', @rule)[1])]">
           <!-- Sort the list on the number of occurrences of the rule -->
           <xsl:sort data-type="number" order="descending"
-                    select="count(../../file/violation[@rule=current()/@rule])"/>
+                    select="count(../../pmd:file/pmd:violation[@rule=current()/@rule])"/>
           <!-- Get the set of violations that have the current rule -->
-          <xsl:variable name="violation-set" select="../../file/violation[@rule=current()/@rule]"/>
+          <xsl:variable name="violation-set" select="../../pmd:file/pmd:violation[@rule=current()/@rule]"/>
           <tr>
             <!-- Use alternate row characteristics every other row -->
             <xsl:if test="position() mod 2 = 0">
@@ -165,8 +157,8 @@
             <!-- Output the name of the rule as a link to the PMD external info URL -->
             <td class="data">
               <a target="_blank">
-               <xsl:attribute name="href"><xsl:value-of select="@externalInfoUrl"/></xsl:attribute>
-               <xsl:value-of select="@rule"/>
+                <xsl:attribute name="href"><xsl:value-of select="@externalInfoUrl"/></xsl:attribute>
+                <xsl:value-of select="@rule"/>
               </a>
             </td>
             <td class="data" align="right"><xsl:value-of select="count($violation-set/..)"/></td>
@@ -180,15 +172,11 @@
 
   <!-- Output a table with a list of all violated rules for a specific file -->
   <xsl:template name="output-file-violations">
-    <xsl:param name="file"/>
     <div class="level2header">
-      <xsl:choose>
-        <xsl:when test="contains(@name,$source-file-base)">
-          <xsl:value-of select="substring-after(@name,$source-file-base)"/>
-        </xsl:when>
-       <xsl:otherwise><xsl:value-of select="@name"/></xsl:otherwise>
-      </xsl:choose>
-    : <xsl:value-of select="count(violation)"/> violation(s)
+      <xsl:call-template name="output-file-path-relative-to-root">
+        <xsl:with-param name="file-path" select="@name"/>
+      </xsl:call-template>
+      : <xsl:value-of select="count(pmd:violation)"/> violation(s)
     </div>
     <table class="level2sectionitem" width="100%" cellpadding="2" cellspacing="0" border="0">
       <colgroup>
@@ -203,54 +191,66 @@
         <td class="colheader">Rule</td>
         <td class="colheader">Message</td>
       </tr>
-    <xsl:for-each select="violation">
-      <tr>
-        <!-- Use alternate row characteristics every other row -->
-        <xsl:if test="position() mod 2 = 0">
-          <xsl:attribute name="class">altrow</xsl:attribute>
-        </xsl:if>
-        <td class="data">
-          <xsl:choose>
-            <xsl:when test="string-length(@method) &gt; 0">
-              <xsl:value-of select="@method"/>()
-            </xsl:when>
-	        <xsl:otherwise>-</xsl:otherwise>
-          </xsl:choose>
-        </td>
-        <td class="data" align="right">
-          <xsl:choose>
-            <xsl:when test="string-length(@line) &gt; 0">
-              <xsl:value-of select="@line"/>
-            </xsl:when>
-            <xsl:when test="string-length(@beginline) &gt; 0">
-              <xsl:value-of select="@beginline"/>
-              <xsl:if test="@beginline != @endline">-<xsl:value-of select="@endline"/></xsl:if>
-            </xsl:when>
-	        <xsl:otherwise>-</xsl:otherwise>
-          </xsl:choose>
-        </td>
-        <td class="data" align="right">
-          <xsl:choose>
-            <xsl:when test="@priority &lt;= 1">
-              <span class="error"><xsl:value-of select="@priority"/></span>
-            </xsl:when>
-            <xsl:otherwise>
-              <span class="warning"><xsl:value-of select="@priority"/></span>
-            </xsl:otherwise>
-          </xsl:choose>
-        </td>
-        <td/>
-        <!-- Output the name of the rule as a link to the PMD external info URL -->
-        <td class="data">
-          <a target="_blank">
-           <xsl:attribute name="href"><xsl:value-of select="@externalInfoUrl"/></xsl:attribute>
-           <xsl:value-of select="@rule"/>
-          </a>
-        </td>
-        <td class="data"><xsl:value-of select="text()"/></td>
-      </tr>
-    </xsl:for-each>
+      <xsl:for-each select="pmd:violation">
+        <tr>
+          <!-- Use alternate row characteristics every other row -->
+          <xsl:if test="position() mod 2 = 0">
+            <xsl:attribute name="class">altrow</xsl:attribute>
+          </xsl:if>
+          <td class="data">
+            <xsl:choose>
+              <xsl:when test="string-length(@method) &gt; 0">
+                <xsl:value-of select="@method"/>()
+              </xsl:when>
+              <xsl:otherwise>-</xsl:otherwise>
+            </xsl:choose>
+          </td>
+          <td class="data" align="right">
+            <xsl:choose>
+              <xsl:when test="string-length(@beginline) &gt; 0">
+                <xsl:value-of select="@beginline"/>
+                <xsl:if test="@beginline != @endline">-<xsl:value-of select="@endline"/></xsl:if>
+              </xsl:when>
+              <xsl:otherwise>-</xsl:otherwise>
+            </xsl:choose>
+          </td>
+          <td class="data" align="right">
+            <xsl:choose>
+              <xsl:when test="@priority &lt;= 1">
+                <span class="error"><xsl:value-of select="@priority"/></span>
+              </xsl:when>
+              <xsl:otherwise>
+                <span class="warning"><xsl:value-of select="@priority"/></span>
+              </xsl:otherwise>
+            </xsl:choose>
+          </td>
+          <td/>
+          <!-- Output the name of the rule as a link to the PMD external info URL -->
+          <td class="data">
+            <a target="_blank">
+              <xsl:attribute name="href"><xsl:value-of select="@externalInfoUrl"/></xsl:attribute>
+              <xsl:value-of select="@rule"/>
+            </a>
+          </td>
+          <td class="data"><xsl:value-of select="text()"/></td>
+        </tr>
+      </xsl:for-each>
     </table>
+  </xsl:template>
+
+
+  <!-- Output the part of a file path that is below the gradle-project-root parameter -->
+  <xsl:template name="output-file-path-relative-to-root">
+    <xsl:param name="file-path"/>
+    <xsl:choose>
+      <xsl:when test="contains($file-path, $gradle-project-root-slash)">
+        <xsl:value-of select="substring-after($file-path, $gradle-project-root-slash)"/>
+      </xsl:when>
+      <xsl:when test="contains($file-path, $gradle-project-root)">
+        <xsl:value-of select="substring-after($file-path, $gradle-project-root)"/>
+      </xsl:when>
+      <xsl:otherwise><xsl:value-of select="$file-path"/></xsl:otherwise>
+    </xsl:choose>
   </xsl:template>
 
 </xsl:stylesheet>
