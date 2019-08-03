@@ -1130,17 +1130,17 @@ configures the corresponding project extension and tasks with some defaults and 
 
 The plugin configures the `checkstyle` extension in the project to let the build continue even if
 violations are found, and to not log every found violation. The Checkstyle version to use is set to
-6.19. This is equivalent to configuring the extension explicitly in the build script as follows:
+8.23. This is equivalent to configuring the extension explicitly in the build script as follows:
 
     checkstyle {
       ignoreFailures = true
       showViolations = false
-      toolVersion = '6.19'
+      toolVersion = '8.23'
     }
 
 The Checkstyle configuration file is specified to be the one bundled with the Quill jar. This
 configuration file is extracted to the path "tmp/checkstyle/checkstyle_config.xml" relative to the
-project's build directory. Note that this configuration file requires at least version 6.15 of
+project's build directory. Note that this configuration file requires at least version 8.22 of
 Checkstyle. When setting `toolVersion` to an older version of Checkstyle, another configuration file
 must be explicitly configured.
 
@@ -1151,21 +1151,6 @@ location of this file is specified through the Checkstyle configuration property
     checkstyle.configProperties.put('suppressions.file', file('checkstyle_suppressions.xml'))
 
 If this property isn't specified, no suppression filter file is used.
-
-### Checkstyle version considerations
-
-The version of Checkstyle used may put some requirements on the Gradle version and Java runtime:
-
-* Using Checkstyle versions >= 6.2 requires that the Gradle build is run with Java 7 or later.
-
-* Using Checkstyle versions >= 6.8 requires that Gradle version 2.7 or later is used due to an
-incompatibility in the Checkstyle Ant task that was introduced in Checkstyle version 6.8. Gradle
-doesn't have a work-around for this incompatibility in versions before 2.7.
-
-* Using Checkstyle versions >= 7.0 requires that the Gradle build is run with Java 8 or later.
-
-This means that by default the Checkstyle Additions plugin requires Gradle version 2.7 or later and
-Java 7 or later.
 
 ### Extension additions
 
@@ -1188,11 +1173,10 @@ be configured per task, e.g. to use another XSL file than the one distributed in
 
     checkstyleTest.quillHtmlReport.enabled = false
 
-In Gradle version 2.10 an HTML report was added to the `reports` container of all `Checkstyle`
-tasks. The plugin disables this report since adds its own HTML report. This is (logically)
-equivalent to the build script
+The plugin disables the standard HTML report for all tasks of type `Checkstyle`
+(normally `checkstyleMain` and `checkstyleTest`). This is equivalent to the build script
 
-     tasks.withType(Checkstyle) {
+    tasks.withType(Checkstyle) {
       reports.html.enabled = false
     }
 
@@ -1260,8 +1244,8 @@ configured per task, e.g. to use another XSL file than the one distributed in th
 
 Note that the default XSL file requires XML reports produced by PMD 6.0 or later.
 
-The the standard HTML report for all tasks of type `Pmd` (normally `pmdMain` and `pmdTest`) is
-disabled. This is equivalent to the build script
+The plugin disables the standard HTML report for all tasks of type `Pmd` (normally `pmdMain` and
+`pmdTest`). This is equivalent to the build script
 
     tasks.withType(Pmd) {
       reports.html.enabled = false
