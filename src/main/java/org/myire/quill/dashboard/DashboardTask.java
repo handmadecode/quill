@@ -361,17 +361,18 @@ public class DashboardTask extends DefaultTask implements Reporting<DashboardRep
         static private final long serialVersionUID = 1L;
 
         private final String fName;
-        private final File fInputReportFile;
-        private final File fDetailedReportFile;
-        private final File fXslFile;
+        private final DashboardSectionFile fInputReportFile;
+        private final DashboardSectionFile fDetailedReportFile;
+        private final DashboardSectionFile fXslFile;
 
         DashboardSectionSpec(DashboardSection pSection)
         {
             fName = pSection.getName();
-            fInputReportFile = getReportFileSpec(pSection.getReport());
-            fDetailedReportFile = getReportFileSpec(pSection.getDetailedReport());
-            fXslFile = pSection.getXslFile();
+            fInputReportFile = toDashboardSectionFile(getReportFileSpec(pSection.getReport()));
+            fDetailedReportFile = toDashboardSectionFile(getReportFileSpec(pSection.getDetailedReport()));
+            fXslFile = toDashboardSectionFile(pSection.getXslFile());
         }
+
 
         @Override
         public boolean equals(Object pObject)
@@ -398,6 +399,52 @@ public class DashboardTask extends DefaultTask implements Reporting<DashboardRep
         static private File getReportFileSpec(Report pReport)
         {
             return pReport != null && pReport.isEnabled() ? pReport.getDestination() : null;
+        }
+
+
+        static private DashboardSectionFile toDashboardSectionFile(File pFile)
+        {
+            return pFile != null ? new DashboardSectionFile(pFile) : null;
+        }
+    }
+
+
+    /**
+     * A snapshot of a {@code File} that is suitable for a task's input.
+     */
+    static private class DashboardSectionFile implements Serializable
+    {
+        static private final long serialVersionUID = 1L;
+
+        private final String fAbsolutePath;
+        private final boolean fExists;
+        private final long fLastModified;
+
+        DashboardSectionFile(File pFile)
+        {
+            fAbsolutePath = pFile.getAbsolutePath();
+            fExists = pFile.exists();
+            fLastModified = pFile.lastModified();
+        }
+
+        @Override
+        public boolean equals(Object pObject)
+        {
+            if (pObject== this)
+                return true;
+            if (!(pObject instanceof DashboardSectionFile))
+                return false;
+
+            DashboardSectionFile aOther = (DashboardSectionFile) pObject;
+            return Objects.equals(fAbsolutePath, aOther.fAbsolutePath) &&
+                   fExists == aOther.fExists &&
+                   fLastModified == aOther.fLastModified;
+        }
+
+        @Override
+        public int hashCode()
+        {
+            return Objects.hash(fAbsolutePath, Boolean.valueOf(fExists), fLastModified);
         }
     }
 }
