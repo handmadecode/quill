@@ -21,6 +21,7 @@ import org.gradle.api.reporting.Report;
 import org.gradle.api.reporting.ReportContainer;
 import org.gradle.api.reporting.Reporting;
 import org.gradle.api.tasks.testing.Test;
+import org.gradle.testing.jacoco.tasks.JacocoReport;
 
 import org.myire.quill.common.ProjectAware;
 import org.myire.quill.cpd.CpdTask;
@@ -38,6 +39,7 @@ class DashboardSectionFactory extends ProjectAware
     static private final String XSL_RESOURCE_COBERTURA = "/org/myire/quill/rsrc/report/cobertura/cobertura_summary.xsl";
     static private final String XSL_RESOURCE_CPD = "/org/myire/quill/rsrc/report/cpd/cpd_summary.xsl";
     static private final String XSL_RESOURCE_FINDBUGS= "/org/myire/quill/rsrc/report/findbugs/findbugs_summary.xsl";
+    static private final String XSL_RESOURCE_JACOCO = "/org/myire/quill/rsrc/report/jacoco/jacoco_summary.xsl";
     static private final String XSL_RESOURCE_JDEPEND = "/org/myire/quill/rsrc/report/jdepend/jdepend_summary.xsl";
     static private final String XSL_RESOURCE_JUNIT = "/org/myire/quill/rsrc/report/junit/junit_summary.xsl";
     static private final String XSL_RESOURCE_PMD = "/org/myire/quill/rsrc/report/pmd/pmd_summary.xsl";
@@ -79,6 +81,8 @@ class DashboardSectionFactory extends ProjectAware
             return createCpdSection((CpdTask) pTask);
         else if (pTask instanceof FindBugs)
             return createFindBugsSection((FindBugs) pTask);
+        else if (pTask instanceof JacocoReport)
+            return createJacocoSection((JacocoReport) pTask);
         else if (pTask instanceof JDepend)
             return createJDependSection((JDepend) pTask);
         else if (pTask instanceof Test)
@@ -99,6 +103,7 @@ class DashboardSectionFactory extends ProjectAware
         Collection<DashboardSection> aSections = new ArrayList<>();
 
         addSectionsForTaskType(aSections, Test.class, this::createJUnitSection);
+        addSectionsForTaskType(aSections, JacocoReport.class, this::createJacocoSection);
         if (cCoberturaReportsTaskClass != null)
             addSectionsForTaskType(aSections, cCoberturaReportsTaskClass, this::createCoberturaSection);
         addSectionsForTaskType(aSections, ScentTask.class, this::createScentSection);
@@ -243,6 +248,24 @@ class DashboardSectionFactory extends ProjectAware
             pTask.getReports().getXml(),
             aDetailedReport,
             XSL_RESOURCE_FINDBUGS);
+    }
+
+
+    /**
+     * Create a dashboard section for the XML report of a Jacoco report task.
+     *
+     * @param pTask The Jacoco report task.
+     *
+     * @return  A new {@code DashboardSection}.
+     */
+    private DashboardSection createJacocoSection(JacocoReport pTask)
+    {
+        return new DashboardSection(
+            pTask.getProject(),
+            pTask.getName(),
+            pTask.getReports().getXml(),
+            pTask.getReports().getHtml(),
+            XSL_RESOURCE_JACOCO);
     }
 
 

@@ -21,7 +21,7 @@ appeal to the taste of those who work in different ways.
 1. [Project Metadata Plugin](#project-metadata-plugin)
 1. [Java Additions Plugin](#java-additions-plugin)
 1. [JUnit Additions Plugin](#junit-additions-plugin)
-1. [Cobertura Plugin](#cobertura-plugin)
+1. [JaCoCo Additions Plugin](#jacoco-additions-plugin)
 1. [FindBugs Additions Plugin](#findbugs-additions-plugin)
 1. [Checkstyle Additions Plugin](#checkstyle-additions-plugin)
 1. [PMD Additions Plugin](#pmd-additions-plugin)
@@ -31,6 +31,7 @@ appeal to the taste of those who work in different ways.
 1. [Reports Dashboard Plugin](#reports-dashboard-plugin)
 1. [Pom Plugin](#pom-plugin)
 1. [Module Info Plugin](#module-info-plugin)
+1. [Cobertura Plugin](#cobertura-plugin)
 1. [JavaNCSS Plugin](#javancss-plugin)
 
 
@@ -129,7 +130,7 @@ To use the Quill plugins they must be added to the Gradle build script classpath
 
 The Quill plugins can then be applied to the Gradle project:
 
-    apply plugin: 'org.myire.quill.cobertura'
+    apply plugin: 'org.myire.quill.cpd'
     apply plugin: 'org.myire.quill.scent'
 
 To make all Quill plugins available in a build script, the plugin 'all' can be applied. This plugin
@@ -889,181 +890,38 @@ files
 files
 
 
-## Cobertura Plugin
+## JaCoCo Additions Plugin
 
-The Cobertura plugin adds functionality for generating Cobertura test coverage reports to all tasks
-of type `Test`.
-
-Although the plugin offers quite a few configuration options, the default values should be fine for
-most use cases.
+The JaCoCo Additions plugin applies the standard Gradle plugin `jacoco` to the project and
+configures the corresponding project extension and tasks with some defaults. The plugin applies the
+standard `java` plugin before applying the `jacoco` plugin to make the latter add the
+`jacocoTestReport` task to the project.
 
 ### Usage
 
-    apply plugin: 'org.myire.quill.cobertura'
+    apply plugin: 'org.myire.quill.jacoco'
 
-### Cobertura documentation
+### Default values
 
-The tasks added by the plugin delegate their work to the corresponding Ant task in the Cobertura
-distribution. Consequently, the majority of the properties used to configure the plugin's extensions
-and tasks are the same as the ones used to configure the
-[Cobertura Ant tasks](https://github.com/cobertura/cobertura/wiki/Ant-Task-Reference).
+The plugin configures the `jacoco` extension in the project to use version 0.8.4 of JaCoCo. This is
+equivalent to configuring the extension explicitly in the build script as follows:
 
-### Project extension
+    jacoco {
+      toolVersion = '0.8.4'
+    }
 
-The plugin adds an extension with the name `cobertura` to the Gradle project. This extension is used
-to configure the behaviour of all Cobertura enhanced tasks through the properties listed below.
+The plugin also configures the `jacoco` extension added to all test tasks by setting the `append`
+property to false. This is however only done if running a Gradle version less than 5.0, since the
+`append` property was deprecated in Gradle version 5.0. This is equivalent to
 
-* `toolVersion` - a string specifying the version of Cobertura to use. Default is version "2.1.1".
+    test {
+      jacoco {
+        append = false
+      }
+    }
 
-* `workDir` - a `File` specifying the global working directory for the Cobertura tasks. Default is a
-directory called `cobertura` in the Gradle project's temporary directory.
-
-* `coberturaClassPath` - a `FileCollection` specifying the classpath containing the Cobertura
-classes used by the tasks. Default is the `cobertura` dependency configuration (see below).
-
-* `ignoreTrivial` - a `boolean` that if true specifies that constructors/methods that contain one
-line of code should be excluded from the test coverage analysis. Examples of such methods are
-constructors only calling a super constructor, and getters/setters. Default is false.
-
-* `ignoreMethodNames` - a list of strings where each string is a regular expression specifying
-methods names that should be excluded from the coverage analysis. Note that the classes containing
-the methods will still be instrumented. Default is an empty list. Example: `.*PrintStream.*`. Note
-that the corresponding Ant task property is called `ignore`.
-
-* `ignoreMethodAnnotations` - a list of strings where each string is the fully qualified name of an
-annotations with which methods that should be excluded from the coverage analysis are annotated
-with. Default is an empty list.
-
-* `sourceEncoding` - a string with the name of the encoding that the report task(s) should use when
-reading the source files. The platform's default encoding will be used if this property isn't
-specified.
-
-### Task specific project extensions
-
-In addition to the global project extension described above, another project extension is added by
-the plugin for each `Test` task that is enhanced with Cobertura functionality. The name of a task
-specific extension is `cobertura` + *the capitalized name of the task*. For example, the extension
-corresponding to the `test` task will have the name `coberturaTest`.
-
-A task specific extension is used to configure the enhancement of the `Test` task, including the
-related instrumentation and report tasks (see below). Each task specific extension has the following
-properties:
-
-* `enabled` - a `boolean` specifying whether the Cobertura enhancement of the `Test` task is enabled
-or not. If the enhancement is disabled, the tests are run with the original classes under test, not
-the instrumented ones, and no coverage report will produced for the test run. Default is true,
-meaning that the tests will run with instrumented classes and that a coverage report will be
-produced.
-
-* `workDir` - a `File` specifying the working directory for the enhanced task. Default is a
-directory with the same name as the enhanced `Test` task in the directory specified by `workDir` in
-the global project extension.
-
-* `inputClasses` - a `FileCollection` specifying the classes to analyze for test coverage. Default
-is all files in the output classes directory of the main source set. Used as input by the
-instrumentation task.
-
-* `auxClassPath` - a `FileCollection` specifying a path containing any classes that shouldn't be
-analyzed but are needed by the instrumentation. Default is no auxiliary class path. Used as input by
-the instrumentation task.
-
-* `ignoreTrivial` - overrides `ignoreTrivial` in the global project extension if set. Used as input
-by the instrumentation task.
-
-* `ignoreMethodNames` - overrides `ignoreMethodNames` in the global project extension if set. Used
-as input by the instrumentation task.
-
-* `ignoreMethodAnnotations` - overrides `ignoreMethodAnnotations` in the global project extension if
-set. Used as input by the instrumentation task.
-
-* `instrumentedClassesDir` - a `File` specifying the directory containing the instrumented versions
-of the classes to analyze. Default is a directory named `instrumented` in the directory specified by
-`workDir`. Used as output by the instrumentation task and as input by the test task.
-
-* `instrumentationDataFile` - a `File` specifying the file holding metadata about the instrumented
-classes. This file contains information about the names of the classes, their method names, line
-numbers, etc. It is created by the instrumentation task. The default value is a file named
-`cobertura.instrumentation.ser` in the directory specified by `workDir`. Used as output by the
-instrumentation task and input by the test task.
-
-* `executionDataFile` - a `File` specifying the file holding metadata about the test execution of
-the instrumented classes. This file contains updated information about the instrumented classes from
-the test runs. It is an updated version of `instrumentationDataFile`, created by the test task and
-used as input by the report task. The default value is a file named `cobertura.execution.ser` in
-the directory specified by `workDir`.
-
-* `sourceDirs` - a `FileCollection` specifying the directories containing the sources of the
-analyzed classes. Default is all source directories in the main source set. Used as input by the
-report task.
-
-* `sourceEncoding` - overrides `sourceEncoding` in the global project extension if set. Used as
-input by the report task.
-
-### Instrumentation tasks
-
-The plugin adds an instrumentation task for each enhanced `Test` task. The name of this task is
-the name of the `Test` task + `CoberturaInstrument`, e.g. `testCoberturaInstrument` for the `test`
-task.
-
-An instrumentation task gets its properties from the corresponding task specific project extension.
-When executed, the instrumentation task instruments the classes in `inputClasses` and writes the
-instrumented versions of those classes to `instrumentedClassesDir`. The task also creates the
-`instrumentationDataFile` file.
-
-### Enhancement of Test tasks
-
-The plugin adds two actions to each enhanced `Test` task.
-
-The first action is added to the beginning of the task's action list. This action prepares the test
-execution by prepending the `instrumentedClassesDir` and the `coberturaClassPath` to the test task's
-classpath. It also set the system property `net.sourceforge.cobertura.datafile` in the test task's
-forked JVM to the value of `executionDataFile`, and copies `instrumentationDataFile` to
-`executionDataFile`.
-
-The second action is added to the end of the task's action list. This action restores the test task
-by setting its classpath and `net.sourceforge.cobertura.datafile` system property to the values they
-had before the preparing action was run.
-
-The instrumentation task associated with an enhanced `Test` task is added to the latter's
-dependencies.
-
-### Report tasks
-
-The plugin adds an report task for each enhanced `Test` task. The name of this task is `cobertura` +
-the name of the `Test` task + `Report`, e.g. `coberturaTestReport` for the `test` task. This means
-that it normally is sufficient to specify `cobertura` as the task to execute.
-
-A report task gets most of its properties from the corresponding task specific project extension,
-see above. In addition to these, it has a read-only property `reports` that holds two report
-specifications:
-
-* `xml` - a `SingleFileReport` specifying the XML report file. Default is a file called
-`coverage.xml` in a directory with the same name as the associated enhanced `Test` task in a
-directory called `cobertura` in the Gradle project's report directory.
-
-* `html` - a `DirectoryReport` specifying the directory where the HTML report is created. Default is
-a directory with the same name as the associated enhanced `Test` task in a directory called
-`cobertura` in the Gradle project's report directory.
-
-These two reports can be configured as any Gradle report, e.g.
-
-    coberturaTestReport.reports.xml.enabled = false
-    coberturaTestReport.reports.html.destination = "${project.buildDir}/reports/coverage"
-
-A report task depends on the associated enhanced `Test` task.
-
-The report tasks implement the `Reporting` interface, meaning that the produced reports are picked
-up by the Build Dashboard plugin.
-
-### Dependency configuration
-
-The Cobertura plugin adds a `cobertura` dependency configuration to the project. This configuration
-specifies the default classpath for the Cobertura task. By default, this configuration has one
-dependency, equivalent to:
-
-    cobertura 'net.sourceforge.cobertura:cobertura:<toolVersion>'
-
-where `<toolVersion>` is the value of the `cobertura` extension's `toolVersion` property.
+The `jacocoTestReport` task is configured to have the `xml` and `html` reports enabled and the `csv`
+report disabled. The `build`  task is also set to depend on the `jacocoTestReport` task.
 
 
 ## FindBugs Additions Plugin
@@ -1658,6 +1516,9 @@ By default, the report contains sections for the following tasks:
 (see the [JUnit Additions plugin](#junit-additions-plugin)). The linked report is the task's `html`
 report.
 
+* All tasks of type `JacocoReport`. The summarized report is the task's `xml` report and the linked
+report is the task's `html` report.
+
 * All tasks of type `CoberturaReportsTask` (see the [Cobertura plugin](#cobertura-plugin)). The
 summarized report is the task's `xml` report and the linked report is the task's `html` report.
 
@@ -1981,6 +1842,189 @@ dependencies.
 The tasks added by the plugin require a Java toolchain with version 9 or greater, since a module
 declaration must be compiled with at least JDK 9. Running Gradle with Java 9 is supported starting
 with Gradle version 4.2.1.
+
+
+## Cobertura Plugin
+
+The Cobertura plugin adds functionality for generating Cobertura test coverage reports to all tasks
+of type `Test`.
+
+Although the plugin offers quite a few configuration options, the default values should be fine for
+most use cases.
+
+Note that the latest release of Cobertura is from February 2015, and that it doesn't work with
+classes compiled for Java 11 or newer (the tool can however still be run with Java 11). Consider
+using the [JaCoCo Additions plugin](#jacoco-additions-plugin) instead for code coverage. Because of
+this, the Cobertura plugin is *not* applied by the  'all' plugin or by the 'core' plugin; it must
+always be applied explicitly.
+
+### Usage
+
+    apply plugin: 'org.myire.quill.cobertura'
+
+### Cobertura documentation
+
+The tasks added by the plugin delegate their work to the corresponding Ant task in the Cobertura
+distribution. Consequently, the majority of the properties used to configure the plugin's extensions
+and tasks are the same as the ones used to configure the
+[Cobertura Ant tasks](https://github.com/cobertura/cobertura/wiki/Ant-Task-Reference).
+
+### Project extension
+
+The plugin adds an extension with the name `cobertura` to the Gradle project. This extension is used
+to configure the behaviour of all Cobertura enhanced tasks through the properties listed below.
+
+* `toolVersion` - a string specifying the version of Cobertura to use. Default is version "2.1.1".
+
+* `workDir` - a `File` specifying the global working directory for the Cobertura tasks. Default is a
+directory called `cobertura` in the Gradle project's temporary directory.
+
+* `coberturaClassPath` - a `FileCollection` specifying the classpath containing the Cobertura
+classes used by the tasks. Default is the `cobertura` dependency configuration (see below).
+
+* `ignoreTrivial` - a `boolean` that if true specifies that constructors/methods that contain one
+line of code should be excluded from the test coverage analysis. Examples of such methods are
+constructors only calling a super constructor, and getters/setters. Default is false.
+
+* `ignoreMethodNames` - a list of strings where each string is a regular expression specifying
+methods names that should be excluded from the coverage analysis. Note that the classes containing
+the methods will still be instrumented. Default is an empty list. Example: `.*PrintStream.*`. Note
+that the corresponding Ant task property is called `ignore`.
+
+* `ignoreMethodAnnotations` - a list of strings where each string is the fully qualified name of an
+annotations with which methods that should be excluded from the coverage analysis are annotated
+with. Default is an empty list.
+
+* `sourceEncoding` - a string with the name of the encoding that the report task(s) should use when
+reading the source files. The platform's default encoding will be used if this property isn't
+specified.
+
+### Task specific project extensions
+
+In addition to the global project extension described above, another project extension is added by
+the plugin for each `Test` task that is enhanced with Cobertura functionality. The name of a task
+specific extension is `cobertura` + *the capitalized name of the task*. For example, the extension
+corresponding to the `test` task will have the name `coberturaTest`.
+
+A task specific extension is used to configure the enhancement of the `Test` task, including the
+related instrumentation and report tasks (see below). Each task specific extension has the following
+properties:
+
+* `enabled` - a `boolean` specifying whether the Cobertura enhancement of the `Test` task is enabled
+or not. If the enhancement is disabled, the tests are run with the original classes under test, not
+the instrumented ones, and no coverage report will produced for the test run. Default is true,
+meaning that the tests will run with instrumented classes and that a coverage report will be
+produced.
+
+* `workDir` - a `File` specifying the working directory for the enhanced task. Default is a
+directory with the same name as the enhanced `Test` task in the directory specified by `workDir` in
+the global project extension.
+
+* `inputClasses` - a `FileCollection` specifying the classes to analyze for test coverage. Default
+is all files in the output classes directory of the main source set. Used as input by the
+instrumentation task.
+
+* `auxClassPath` - a `FileCollection` specifying a path containing any classes that shouldn't be
+analyzed but are needed by the instrumentation. Default is no auxiliary class path. Used as input by
+the instrumentation task.
+
+* `ignoreTrivial` - overrides `ignoreTrivial` in the global project extension if set. Used as input
+by the instrumentation task.
+
+* `ignoreMethodNames` - overrides `ignoreMethodNames` in the global project extension if set. Used
+as input by the instrumentation task.
+
+* `ignoreMethodAnnotations` - overrides `ignoreMethodAnnotations` in the global project extension if
+set. Used as input by the instrumentation task.
+
+* `instrumentedClassesDir` - a `File` specifying the directory containing the instrumented versions
+of the classes to analyze. Default is a directory named `instrumented` in the directory specified by
+`workDir`. Used as output by the instrumentation task and as input by the test task.
+
+* `instrumentationDataFile` - a `File` specifying the file holding metadata about the instrumented
+classes. This file contains information about the names of the classes, their method names, line
+numbers, etc. It is created by the instrumentation task. The default value is a file named
+`cobertura.instrumentation.ser` in the directory specified by `workDir`. Used as output by the
+instrumentation task and input by the test task.
+
+* `executionDataFile` - a `File` specifying the file holding metadata about the test execution of
+the instrumented classes. This file contains updated information about the instrumented classes from
+the test runs. It is an updated version of `instrumentationDataFile`, created by the test task and
+used as input by the report task. The default value is a file named `cobertura.execution.ser` in
+the directory specified by `workDir`.
+
+* `sourceDirs` - a `FileCollection` specifying the directories containing the sources of the
+analyzed classes. Default is all source directories in the main source set. Used as input by the
+report task.
+
+* `sourceEncoding` - overrides `sourceEncoding` in the global project extension if set. Used as
+input by the report task.
+
+### Instrumentation tasks
+
+The plugin adds an instrumentation task for each enhanced `Test` task. The name of this task is
+the name of the `Test` task + `CoberturaInstrument`, e.g. `testCoberturaInstrument` for the `test`
+task.
+
+An instrumentation task gets its properties from the corresponding task specific project extension.
+When executed, the instrumentation task instruments the classes in `inputClasses` and writes the
+instrumented versions of those classes to `instrumentedClassesDir`. The task also creates the
+`instrumentationDataFile` file.
+
+### Enhancement of Test tasks
+
+The plugin adds two actions to each enhanced `Test` task.
+
+The first action is added to the beginning of the task's action list. This action prepares the test
+execution by prepending the `instrumentedClassesDir` and the `coberturaClassPath` to the test task's
+classpath. It also set the system property `net.sourceforge.cobertura.datafile` in the test task's
+forked JVM to the value of `executionDataFile`, and copies `instrumentationDataFile` to
+`executionDataFile`.
+
+The second action is added to the end of the task's action list. This action restores the test task
+by setting its classpath and `net.sourceforge.cobertura.datafile` system property to the values they
+had before the preparing action was run.
+
+The instrumentation task associated with an enhanced `Test` task is added to the latter's
+dependencies.
+
+### Report tasks
+
+The plugin adds an report task for each enhanced `Test` task. The name of this task is `cobertura` +
+the name of the `Test` task + `Report`, e.g. `coberturaTestReport` for the `test` task. This means
+that it normally is sufficient to specify `cobertura` as the task to execute.
+
+A report task gets most of its properties from the corresponding task specific project extension,
+see above. In addition to these, it has a read-only property `reports` that holds two report
+specifications:
+
+* `xml` - a `SingleFileReport` specifying the XML report file. Default is a file called
+`coverage.xml` in a directory with the same name as the associated enhanced `Test` task in a
+directory called `cobertura` in the Gradle project's report directory.
+
+* `html` - a `DirectoryReport` specifying the directory where the HTML report is created. Default is
+a directory with the same name as the associated enhanced `Test` task in a directory called
+`cobertura` in the Gradle project's report directory.
+
+These two reports can be configured as any Gradle report, e.g.
+
+    coberturaTestReport.reports.xml.enabled = false
+    coberturaTestReport.reports.html.destination = "${project.buildDir}/reports/coverage"
+
+A report task depends on the associated enhanced `Test` task.
+
+The report tasks implement the `Reporting` interface, meaning that the produced reports are picked
+up by the Build Dashboard plugin.
+
+### Dependency configuration
+
+The Cobertura plugin adds a `cobertura` dependency configuration to the project. This configuration
+specifies the default classpath for the Cobertura task. By default, this configuration has one
+dependency, equivalent to:
+
+    cobertura 'net.sourceforge.cobertura:cobertura:<toolVersion>'
+
+where `<toolVersion>` is the value of the `cobertura` extension's `toolVersion` property.
 
 
 ## JavaNCSS Plugin
