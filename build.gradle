@@ -91,10 +91,10 @@ task ('groovydocJar', type: Jar, dependsOn: groovydoc)
     from groovydoc.destinationDir
 }
 
-task ('emptyJavadocJar', type: Jar)
+task ('javadocJar', type: Jar, dependsOn: javadoc)
 {
     classifier = 'javadoc'
-    from fileTree(dir:'meta', includes:['README-empty-javadoc.txt'])
+    from javadoc.destinationDir
 }
 
 task ('createPom')
@@ -119,4 +119,4 @@ task ('createPom')
     doFirst { pom.writeTo(pomFile) }
 }
 
-build.finalizedBy 'sourcesJar', 'groovydocJar', 'emptyJavadocJar', 'createPom'
+build.finalizedBy 'sourcesJar', 'groovydocJar', 'javadocJar', 'createPom'

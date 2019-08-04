@@ -68,6 +68,8 @@ public class IvyImportExtension extends ProjectAware
     /**
      * Set the Ivy settings file to use when importing from an Ivy file. This file will be resolved
      * relative to the project directory.
+     *
+     * @param pFile The settings file, possibly null
      */
     public void setSettingsFile(Object pFile)
     {
@@ -101,6 +103,8 @@ public class IvyImportExtension extends ProjectAware
     /**
      * Get the class path containing the Ivy related classes used by the Ivy import. The initial
      * value is the {@code ivyImport} configuration.
+     *
+     * @return  The Ivy classpath.
      */
     public FileCollection getIvyClassPath()
     {

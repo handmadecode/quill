@@ -68,8 +68,8 @@ public class CpdReportsImpl extends TaskReportContainer<Report> implements CpdRe
 
 
     /**
-     * Get the primary report. Default is a file called &quot;cpd.&lt;ext>&quot; where
-     * &quot;&lt;ext>&quot; is the value of the report's {@code format} property. The default file
+     * Get the primary report. Default is a file called &quot;cpd.&lt;ext&gt;&quot; where
+     * &quot;&lt;ext&gt;&quot; is the value of the report's {@code format} property. The default file
      * is located in a directory called &quot;cpd&quot; in the project's report directory or, if no
      * project report directory is defined, in a subdirectory called &quot;cpd&quot; in the
      * project's build directory.

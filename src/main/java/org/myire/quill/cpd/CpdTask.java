@@ -76,7 +76,9 @@ public class CpdTask extends SourceTask implements Reporting<CpdReports>
     /**
      * Get the version of CPD to use. Default is the version specified in
      * {@code PmdExtension.toolVersion}, or, if that extension isn't available, version
-     * &quot;6.1.0&quot;.
+     * &quot;6.16.0&quot;.
+     *
+     * @return  The CPD version string.
      */
     @Input
     public String getToolVersion()
@@ -104,6 +106,8 @@ public class CpdTask extends SourceTask implements Reporting<CpdReports>
     /**
      * Get the classpath containing the CPD classes used by the task. The plugin sets this property
      * to its default value, which is the {@code cpd} configuration.
+     *
+     * @return  The CPD classpath.
      */
     @InputFiles
     public FileCollection getCpdClasspath()
@@ -164,6 +168,8 @@ public class CpdTask extends SourceTask implements Reporting<CpdReports>
     /**
      * Get the encoding used by CPD to read the source files and to produce the report. The
      * platform's default encoding will be used if this property isn't specified.
+     *
+     * @return  The source file encoding.
      */
     @Input
     @Optional
@@ -184,6 +190,8 @@ public class CpdTask extends SourceTask implements Reporting<CpdReports>
      * &quot;php&quot;, &quot;ruby&quot;, or &quot;ecmascript&quot;. See
      * <a href="http://pmd.sourceforge.net">the CPD documentation</a> for the list of languages
      * supported by the different versions of CPD. The default is &quot;java&quot;.
+     *
+     * @return  The language.
      */
     @Input
     @Optional
@@ -201,6 +209,8 @@ public class CpdTask extends SourceTask implements Reporting<CpdReports>
 
     /**
      * The minimum duplicate size to be reported. The default is 100.
+     *
+     * @return  The minimum duplicate size.
      */
     @Input
     public int getMinimumTokenCount()
@@ -218,6 +228,8 @@ public class CpdTask extends SourceTask implements Reporting<CpdReports>
     /**
      * If true, CPD ignores literal value differences when evaluating a duplicate block. This means
      * that {@code foo=42;} and {@code foo=43;} will be seen as equivalent. Default is false.
+     *
+     * @return  True if differences in literals should be ignored, false if they should count.
      */
     @Input
     public boolean isIgnoreLiterals()
@@ -235,6 +247,8 @@ public class CpdTask extends SourceTask implements Reporting<CpdReports>
     /**
      * If true, differences in identifiers (like  variable names or methods names) will be ignored
      * in the same way as literals in {@link #isIgnoreLiterals()}. Default is false.
+     *
+     * @return  True if differences in identifiers should be ignored, false if they should count.
      */
     @Input
     public boolean isIgnoreIdentifiers()
@@ -252,6 +266,8 @@ public class CpdTask extends SourceTask implements Reporting<CpdReports>
     /**
      * If true, annotations will be ignored. This property can be useful when analyzing code based
      * one some frameworks where annotations become very repetitive. Default is false.
+     *
+     * @return  True if annotations should be ignored, false if they should count.
      */
     @Input
     public boolean isIgnoreAnnotations()
@@ -269,6 +285,8 @@ public class CpdTask extends SourceTask implements Reporting<CpdReports>
     /**
      * If true, CPD will ignore multiple copies of files with the same name and length. Default is
      * false.
+     *
+     * @return  True if duplicate files should be skipped, false if not.
      */
     @Input
     public boolean isSkipDuplicateFiles()
@@ -286,6 +304,8 @@ public class CpdTask extends SourceTask implements Reporting<CpdReports>
     /**
      * If true, CPD will skip files which can't be tokenized due to invalid characters instead of
      * aborting the analysis. Default is false.
+     *
+     * @return  True if files with lexical errors should be skipped, false if not.
      */
     @Input
     public boolean isSkipLexicalErrors()
@@ -303,6 +323,8 @@ public class CpdTask extends SourceTask implements Reporting<CpdReports>
     /**
      * If true, skipping of blocks is enabled with the patterns specified in the
      * {@code skipBlocksPattern} property. Default is false.
+     *
+     * @return  True if blocks matching {@code skipBlocksPattern} should be skipped, false if not.
      */
     @Input
     public boolean isSkipBlocks()
@@ -321,6 +343,8 @@ public class CpdTask extends SourceTask implements Reporting<CpdReports>
      * Specifies the pattern to find the blocks to skip when {@code skipBlocks} is true. The string
      * value contains two parts, separated by a vertical line ('|'). The first part is the start
      * pattern, the second part is the end pattern. The default value is &quot;#if 0|#endif&quot;.
+     *
+     * @return  The skip blocks pattern.
      */
     @Input
     @Optional
@@ -338,6 +362,8 @@ public class CpdTask extends SourceTask implements Reporting<CpdReports>
 
     /**
      * If true, <i>using directives</i> in C# will be ignored when comparing text. Default is false.
+     *
+     * @return  True if {@code using} directives should be ignored, false if they should count.
      */
     @Input
     public boolean isIgnoreUsings()

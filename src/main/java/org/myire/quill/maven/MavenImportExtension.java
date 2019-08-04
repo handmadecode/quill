@@ -98,6 +98,8 @@ public class MavenImportExtension extends ProjectAware
     /**
      * Set the Maven settings file to use when importing from a pom file. This file will be resolved
      * relative to the project directory.
+     *
+     * @param pFile The settings file, possibly null
      */
     public void setSettingsFile(Object pFile)
     {
@@ -133,6 +135,8 @@ public class MavenImportExtension extends ProjectAware
     /**
      * Get the class path containing the Maven related classes used by the Maven import. The initial
      * value is the {@code mavenImport} configuration.
+     *
+     * @return  The Maven classpath.
      */
     public FileCollection getMavenClassPath()
     {

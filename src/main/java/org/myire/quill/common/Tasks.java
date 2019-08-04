@@ -34,6 +34,8 @@ public final class Tasks
      * @param pPropertyName The name of the property.
      * @param pValue        A {@code Callable} that returns the property's value.
      *
+     * @param <T>   The type of the property's value.
+     *
      * @throws NullPointerException if {@code pTask} is null.
      */
     static public <T> void inputProperty(Task pTask, String pPropertyName, Callable<T> pValue)

@@ -233,6 +233,8 @@ public class DashboardLayout
 
     /**
      * Get the number of columns to present the sections in. Default is 2.
+     *
+     * @return  The number of columns.
      */
     @Input
     public int getNumColumns()

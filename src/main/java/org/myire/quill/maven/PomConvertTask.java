@@ -74,6 +74,8 @@ public class PomConvertTask extends DefaultTask
 
     /**
      * Should the repositories from the pom file be imported and converted? Default is true.
+     *
+     * @return  True if repositories should be imported and converted, false if not.
      */
     @Input
     public boolean isConvertRepositories()
@@ -90,6 +92,8 @@ public class PomConvertTask extends DefaultTask
 
     /**
      * Should the dependencies from the pom file be imported and converted? Default is true.
+     *
+     * @return  True if dependencies should be imported and converted, false if not.
      */
     @Input
     public boolean isConvertDependencies()
@@ -107,6 +111,8 @@ public class PomConvertTask extends DefaultTask
     /**
      * Should the destination file be overwritten if it exists? If this property is false and the
      * destination file exists, the task will do nothing. Default is true.
+     *
+     * @return  True if the destination file should be overwritten, false if not.
      */
     @Input
     public boolean isOverwrite()

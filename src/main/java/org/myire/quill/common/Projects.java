@@ -110,6 +110,8 @@ public final class Projects
      * @param pName         The name of the task.
      * @param pTaskClass    The task's class (or a superclass of its class).
      *
+     * @param <T>   The task's type.
+     *
      * @return  The task with the specified name, or null if there is no task with that name in the
      *          project. Null is also returned if there is a task with the specified name whose
      *          class is not (a subtype of) the specified task class.
@@ -137,10 +139,11 @@ public final class Projects
     /**
      * Get an extension from a project.
      *
-     * @param pProject  The project.
-     * @param pName     The name of the extension.
-     * @param pExtensionClass
-     *                  The extension's class (or a superclass of its class).
+     * @param pProject          The project.
+     * @param pName             The name of the extension.
+     * @param pExtensionClass   The extension's class (or a superclass of its class).
+     *
+     * @param <T>   The extension's type.
      *
      * @return  The extension with the specified name, or null if there is no extension with that
      *          name in the project. Null is also returned if there is an extension with the
@@ -162,10 +165,11 @@ public final class Projects
     /**
      * Get a plugin from a project's convention.
      *
-     * @param pProject  The project.
-     * @param pName     The name of the plugin.
-     * @param pPluginClass
-     *                  The plugin's class (or a superclass of its class).
+     * @param pProject      The project.
+     * @param pName         The name of the plugin.
+     * @param pPluginClass  The plugin's class (or a superclass of its class).
+     *
+     * @param <T>   The plugin's type.
      *
      * @return  The plugin with the specified name, or null if there is no plugin with that name in
      *          the project's convention. Null is also returned if there is a plugin with the

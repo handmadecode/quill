@@ -36,9 +36,10 @@ public class GradlePrettyPrinter
 
 
     /**
-     * Print the start of a closure at the current indentation level and increment the level.
+     * Print a closure at the current indentation level and increment the level.
      *
-     * @param pName The name of the closure, possibly null.
+     * @param pName         The name of the closure, possibly null.
+     * @param pBodyAction   An action that when passed this instance will print the closure's body.
      */
     public void printClosure(String pName, Consumer<GradlePrettyPrinter> pBodyAction)
     {
