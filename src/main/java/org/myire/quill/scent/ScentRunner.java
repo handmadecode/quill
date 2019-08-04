@@ -20,7 +20,7 @@ import java.util.Collection;
 public interface ScentRunner
 {
     /**
-     * Collect source code metrics from a collection oif files and write an XML report.
+     * Collect source code metrics from a collection of files and write an XML report.
      *
      * @param pFiles        The files and/or directories to collect Java file metrics from.
      * @param pCharset      The charset the Java files are encoded in.

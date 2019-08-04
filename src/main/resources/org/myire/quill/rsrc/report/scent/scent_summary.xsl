@@ -88,7 +88,7 @@
             <xsl:with-param name="value" select="@statements"/>
           </xsl:call-template>
           <xsl:call-template name="output-value-cell">
-            <xsl:with-param name="value" select="@javadoc-comments"/>
+            <xsl:with-param name="value" select="@javadocs"/>
           </xsl:call-template>
           <xsl:call-template name="output-value-cell">
             <xsl:with-param name="value" select="@javadoc-lines"/>
@@ -97,7 +97,7 @@
             <xsl:with-param name="value" select="@line-comments"/>
           </xsl:call-template>
           <xsl:call-template name="output-value-cell">
-            <xsl:with-param name="value" select="@block-comment-lines"/>
+            <xsl:with-param name="value" select="@block-comments-lines"/>
           </xsl:call-template>
         </tr>
         <tr>

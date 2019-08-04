@@ -37,7 +37,7 @@ import org.myire.quill.report.TransformingReport;
 public class ScentTask extends SourceTask implements Reporting<ScentReports>
 {
     // The default version of Scent to use.
-    static private final String DEFAULT_TOOL_VERSION = "2.0";
+    static private final String DEFAULT_TOOL_VERSION = "2.1";
 
     // Fully qualified name of the ScentRunner implementation class to use.
     static private final String IMPLEMENTATION_PACKAGE = "org.myire.quill.scent.impl.";
@@ -53,6 +53,8 @@ public class ScentTask extends SourceTask implements Reporting<ScentReports>
 
     /**
      * Get the version of Scent to use. Default is &quot;2.0&quot;.
+     *
+     * @return  The Scent version string.
      */
     @Input
     public String getToolVersion()
@@ -70,6 +72,8 @@ public class ScentTask extends SourceTask implements Reporting<ScentReports>
     /**
      * Get the encoding of the Java source files. The platform's default encoding will be used if
      * this property isn't specified.
+     *
+     * @return  The source file encoding.
      */
     @Input
     @Optional
@@ -88,6 +92,8 @@ public class ScentTask extends SourceTask implements Reporting<ScentReports>
     /**
      * Get the classpath containing the Scent classes used by the task. The plugin sets this
      * property to its default value, which is the {@code scent} configuration.
+     *
+     * @return  The Scent classpath.
      */
     @InputFiles
     public FileCollection getScentClasspath()
