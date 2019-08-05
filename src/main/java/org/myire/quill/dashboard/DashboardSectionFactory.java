@@ -26,6 +26,8 @@ import org.gradle.testing.jacoco.tasks.JacocoReport;
 import org.myire.quill.common.ProjectAware;
 import org.myire.quill.cpd.CpdTask;
 import org.myire.quill.report.FormatChoiceReport;
+import org.myire.quill.report.ReportSet;
+import org.myire.quill.report.ReportingEntity;
 import org.myire.quill.scent.ScentTask;
 
 
@@ -483,13 +485,22 @@ class DashboardSectionFactory extends ProjectAware
     private DashboardSection createCoberturaSection(Task pTask)
     {
         // Can't access the types in the cobertura package since they're in the Groovy source tree.
-        ReportContainer<?> aReportContainer = ((Reporting<?>) pTask).getReports();
-        return new DashboardSection(
-            pTask.getProject(),
-            pTask.getName(),
-            aReportContainer.getByName("coberturaXml"),
-            aReportContainer.getByName("coberturaHtml"),
-            XSL_RESOURCE_COBERTURA);
+        if (pTask instanceof ReportingEntity<?>)
+        {
+            ReportSet aReports = ((ReportingEntity<?>) pTask).getReports();
+            Report aXmlReport = aReports.getReportByName("coberturaXml");
+            if (aXmlReport != null)
+            {
+                return new DashboardSection(
+                    pTask.getProject(),
+                    pTask.getName(),
+                    aXmlReport,
+                    aReports.getReportByName("coberturaHtml"),
+                    XSL_RESOURCE_COBERTURA);
+            }
+        }
+
+        return null;
     }
 
 

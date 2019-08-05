@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2019 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -10,7 +10,6 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.testing.Test
 
 import org.myire.quill.common.Projects
-import org.myire.quill.report.AdditionalReportsTask
 
 
 /**
@@ -38,11 +37,6 @@ class JUnitAdditionsPlugin implements Plugin<Project>
 
             // Add a task action to create the summary report.
             aTestTask.doLast({ aReport.createReport() });
-
-            // Add the summary report to the additional reports task's report container to make it
-            // known to the build dashboard plugin.
-            if (!AdditionalReportsTask.maybeCreate(pProject).reports.addReport(aReport))
-                aTestTask.logger.debug('Failed to add report \'{}\' to the additional reports task', SUMMARY_REPORT_NAME)
         }
     }
 }

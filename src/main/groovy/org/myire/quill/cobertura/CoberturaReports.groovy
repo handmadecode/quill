@@ -6,16 +6,17 @@
 package org.myire.quill.cobertura
 
 import org.gradle.api.reporting.DirectoryReport
-import org.gradle.api.reporting.Report
-import org.gradle.api.reporting.ReportContainer
 import org.gradle.api.reporting.SingleFileReport
 import org.gradle.api.tasks.Nested
+import org.gradle.util.Configurable
+
+import org.myire.quill.report.ReportSet
 
 
 /**
  * The reports produced by a {@code CoberturaReportTask}.
  */
-interface CoberturaReports extends ReportContainer<Report>
+interface CoberturaReports extends ReportSet, Configurable<CoberturaReports>
 {
     /**
      * Get the XML file report.

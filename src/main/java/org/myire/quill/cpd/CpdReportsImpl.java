@@ -9,9 +9,8 @@ import java.io.File;
 
 import groovy.lang.Closure;
 
-import org.gradle.api.reporting.ConfigurableReport;
 import org.gradle.api.reporting.Report;
-import org.gradle.api.reporting.internal.TaskReportContainer;
+import org.gradle.util.ConfigureUtil;
 
 import org.myire.quill.report.DefaultFormatChoiceReport;
 import org.myire.quill.report.FormatChoiceReport;
@@ -22,11 +21,14 @@ import org.myire.quill.report.TransformingReport;
 /**
  * Default implementation of {@code CpdReports}.
  */
-public class CpdReportsImpl extends TaskReportContainer<Report> implements CpdReports
+public class CpdReportsImpl implements CpdReports
 {
     static private final String PRIMARY_REPORT_NAME = "cpdPrimary";
     static private final String HTML_REPORT_NAME = "cpdHtml";
     static private final String BUILTIN_CPD_XSL = "/org/myire/quill/rsrc/report/cpd/cpd.xsl";
+
+    private final DefaultFormatChoiceReport fPrimaryReport;
+    private final TransformingReport fHtmlReport;
 
 
     /**
@@ -36,12 +38,8 @@ public class CpdReportsImpl extends TaskReportContainer<Report> implements CpdRe
      */
     CpdReportsImpl(CpdTask pTask)
     {
-        super(ConfigurableReport.class, pTask);
-
-        // Add the primary report.
-        DefaultFormatChoiceReport aPrimaryReport =
-            add(
-                DefaultFormatChoiceReport.class,
+        fPrimaryReport =
+            new DefaultFormatChoiceReport(
                 pTask.getProject(),
                 PRIMARY_REPORT_NAME,
                 "CPD primary report",
@@ -49,21 +47,19 @@ public class CpdReportsImpl extends TaskReportContainer<Report> implements CpdRe
                 new DefaultPrimaryReportDestination(pTask));
 
         // CSV, text, and Visual Studio are also legal format for the primary report.
-        aPrimaryReport.addLegalFormats(FORMAT_CSV, FORMAT_TEXT, FORMAT_CSV_LINECOUNT, FORMAT_VS);
+        fPrimaryReport.addLegalFormats(FORMAT_CSV, FORMAT_TEXT, FORMAT_CSV_LINECOUNT, FORMAT_VS);
 
-        // Add the HTML report.
-        TransformingReport aHtmlReport =
-            add(
-                FormatChoiceReportTransformingReport.class,
+        fHtmlReport =
+            new FormatChoiceReportTransformingReport(
                 pTask.getProject(),
                 HTML_REPORT_NAME,
                 "CPD HTML report",
-                aPrimaryReport,
+                fPrimaryReport,
                 BUILTIN_CPD_XSL);
 
         // Both reports are enabled by default.
-        aPrimaryReport.setEnabled(true);
-        aHtmlReport.setEnabled(true);
+        fPrimaryReport.setEnabled(true);
+        fHtmlReport.setEnabled(true);
     }
 
 
@@ -79,7 +75,7 @@ public class CpdReportsImpl extends TaskReportContainer<Report> implements CpdRe
     @Override
     public FormatChoiceReport getPrimary()
     {
-        return (FormatChoiceReport) getByName(PRIMARY_REPORT_NAME);
+        return fPrimaryReport;
     }
 
 
@@ -92,7 +88,27 @@ public class CpdReportsImpl extends TaskReportContainer<Report> implements CpdRe
     @Override
     public TransformingReport getHtml()
     {
-        return (TransformingReport) getByName(HTML_REPORT_NAME);
+        return fHtmlReport;
+    }
+
+
+    @Override
+    public Report getReportByName(String pReportName)
+    {
+        if (PRIMARY_REPORT_NAME.equalsIgnoreCase(pReportName))
+            return fPrimaryReport;
+        else if (HTML_REPORT_NAME.equalsIgnoreCase(pReportName))
+            return fHtmlReport;
+        else
+            return null;
+    }
+
+
+    @Override
+    public CpdReports configure(Closure pClosure)
+    {
+        ConfigureUtil.configureSelf(pClosure, this);
+        return this;
     }
 
 

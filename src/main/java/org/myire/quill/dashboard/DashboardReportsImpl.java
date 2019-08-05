@@ -10,10 +10,9 @@ import java.io.File;
 import groovy.lang.Closure;
 
 import org.gradle.api.Project;
-import org.gradle.api.reporting.ConfigurableReport;
 import org.gradle.api.reporting.Report;
 import org.gradle.api.reporting.SingleFileReport;
-import org.gradle.api.reporting.internal.TaskReportContainer;
+import org.gradle.util.ConfigureUtil;
 
 import org.myire.quill.common.Projects;
 import org.myire.quill.report.DefaultSingleFileReport;
@@ -22,9 +21,12 @@ import org.myire.quill.report.DefaultSingleFileReport;
 /**
  * Default implementation of {@code DashboardReports}.
  */
-class DashboardReportsImpl extends TaskReportContainer<Report> implements DashboardReports
+class DashboardReportsImpl implements DashboardReports
 {
     static private final String HTML_REPORT_NAME = "html";
+
+
+    private final SingleFileReport fHtmlReport;
 
 
     /**
@@ -34,18 +36,15 @@ class DashboardReportsImpl extends TaskReportContainer<Report> implements Dashbo
      */
     DashboardReportsImpl(DashboardTask pTask)
     {
-        super(ConfigurableReport.class, pTask);
-
-        // Add the HTML report.
-        SingleFileReport aHtmlReport =
-            add(DefaultSingleFileReport.class,
+        fHtmlReport =
+            new DefaultSingleFileReport(
                 pTask.getProject(),
                 HTML_REPORT_NAME,
                 "Dashboard HTML report",
                 new DefaultReportDestination(pTask.getProject()));
 
         // The report is enabled by default.
-        aHtmlReport.setEnabled(true);
+        fHtmlReport.setEnabled(true);
     }
 
 
@@ -56,7 +55,22 @@ class DashboardReportsImpl extends TaskReportContainer<Report> implements Dashbo
     @Override
     public SingleFileReport getHtml()
     {
-        return (SingleFileReport) getByName(HTML_REPORT_NAME);
+        return fHtmlReport;
+    }
+
+
+    @Override
+    public Report getReportByName(String pReportName)
+    {
+        return HTML_REPORT_NAME.equalsIgnoreCase(pReportName) ? fHtmlReport : null;
+    }
+
+
+    @Override
+    public DashboardReports configure(Closure pClosure)
+    {
+        ConfigureUtil.configureSelf(pClosure, this);
+        return this;
     }
 
 

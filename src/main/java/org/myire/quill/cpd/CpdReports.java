@@ -5,18 +5,18 @@
  */
 package org.myire.quill.cpd;
 
-import org.gradle.api.reporting.Report;
-import org.gradle.api.reporting.ReportContainer;
 import org.gradle.api.tasks.Nested;
+import org.gradle.util.Configurable;
 
 import org.myire.quill.report.FormatChoiceReport;
+import org.myire.quill.report.ReportSet;
 import org.myire.quill.report.TransformingReport;
 
 
 /**
  * The reports produced by a {@code CpdTask}.
  */
-public interface CpdReports extends ReportContainer<Report>
+public interface CpdReports extends ReportSet, Configurable<CpdReports>
 {
     // The supported primary report formats.
     String FORMAT_XML = "xml";

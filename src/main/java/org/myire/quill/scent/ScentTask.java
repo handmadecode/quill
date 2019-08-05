@@ -14,7 +14,6 @@ import groovy.lang.Closure;
 import org.gradle.api.Action;
 import org.gradle.api.file.FileCollection;
 import org.gradle.api.file.FileTree;
-import org.gradle.api.reporting.Reporting;
 import org.gradle.api.reporting.SingleFileReport;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.InputFiles;
@@ -28,13 +27,14 @@ import org.gradle.api.tasks.TaskAction;
 import org.myire.quill.common.ExternalToolLoader;
 import org.myire.quill.common.Projects;
 import org.myire.quill.common.Tasks;
+import org.myire.quill.report.ReportingEntity;
 import org.myire.quill.report.TransformingReport;
 
 
 /**
  * Task for creating source code metrics reports using the Scent library.
  */
-public class ScentTask extends SourceTask implements Reporting<ScentReports>
+public class ScentTask extends SourceTask implements ReportingEntity<ScentReports>
 {
     // The default version of Scent to use.
     static private final String DEFAULT_TOOL_VERSION = "2.1";

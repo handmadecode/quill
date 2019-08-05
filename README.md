@@ -1426,9 +1426,6 @@ The reports can also be configured through chained access of the properties:
       reports.primary.format = 'csv'
     }
 
-The `cpd` task implements the `Reporting` interface, meaning that the produced reports are picked
-up by the Build Dashboard plugin.
-
 ### Dependency configuration
 
 The CPD plugin adds a `cpd` dependency configuration to the project. This configuration specifies
@@ -1507,9 +1504,6 @@ The reports can also be configured through chained access of the properties:
       reports.xml.destination = 'myreport.xml'
     }
 
-The `scent` task implements the `Reporting` interface, meaning that the produced reports are
-picked up by the Build Dashboard plugin.
-
 Note that if the XML report isn't enabled, the `scent` task will not run. This means that the task
 can be skipped by adding the configuration line
 
@@ -1529,7 +1523,10 @@ where `<toolVersion>` is the value of the `scent` task's `toolVersion` property.
 ## Reports Dashboard Plugin
 
 The Reports Dashboard plugin creates a one-page HTML report containing a summary of some other
-reports generated during a build.
+reports generated during a build. It is somewhat similar to the standard Gradle Build Dashboard
+plugin, but it produces a much richer summary than simply adding links to all available reports.
+This comes at the price of needing to have explicit knowledge about the reports it summarizes. This
+means that the plugin cannot produce a summary for any unknown reports generated during a build.
 
 ### Usage
 
@@ -1754,16 +1751,6 @@ To add a timestamp after the sections:
         layout.sectionsEndHtmlCode = "</table><p>${tstamp}</p>"
         ...
     }
-
-### Using with the Build Dashboard plugin
-
-The Reports Dashboard plugin is somewhat similar to the standard Gradle Build Dashboard plugin,
-but it produces a much richer summary than simply adding links to all available reports. This comes
-at the price of needing to have explicit knowledge about the reports it summarizes. This means that
-the plugin cannot produce a summary for any unknown reports generated during a build.
-
-The two Dashboard plugins can be used together, in which case the Build Dashboard report will
-contain a link to the Reports Dashboard report.
 
 
 ## Pom Plugin
@@ -2067,9 +2054,6 @@ These two reports can be configured as any Gradle report, e.g.
     coberturaTestReport.reports.html.destination = "${project.buildDir}/reports/coverage"
 
 A report task depends on the associated enhanced `Test` task.
-
-The report tasks implement the `Reporting` interface, meaning that the produced reports are picked
-up by the Build Dashboard plugin.
 
 ### Dependency configuration
 

@@ -5,16 +5,17 @@
  */
 package org.myire.quill.dashboard;
 
-import org.gradle.api.reporting.Report;
-import org.gradle.api.reporting.ReportContainer;
 import org.gradle.api.reporting.SingleFileReport;
 import org.gradle.api.tasks.Nested;
+import org.gradle.util.Configurable;
+
+import org.myire.quill.report.ReportSet;
 
 
 /**
  * The reports produced by a {@code DashboardReportTask}.
  */
-public interface DashboardReports extends ReportContainer<Report>
+public interface DashboardReports extends ReportSet, Configurable<DashboardReports>
 {
     /**
      * Get the HTML file report.

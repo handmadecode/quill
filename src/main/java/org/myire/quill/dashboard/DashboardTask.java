@@ -24,16 +24,16 @@ import org.gradle.api.Action;
 import org.gradle.api.DefaultTask;
 import org.gradle.api.Task;
 import org.gradle.api.reporting.Report;
-import org.gradle.api.reporting.Reporting;
 import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.api.tasks.Nested;
 import org.gradle.api.tasks.TaskAction;
-
 import org.gradle.util.ConfigureUtil;
+
 import org.myire.quill.common.Projects;
 import org.myire.quill.common.Tasks;
 import org.myire.quill.report.ReportBuilder;
+import org.myire.quill.report.ReportingEntity;
 
 
 /**
@@ -48,7 +48,7 @@ import org.myire.quill.report.ReportBuilder;
  * The layout of the dashboard sections can be configured through the task's {@code layout}
  * property.
  */
-public class DashboardTask extends DefaultTask implements Reporting<DashboardReports>
+public class DashboardTask extends DefaultTask implements ReportingEntity<DashboardReports>
 {
     static final String TASK_NAME = "reportsDashboard";
 

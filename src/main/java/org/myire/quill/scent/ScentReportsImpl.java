@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, 2018 Peter Franzen. All rights reserved.
+ * Copyright 2016, 2018-2019 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -10,10 +10,9 @@ import java.io.File;
 import groovy.lang.Closure;
 
 import org.gradle.api.Project;
-import org.gradle.api.reporting.ConfigurableReport;
 import org.gradle.api.reporting.Report;
 import org.gradle.api.reporting.SingleFileReport;
-import org.gradle.api.reporting.internal.TaskReportContainer;
+import org.gradle.util.ConfigureUtil;
 
 import org.myire.quill.common.Projects;
 import org.myire.quill.report.DefaultSingleFileReport;
@@ -24,11 +23,14 @@ import org.myire.quill.report.TransformingReport;
 /**
  * Default implementation of {@code ScentReports}.
  */
-class ScentReportsImpl extends TaskReportContainer<Report> implements ScentReports
+class ScentReportsImpl implements ScentReports
 {
     static private final String XML_REPORT_NAME = "scentXml";
     static private final String HTML_REPORT_NAME = "scentHtml";
     static private final String BUILTIN_SCENT_XSL = "/org/myire/quill/rsrc/report/scent/scent.xsl";
+
+    private final SingleFileReport fXmlReport;
+    private final TransformingReport fHtmlReport;
 
 
     /**
@@ -38,28 +40,26 @@ class ScentReportsImpl extends TaskReportContainer<Report> implements ScentRepor
      */
     ScentReportsImpl(ScentTask pTask)
     {
-        super(ConfigurableReport.class, pTask);
-
         Project aProject = pTask.getProject();
 
-        // Add the XML report.
-        SingleFileReport aXmlReport = add(DefaultSingleFileReport.class,
-                                          aProject,
-                                          XML_REPORT_NAME,
-                                          "Scent XML report",
-                                          new DefaultXmlReportDestination(aProject));
+        fXmlReport =
+            new DefaultSingleFileReport(
+                aProject,
+                XML_REPORT_NAME,
+                "Scent XML report",
+                new DefaultXmlReportDestination(aProject));
 
-        // Add the HTML report.
-        TransformingReport aHtmlReport = add(ReportTransformingReport.class,
-                                             aProject,
-                                             HTML_REPORT_NAME,
-                                             "Scent HTML report",
-                                             aXmlReport,
-                                             BUILTIN_SCENT_XSL);
+        fHtmlReport =
+            new ReportTransformingReport(
+                aProject,
+                HTML_REPORT_NAME,
+                "Scent HTML report",
+                fXmlReport,
+                BUILTIN_SCENT_XSL);
 
         // Both reports are enabled by default.
-        aXmlReport.setEnabled(true);
-        aHtmlReport.setEnabled(true);
+        fXmlReport.setEnabled(true);
+        fHtmlReport.setEnabled(true);
     }
 
 
@@ -73,7 +73,7 @@ class ScentReportsImpl extends TaskReportContainer<Report> implements ScentRepor
     @Override
     public SingleFileReport getXml()
     {
-        return (SingleFileReport) getByName(XML_REPORT_NAME);
+        return fXmlReport;
     }
 
 
@@ -86,7 +86,27 @@ class ScentReportsImpl extends TaskReportContainer<Report> implements ScentRepor
     @Override
     public TransformingReport getHtml()
     {
-        return (TransformingReport) getByName(HTML_REPORT_NAME);
+        return fHtmlReport;
+    }
+
+
+    @Override
+    public Report getReportByName(String pReportName)
+    {
+        if (XML_REPORT_NAME.equalsIgnoreCase(pReportName))
+            return fXmlReport;
+        else if (HTML_REPORT_NAME.equalsIgnoreCase(pReportName))
+            return fHtmlReport;
+        else
+            return null;
+    }
+
+
+    @Override
+    public ScentReports configure(Closure pClosure)
+    {
+        ConfigureUtil.configureSelf(pClosure, this);
+        return this;
     }
 
 

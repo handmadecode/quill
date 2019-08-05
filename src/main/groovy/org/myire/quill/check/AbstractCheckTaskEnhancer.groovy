@@ -10,7 +10,6 @@ import org.gradle.api.reporting.Report
 
 import org.myire.quill.common.Projects
 import org.myire.quill.common.Tasks
-import org.myire.quill.report.AdditionalReportsTask
 import org.myire.quill.report.ReportTransformingReport
 import org.myire.quill.report.TransformingReport
 
@@ -92,11 +91,6 @@ abstract class AbstractCheckTaskEnhancer<T extends Task>
 
         // Add a task action to create the HTML report.
         fTask.doLast({ aReport.transform() });
-
-        // Add the transforming report to the additional reports task's report container to make it
-        // known to the build dashboard plugin.
-        if (!AdditionalReportsTask.maybeCreate(fTask.project).reports.addReport(aReport))
-            fTask.logger.debug('Failed to add report \'{}\' to the additional reports task', aReport.name)
     }
 
 
