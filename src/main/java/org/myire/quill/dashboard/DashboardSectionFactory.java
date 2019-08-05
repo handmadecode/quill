@@ -14,7 +14,6 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.plugins.Convention;
 import org.gradle.api.plugins.quality.Checkstyle;
-import org.gradle.api.plugins.quality.FindBugs;
 import org.gradle.api.plugins.quality.JDepend;
 import org.gradle.api.plugins.quality.Pmd;
 import org.gradle.api.reporting.Report;
@@ -40,7 +39,6 @@ class DashboardSectionFactory extends ProjectAware
     static private final String XSL_RESOURCE_CHECKSTYLE = "/org/myire/quill/rsrc/report/checkstyle/checkstyle_summary.xsl";
     static private final String XSL_RESOURCE_COBERTURA = "/org/myire/quill/rsrc/report/cobertura/cobertura_summary.xsl";
     static private final String XSL_RESOURCE_CPD = "/org/myire/quill/rsrc/report/cpd/cpd_summary.xsl";
-    static private final String XSL_RESOURCE_FINDBUGS= "/org/myire/quill/rsrc/report/findbugs/findbugs_summary.xsl";
     static private final String XSL_RESOURCE_JACOCO = "/org/myire/quill/rsrc/report/jacoco/jacoco_summary.xsl";
     static private final String XSL_RESOURCE_JDEPEND = "/org/myire/quill/rsrc/report/jdepend/jdepend_summary.xsl";
     static private final String XSL_RESOURCE_JUNIT = "/org/myire/quill/rsrc/report/junit/junit_summary.xsl";
@@ -86,8 +84,6 @@ class DashboardSectionFactory extends ProjectAware
             return createCheckstyleSection((Checkstyle) pTask);
         else if (pTask instanceof CpdTask)
             return createCpdSection((CpdTask) pTask);
-        else if (pTask instanceof FindBugs)
-            return createFindBugsSection((FindBugs) pTask);
         else if (pTask instanceof JacocoReport)
             return createJacocoSection((JacocoReport) pTask);
         else if (pTask instanceof JDepend)
@@ -119,7 +115,6 @@ class DashboardSectionFactory extends ProjectAware
         addSectionsForTaskType(aSections, JDepend.class, this::createJDependMainSection);
         if (cSpotBugsTaskClass != null)
             addSectionsForTaskType(aSections, cSpotBugsTaskClass, this::createSpotBugsMainSection);
-        addSectionsForTaskType(aSections, FindBugs.class, this::createFindBugsMainSection);
         addSectionsForTaskType(aSections, Checkstyle.class, this::createCheckstyleMainSection);
         addSectionsForTaskType(aSections, Pmd.class, this::createPmdMainSection);
         addSectionsForTaskType(aSections, CpdTask.class, this::createCpdSection);
@@ -215,50 +210,6 @@ class DashboardSectionFactory extends ProjectAware
                 aPrimaryReport.getFormat());
             return null;
         }
-    }
-
-
-    /**
-     * Create a dashboard section for the XML report of the &quot;findbugsMain&quot; task.
-     *
-     * @param pTask The FindBugs task.
-     *
-     * @return  A new {@code DashboardSection}, or null if the task isn't the
-     *          &quot;findbugsMain&quot; task.
-     */
-    private DashboardSection createFindBugsMainSection(FindBugs pTask)
-    {
-        if ("findbugsMain".equals(pTask.getName()))
-            return createFindBugsSection(pTask);
-        else
-            return null;
-    }
-
-
-    /**
-     * Create a dashboard section for the XML report of a FindBugs task.
-     *
-     * @param pTask The FindBugs task.
-     *
-     * @return  A new {@code DashboardSection}.
-     */
-    private DashboardSection createFindBugsSection(FindBugs pTask)
-    {
-        Report aDetailedReport = null;
-
-        Convention aConvention = pTask.getConvention();
-        if (aConvention != null)
-            aDetailedReport = (Report) aConvention.findByName(ENHANCED_CHECK_TASK_REPORT_NAME);
-
-        if (aDetailedReport == null)
-            aDetailedReport = pTask.getReports().getHtml();
-
-        return new DashboardSection(
-            pTask.getProject(),
-            pTask.getName(),
-            pTask.getReports().getXml(),
-            aDetailedReport,
-            XSL_RESOURCE_FINDBUGS);
     }
 
 

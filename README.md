@@ -23,7 +23,6 @@ appeal to the taste of those who work in different ways.
 1. [JUnit Additions Plugin](#junit-additions-plugin)
 1. [JaCoCo Additions Plugin](#jacoco-additions-plugin)
 1. [SpotBugs Additions Plugin](#spotbugs-additions-plugin)
-1. [FindBugs Additions Plugin](#findbugs-additions-plugin)
 1. [Checkstyle Additions Plugin](#checkstyle-additions-plugin)
 1. [PMD Additions Plugin](#pmd-additions-plugin)
 1. [CPD Plugin](#cpd-plugin)
@@ -978,57 +977,6 @@ configured per task, e.g. to use another XSL file than the one distributed in th
     spotbugsTest.quillHtmlReport.enabled = false
 
 
-## FindBugs Additions Plugin
-
-The FindBugs Additions plugin applies the standard Gradle plugin `findbugs` to the project and
-configures the corresponding project extension and tasks with some defaults and additions.
-
-### Usage
-
-    apply plugin: 'org.myire.quill.findbugs'
-
-### Default values
-
-The plugin configures the `findbugs` extension in the project to let the build continue even if
-violations are found, and to use FindBugs version 3.0.1 as the default version. This is equivalent
-to configuring the extension explicitly in the build script as follows:
-
-    findbugs {
-      ignoreFailures = true
-      toolVersion = '3.0.1'
-    }
-
-Note that using FindBugs versions >= 3.0 requires that the Gradle build is run with Java 7 or later.
-
-All tasks of type `FindBugs` (normally `findbugsMain` and `findbugsTest`) are configured to produce
-XML reports with messages, which is equivalent to the build script configuration
-
-    tasks.withType(FindBugs) {
-      reports.xml.withMessages = true
-    }
-
-### Extension additions
-
-A method with the name `disableTestChecks` is added to the `findbugs` extension. If this method is
-called in the build script it will remove the `test` source set from the extension's source sets,
-thus disabling the `findbugsTest` task:
-
-    findbugs.disableTestChecks()
-
-### Task additions
-
-The plugin adds an [XSL transformation report](#xsl-transformation-reports) to the `FindBugs` tasks.
-These reports have the name `quillHtmlReport` and are `enabled` by default. They can be configured
-per task, e.g. to use another XSL file than the one distributed in the Quill jar:
-
-    findbugsMain {
-      quillHtmlReport.xslFile = 'resources/findbugs.xsl'
-      quillHtmlReport.destination = "$buildDir/reports/fbugs.html"
-    }
-
-    findbugsTest.quillHtmlReport.enabled = false
-
-
 ## Checkstyle Additions Plugin
 
 The Checkstyle Additions plugin applies the standard Gradle plugin `checkstyle` to the project and
@@ -1490,22 +1438,23 @@ summarized report is the task's `xml` report and the linked report is the task's
 * All tasks of type `ScentTask` (see the [Scent plugin](#scent-plugin)). The summarized report is
 the task's `xml` report and the linked report is the task's `html` report.
 
-* The `jdependMain` task. The summarized report is the task's `xml` report and the linked report is
-the task's XSL transformation report, if one exists (see the
+* The `jdependMain` task, if present. The summarized report is the task's `xml` report and the
+linked report is the task's XSL transformation report, if one exists (see the
 [JDepend Additions plugin](#jdepend-additions-plugin)).
 
-* The `findbugsMain` task. The summarized report is the task's `xml` report and the linked report is
-the task's XSL transformation report, if one exists (see the
-[FindBugs Additions plugin](#findbugs-additions-plugin)).
+* The `spotbugsMain` task, if present. The summarized report is the task's `xml` report and the
+linked report is the task's XSL transformation report, if one exists (see the
+[SpotBugs Additions plugin](#spotbugs-additions-plugin)).
 
-* The `checkstyleMain` task. The summarized report is the task's `xml` report and the linked report
-is the task's XSL transformation report (see the
+* The `checkstyleMain` task, if present. The summarized report is the task's `xml` report and the
+linked report is the task's XSL transformation report (see the
 [Checkstyle Additions plugin](#checkstyle-additions-plugin)) or, if that report hasn't been added to
 the task, the task's `html` report.
 
-* The `pmdMain` task. The summarized report is the task's `xml` report and the linked report is the
-task's XSL transformation report (see the [PMD Additions plugin](#pmd-additions-plugin)) or, if that
-report hasn't been added to the task, the task's `html` report.
+* The `pmdMain` task, if present. The summarized report is the task's `xml` report and the linked
+report is the task's XSL transformation report (see the
+[PMD Additions plugin](#pmd-additions-plugin)) or, if that report hasn't been added to the task, the
+task's `html` report.
 
 * All tasks of type `CpdTask` that have "xml" as the format for the primary report (see the
 [CPD plugin](#cpd-plugin)). The linked report is the task's `html` report.
