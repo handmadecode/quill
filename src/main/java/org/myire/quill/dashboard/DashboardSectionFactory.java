@@ -44,10 +44,15 @@ class DashboardSectionFactory extends ProjectAware
     static private final String XSL_RESOURCE_JUNIT = "/org/myire/quill/rsrc/report/junit/junit_summary.xsl";
     static private final String XSL_RESOURCE_PMD = "/org/myire/quill/rsrc/report/pmd/pmd_summary.xsl";
     static private final String XSL_RESOURCE_SCENT = "/org/myire/quill/rsrc/report/scent/scent_summary.xsl";
+    static private final String XSL_RESOURCE_SPOTBUGS= "/org/myire/quill/rsrc/report/spotbugs/spotbugs_summary.xsl";
 
     // Reports added to the convention of Gradle built-in tasks
     static private final String ENHANCED_CHECK_TASK_REPORT_NAME = "quillHtmlReport";
     static private final String JUNIT_SUMMARY_REPORT_NAME = "junitSummaryReport";
+
+    // The SpotBugs classes can't be referenced explicitly since the SpotBugs plugin may not be
+    // available.
+    static private final Class<? extends Task> cSpotBugsTaskClass = getSpotBugsTaskClass();
 
     // The cobertura classes can't be referenced explicitly since the're still in the Groovy source
     // tree.
@@ -91,6 +96,8 @@ class DashboardSectionFactory extends ProjectAware
             return createPmdSection((Pmd) pTask);
         else if (pTask instanceof ScentTask)
             return createScentSection((ScentTask) pTask);
+        else if (cSpotBugsTaskClass != null && cSpotBugsTaskClass.isAssignableFrom(pTask.getClass()))
+            return createSpotBugsSection(pTask);
         else if (cCoberturaReportsTaskClass != null && cCoberturaReportsTaskClass.isAssignableFrom(pTask.getClass()))
             return createCoberturaSection(pTask);
         else
@@ -108,6 +115,8 @@ class DashboardSectionFactory extends ProjectAware
             addSectionsForTaskType(aSections, cCoberturaReportsTaskClass, this::createCoberturaSection);
         addSectionsForTaskType(aSections, ScentTask.class, this::createScentSection);
         addSectionsForTaskType(aSections, JDepend.class, this::createJDependMainSection);
+        if (cSpotBugsTaskClass != null)
+            addSectionsForTaskType(aSections, cSpotBugsTaskClass, this::createSpotBugsMainSection);
         addSectionsForTaskType(aSections, FindBugs.class, this::createFindBugsMainSection);
         addSectionsForTaskType(aSections, Checkstyle.class, this::createCheckstyleMainSection);
         addSectionsForTaskType(aSections, Pmd.class, this::createPmdMainSection);
@@ -409,6 +418,62 @@ class DashboardSectionFactory extends ProjectAware
 
 
     /**
+     * Create a dashboard section for the XML report of the &quot;spotbugsMain&quot; task.
+     *
+     * @param pTask The SpotBugs task.
+     *
+     * @return  A new {@code DashboardSection}, or null if the task isn't the
+     *          &quot;spotbugsMain&quot; task.
+     */
+    private DashboardSection createSpotBugsMainSection(Task pTask)
+    {
+        if ("spotbugsMain".equals(pTask.getName()))
+            return createSpotBugsSection(pTask);
+        else
+            return null;
+    }
+
+
+    /**
+     * Create a dashboard section for the XML report of a SpotBugs task.
+     *
+     * @param pTask The SpotBugs task.
+     *
+     * @return  A new {@code DashboardSection}.
+     */
+    private DashboardSection createSpotBugsSection(Task pTask)
+    {
+        // Can't refer to the SpotBugs plugin types since they plugin may not be available.
+        ReportContainer<?> aReports = null;
+        if (pTask instanceof Reporting<?>)
+            aReports = ((Reporting<?>) pTask).getReports();
+
+        if (aReports == null)
+            return null;
+
+        Report aXmlReport =  aReports.getByName("xml");
+        if (aXmlReport == null)
+            return null;
+
+        Report aDetailedReport = null;
+
+        Convention aConvention = pTask.getConvention();
+        if (aConvention != null)
+            aDetailedReport = (Report) aConvention.findByName(ENHANCED_CHECK_TASK_REPORT_NAME);
+
+        if (aDetailedReport == null)
+            aDetailedReport = aReports.getByName("html");
+
+        return new DashboardSection(
+            pTask.getProject(),
+            pTask.getName(),
+            aXmlReport,
+            aDetailedReport,
+            XSL_RESOURCE_SPOTBUGS);
+    }
+
+
+    /**
      * Create a dashboard section for the XML report of a Cobertura reports task.
      *
      * @param pTask The Cobertura reports task.
@@ -429,7 +494,32 @@ class DashboardSectionFactory extends ProjectAware
 
 
     /**
-     * Get the &quot;org.myire.quill.cobertura.CoberturaReportsTask&quot; {@code Class}.
+     * Get the &quot;com.github.spotbugs.SpotBugsTask&quot; class.
+     *
+     * @return  The class, or null if not found.
+     */
+    @SuppressWarnings("unchecked")
+    static private Class<? extends Task> getSpotBugsTaskClass()
+    {
+        try
+        {
+            Class<?> aClass = Class.forName("com.github.spotbugs.SpotBugsTask");
+            if (Task.class.isAssignableFrom(aClass))
+                return (Class<? extends Task>) aClass;
+            else
+                // Shouldn't happen unless the classpath contains an unexpected class with the
+                // expected name.
+                return null;
+        }
+        catch (ClassNotFoundException ignore)
+        {
+            return null;
+        }
+    }
+
+
+    /**
+     * Get the &quot;org.myire.quill.cobertura.CoberturaReportsTask&quot; class.
      *
      * @return  The class, or null if not found.
      */

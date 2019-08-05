@@ -1,5 +1,5 @@
 /*
- * Copyright 2017 Peter Franzen. All rights reserved.
+ * Copyright 2017, 2019 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -12,6 +12,7 @@ import org.myire.quill.check.CheckstyleAdditionsPlugin
 import org.myire.quill.check.FindBugsAdditionsPlugin
 import org.myire.quill.check.JDependAdditionsPlugin
 import org.myire.quill.check.PmdAdditionsPlugin
+import org.myire.quill.check.SpotBugsAdditionsPlugin
 import org.myire.quill.cobertura.CoberturaPlugin
 import org.myire.quill.cpd.CpdPlugin
 import org.myire.quill.dashboard.DashboardPlugin
@@ -43,5 +44,6 @@ class QuillCorePlugin implements Plugin<Project>
         pProject.plugins.apply(ProjectMetaDataPlugin.class);
         pProject.plugins.apply(PomPlugin.class);
         pProject.plugins.apply(ScentPlugin.class);
+        pProject.plugins.apply(SpotBugsAdditionsPlugin.class);
     }
 }

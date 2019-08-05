@@ -22,6 +22,7 @@ appeal to the taste of those who work in different ways.
 1. [Java Additions Plugin](#java-additions-plugin)
 1. [JUnit Additions Plugin](#junit-additions-plugin)
 1. [JaCoCo Additions Plugin](#jacoco-additions-plugin)
+1. [SpotBugs Additions Plugin](#spotbugs-additions-plugin)
 1. [FindBugs Additions Plugin](#findbugs-additions-plugin)
 1. [Checkstyle Additions Plugin](#checkstyle-additions-plugin)
 1. [PMD Additions Plugin](#pmd-additions-plugin)
@@ -922,6 +923,60 @@ property to false. This is however only done if running a Gradle version less th
 
 The `jacocoTestReport` task is configured to have the `xml` and `html` reports enabled and the `csv`
 report disabled. The `build`  task is also set to depend on the `jacocoTestReport` task.
+
+
+## SpotBugs Additions Plugin
+
+The SpotBugs Additions plugin configures the project extension and tasks added by the
+[SpotBugs Gradle plugin](https://plugins.gradle.org/plugin/com.github.spotbugs) with some defaults
+and additions.
+
+Note that unlike the other plugins that enhance existing plugins, the SpotBugs Additions plugin does
+_not_ apply the SpotBugs Gradle plugin. That plugin must be applied explicitly in the build script.
+
+### Usage
+
+    plugins { id 'com.github.spotbugs' version '2.0.0' }
+    apply plugin: 'org.myire.quill.spotbugs'
+
+### Default values
+
+The plugin configures the `spotbugs` extension in the project to let the build continue even if
+violations are found, and to use SpotBugs version 3.1.12 as the default version. This is equivalent
+to configuring the extension explicitly in the build script as follows:
+
+    spotbugs {
+      ignoreFailures = true
+      toolVersion = '3.1.12'
+    }
+
+All tasks of type `SpotBugsTask` (normally `spotbugsMain` and `spotbugsTest`) are configured to
+produce XML reports with messages, which is equivalent to the build script configuration
+
+    tasks.withType(SpotBugsTask) {
+      reports.xml.withMessages = true
+    }
+
+### Extension additions
+
+A method with the name `disableTestChecks` is added to the `spotbugs` extension. If this method is
+called in the build script it will remove the `test` source set from the extension's source sets,
+thus disabling the `spotbugsTest` task:
+
+    spotbugs.disableTestChecks()
+
+### Task additions
+
+The plugin adds an [XSL transformation report](#xsl-transformation-reports) to the `SpotBugsTask` 
+tasks. These reports have the name `quillHtmlReport` and are `enabled` by default. They can be
+configured per task, e.g. to use another XSL file than the one distributed in the Quill jar:
+
+    spotbugsMain {
+      quillHtmlReport.xslFile = 'xsl/spotbugs.xsl'
+      quillHtmlReport.destination = "$buildDir/reports/spotbugs.html"
+    }
+
+    spotbugsTest.quillHtmlReport.enabled = false
 
 
 ## FindBugs Additions Plugin

@@ -12,6 +12,7 @@ version = '2.0-dev.1'
 repositories
 {
     mavenCentral()
+    maven { url "https://plugins.gradle.org/m2/" }
 }
 
 
@@ -59,6 +60,9 @@ dependencies
         exclude group: 'org.apache.commons', module: 'commons-lang3'
         exclude group: 'org.ow2.asm'
     }
+
+    // The SpotBugs additions plugin requires the SpotBugs plugin to compile
+    compileOnly 'gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:2.0.0'
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.27.0'
