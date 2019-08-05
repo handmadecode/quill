@@ -26,13 +26,13 @@ appeal to the taste of those who work in different ways.
 1. [FindBugs Additions Plugin](#findbugs-additions-plugin)
 1. [Checkstyle Additions Plugin](#checkstyle-additions-plugin)
 1. [PMD Additions Plugin](#pmd-additions-plugin)
-1. [JDepend Additions Plugin](#jdepend-additions-plugin)
 1. [CPD Plugin](#cpd-plugin)
 1. [Scent Plugin](#scent-plugin)
 1. [Reports Dashboard Plugin](#reports-dashboard-plugin)
 1. [Pom Plugin](#pom-plugin)
 1. [Module Info Plugin](#module-info-plugin)
 1. [Cobertura Plugin](#cobertura-plugin)
+1. [JDepend Additions Plugin](#jdepend-additions-plugin)
 1. [JavaNCSS Plugin](#javancss-plugin)
 
 
@@ -1229,92 +1229,6 @@ Filter out everything in files matching the pattern ".\*Test.\*\\.java":
     <rule-violation-filter files=".*Test.*\.java"/>
 
 
-## JDepend Additions Plugin
-
-The JDepend Additions plugin applies the standard Gradle plugin `jdepend` to the project and
-configures the corresponding project extension and tasks with some defaults and additions. It also
-replaces the `jdepend` configuration's dependency on the standard JDepend distribution with a
-dependency on the [guru-nidi](https://github.com/nidi3/jdepend) fork.
-
-### Usage
-
-    apply plugin: 'org.myire.quill.jdepend'
-
-### Configuration dependencies
-
-The latest version of the JDepend tool is 2.9.1, which was released in 2005. This version does not
-recognize the Java 8 class format, and it omits classes with Java 8 specific constructs (e.g. method
-handles) from the analysis.
-
-To support dependency analysis of Java 8 code, the plugin uses the
-[guru-nidi](https://github.com/nidi3/jdepend) fork of JDepend rather than the standard distribution.
-This is done by replacing the `jdepend` configuration's dependency on the `jdepend:jdepend` artifact
-with a dependency on the `guru.nidi:jdepend` artifact. The version of the `guru.nidi:jdepend`
-artifact is specified through the extension property `guruNidiVersion` (see below).
-
-This replacement of the standard JDepend library can be disabled by setting the `guruNidiVersion`
-property to null.
-
-### Default values
-
-The plugin configures the `jdepend` extension in the project to let the build continue even if
-failures occur. This currently is a no-op as JDepend does not have the concept of failure; the
-property is an inheritance from `CodeQualityExtension`. This is equivalent to specifying the
-following in the build script:
-
-    jdepend.ignoreFailures = true
-
-### Extension additions
-
-The plugin adds a method called `disableTestChecks` to the `jdepend` extension. Calling this method
-in the build script it will remove the `test` source set from the extension's source sets, thus
-disabling the `jdependTest` task:
-
-    jdepend.disableTestChecks()
-
-The plugin also adds two properties:
-
-* `guruNidiVersion` - a string specifying the version of the guru-nidi JDepend fork to use. Default
-is version "2.9.5". If this property is set to null, the guru-nidi fork will *not* be used.
-
-* `antTaskVersion` - a string specifying the version of the JDepend Ant task to use in conjunction
-with the guru-nidi fork. Default is "1.9.7". Note that this property does not affect the version of
-the Ant task used when the guru-nidi fork is disabled.
-
-### Task additions
-
-The plugin adds an [XSL transformation report](#xsl-transformation-reports) to all tasks of type
-`JDepend`. These reports have the name `quillHtmlReport` and are `enabled` by default. They can be
-configured per task, e.g. to use another XSL file than the one distributed in the Quill jar:
-
-    jdependMain {
-      quillHtmlReport.xslFile = 'resources/jdepend.xsl'
-      quillHtmlReport.destination = "$buildDir/reports/tools/jdepend.html"
-    }
-
-    jdependTest.quillHtmlReport.enabled = false
-
-The plugin also adds a read-only property `jdependProperties` to all tasks of type `JDepend`. This
-property allows specifying a properties file with runtime options for JDepend, as described in the
-[documentation](http://clarkware.com/software/JDepend.html#customize). Normally this can only be
-achieved by adding the properties file to the JDepend classpath (which is what the plugin does if a
-properties file is specified for the task).
-
-The properties file resolved relative to the project directory and is configured like
-
-    jdependMain {
-        jdependProperties.file = 'jdepend.properties'
-    }
-
-If no properties file is explicitly configured the plugin uses a file bundled with the Quill jar
-that excludes the `java.lang` package from the JDepend analysis:
-
-    ignore.java=java.lang
-
-This file is extracted to the path "tmp/jdepend/jdepend.properties" relative to the project's build
-directory.
-
-
 ## CPD Plugin
 
 The CPD plugin adds a verification task for copy-paste detection using the CPD tool that is part of
@@ -1897,7 +1811,7 @@ most use cases.
 Note that the latest release of Cobertura is from February 2015, and that it doesn't work with
 classes compiled for Java 11 or newer (the tool can however still be run with Java 11). Consider
 using the [JaCoCo Additions plugin](#jacoco-additions-plugin) instead for code coverage. Because of
-this, the Cobertura plugin is *not* applied by the  'all' plugin or by the 'core' plugin; it must
+this, the Cobertura plugin is *not* applied by the 'all' plugin or by the 'core' plugin; it must
 always be applied explicitly.
 
 ### Usage
@@ -2064,6 +1978,96 @@ dependency, equivalent to:
     cobertura 'net.sourceforge.cobertura:cobertura:<toolVersion>'
 
 where `<toolVersion>` is the value of the `cobertura` extension's `toolVersion` property.
+
+
+## JDepend Additions Plugin
+
+The JDepend Additions plugin applies the standard Gradle plugin `jdepend` to the project and
+configures the corresponding project extension and tasks with some defaults and additions. It also
+replaces the `jdepend` configuration's dependency on the standard JDepend distribution with a
+dependency on the [guru-nidi](https://github.com/nidi3/jdepend) fork.
+
+The `jdepend` plugin was deprecated in Gradle version 5 and is scheduled to be removed in Gradle
+version 6. Because of this, the JDepend Additions plugin is *not* applied by the 'all' plugin or by
+the 'core' plugin; it must always be applied explicitly.
+
+### Usage
+
+    apply plugin: 'org.myire.quill.jdepend'
+
+### Configuration dependencies
+
+The latest version of the JDepend tool is 2.9.1, which was released in 2005. This version does not
+recognize the Java 8 class format, and it omits classes with Java 8 specific constructs (e.g. method
+handles) from the analysis.
+
+To support dependency analysis of Java 8 code, the plugin uses the
+[guru-nidi](https://github.com/nidi3/jdepend) fork of JDepend rather than the standard distribution.
+This is done by replacing the `jdepend` configuration's dependency on the `jdepend:jdepend` artifact
+with a dependency on the `guru.nidi:jdepend` artifact. The version of the `guru.nidi:jdepend`
+artifact is specified through the extension property `guruNidiVersion` (see below).
+
+This replacement of the standard JDepend library can be disabled by setting the `guruNidiVersion`
+property to null.
+
+### Default values
+
+The plugin configures the `jdepend` extension in the project to let the build continue even if
+failures occur. This currently is a no-op as JDepend does not have the concept of failure; the
+property is an inheritance from `CodeQualityExtension`. This is equivalent to specifying the
+following in the build script:
+
+    jdepend.ignoreFailures = true
+
+### Extension additions
+
+The plugin adds a method called `disableTestChecks` to the `jdepend` extension. Calling this method
+in the build script it will remove the `test` source set from the extension's source sets, thus
+disabling the `jdependTest` task:
+
+    jdepend.disableTestChecks()
+
+The plugin also adds two properties:
+
+* `guruNidiVersion` - a string specifying the version of the guru-nidi JDepend fork to use. Default
+is version "2.9.5". If this property is set to null, the guru-nidi fork will *not* be used.
+
+* `antTaskVersion` - a string specifying the version of the JDepend Ant task to use in conjunction
+with the guru-nidi fork. Default is "1.9.7". Note that this property does not affect the version of
+the Ant task used when the guru-nidi fork is disabled.
+
+### Task additions
+
+The plugin adds an [XSL transformation report](#xsl-transformation-reports) to all tasks of type
+`JDepend`. These reports have the name `quillHtmlReport` and are `enabled` by default. They can be
+configured per task, e.g. to use another XSL file than the one distributed in the Quill jar:
+
+    jdependMain {
+      quillHtmlReport.xslFile = 'resources/jdepend.xsl'
+      quillHtmlReport.destination = "$buildDir/reports/tools/jdepend.html"
+    }
+
+    jdependTest.quillHtmlReport.enabled = false
+
+The plugin also adds a read-only property `jdependProperties` to all tasks of type `JDepend`. This
+property allows specifying a properties file with runtime options for JDepend, as described in the
+[documentation](http://clarkware.com/software/JDepend.html#customize). Normally this can only be
+achieved by adding the properties file to the JDepend classpath (which is what the plugin does if a
+properties file is specified for the task).
+
+The properties file resolved relative to the project directory and is configured like
+
+    jdependMain {
+        jdependProperties.file = 'jdepend.properties'
+    }
+
+If no properties file is explicitly configured the plugin uses a file bundled with the Quill jar
+that excludes the `java.lang` package from the JDepend analysis:
+
+    ignore.java=java.lang
+
+This file is extracted to the path "tmp/jdepend/jdepend.properties" relative to the project's build
+directory.
 
 
 ## JavaNCSS Plugin
