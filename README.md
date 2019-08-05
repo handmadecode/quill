@@ -33,7 +33,6 @@ appeal to the taste of those who work in different ways.
 1. [Module Info Plugin](#module-info-plugin)
 1. [Cobertura Plugin](#cobertura-plugin)
 1. [JDepend Additions Plugin](#jdepend-additions-plugin)
-1. [JavaNCSS Plugin](#javancss-plugin)
 
 
 ## Release Notes
@@ -1561,9 +1560,6 @@ by passing the task to the `addBuiltInSection` method:
         ...
     }
 
-The tasks with built-in support are the ones that have default sections (see above) and tasks of
-type `javancss`.
-
 The sections will appear in the order they were added to the `LinkedHashMap`. The default sections
 are added in the order they are listed above. New sections will thereby appear last in the report.
 One way to rearrange the default sections is to remove a report and add it back:
@@ -2068,129 +2064,3 @@ that excludes the `java.lang` package from the JDepend analysis:
 
 This file is extracted to the path "tmp/jdepend/jdepend.properties" relative to the project's build
 directory.
-
-
-## JavaNCSS Plugin
-
-The JavaNCSS plugin adds a task for calculating source code metrics using the
-[JavaNCSS](https://github.com/codehaus/javancss) tool.
-
-Note that the JavaNCSS tool hasn't received an update since July 2014 and currently does not support
-Java 8 specific syntax, e.g. lambdas. Because of this, the JavaNCSS plugin is *not* applied by the
-'all' plugin or by the 'core' plugin; it must always be applied explicitly.
-
-### Usage
-
-    apply plugin: 'org.myire.quill.javancss'
-
-### Task
-
-The plugin adds a `javancss` task to the project and also adds it to the dependencies of the `build`
-task. The `javancss` task operates on Java source files and is a subclass of
-`org.gradle.api.tasks.SourceTask`, thereby using the standard mechanisms for specifying which source
-files to calculate metrics for, such as include and exclude patterns. By default, the `javancss`
-task uses the `main` source set's Java files as input files.
-
-In addition to the standard source task properties, the `javancss` task's behaviour can be
-configured through the following properties:
-
-* `toolVersion` - a string specifying the version of JavaNCSS to use. The default is version
-"33.54".
-
-* `javancssClasspath` - a `FileCollection` specifying the classpath containing the JavaNCSS classes
-used by the task. The default is the `javancss` dependency configuration (see below).
-
-* `ncss` - a boolean specifying if the total number of non commenting source statements in the input
-files should be calculated. Default is true.
-
-* `packageMetrics` - a boolean specifying if metrics data should be calculated for each package.
-Default is true.
-
-* `classMetrics` - a boolean specifying if metrics data should be calculated for each
-class/interface. Default is true.
-
-* `functionMetrics` - a boolean specifying if metrics data should be calculated for each
-method/function. Default is true.
-
-* `ignoreFailures` - a boolean specifying if the build should continue if the JavaNCSS execution
-fails. Default is true.
-
-* `reports` - a `ReportContainer` holding the reports created by the task, see below.
-
-### Reports
-
-The `javancss` task creates a primary report with the result of the source code metrics calculation.
-This report can either be o the XML format or the text format. If the primary report is on the XML
-format, the task can optionally produce an HTML report by applying an XSL transformation on the XML
-report.
-
-The two reports are configured through the `reports` property of the `javancss` task:
-
-* `primary` - a `SingleFileReport` that also allows the format to be specified in its `format`
-property. Valid values for the format are "xml" or "text", with "xml" as the default value. The
-default report is a file called "javancss.*ext*" where *ext* is the value of the `format` property.
-The default report file is located in a directory called "javancss" in the project's report
-directory or, if no project report directory is defined, in a directory called "javancss" in the
-project's build directory.
-
-* `html` - a `SingleFileReport` that will be created if the primary report is `enabled` and its
-`format` is "xml". This report produces an HTML version of the tasks's XML report by applying an XSL transformation. By default, the HTML report is created in the same directory as the XML report
-and given the same base name as the XML report (e.g. "javancss.html" if the XML report has the name
-"javancss.xml"). The XSL style sheet to use can be specified through the `xslFile` property. This
-property is a `File` that is resolved relative to the project directory. If no XSL file is specified
-the default style sheet bundled with the Quill jar file will be used.
-
-The reports can be configured with a closure, just as any other `ReportContainer`:
-
-    javancss {
-      ...
-      reports {
-        primary.destination = "$buildDir/reports/metrics.xml"
-        html.xslFile = 'xsl/javancss.xsl'
-      }
-    }
-
-The reports can also be configured through chained access of the properties:
-
-    javancss {
-      ...
-      reports.primary.format = 'text'
-    }
-
-The `javancss` task implements the `Reporting` interface, meaning that the produced reports are
-picked up by the Build Dashboard plugin.
-
-Note that if the primary report isn't enabled, the `javancss` task will not run. This means that the
-task can be skipped by adding the configuration line
-
-    javancss.reports.primary.enabled = false
-
-### Dependency configuration
-
-The JavaNCSS plugin adds a `javancss` dependency configuration to the project. This configuration
-specifies the default classpath for the `javancss` task. By default, this configuration has one
-dependency, equivalent to:
-
-    javancss 'org.codehaus.javancss:javancss:<toolVersion>'
-
-where `<toolVersion>` is the value of the `javancss` task's `toolVersion` property.
-
-### Use with Reports Dashboard
-
-The JavaNCSS report is not included in the Reports Dashboard by default when the JavaNCSS plugin is
-applied. A section for the JavaNCSS report must be added explicitly, e.g.:
-
-    reportsDashboard {
-        addSection('javancss',
-                   javancss.reports.primary,
-                   javancss.reports.html,
-                   'path/to/javancss.xsl')
-    }
-
-The Reports Dashboard does however have built-in support for JavaNCSS sections, just as for all
-other Quill tasks that produce reports, which means that the section can be added with the
-`addBuiltInSection` method:
-
-    reportsDashboard {
-        addBuiltInSection(javancss)
-    }
