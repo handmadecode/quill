@@ -196,6 +196,29 @@ public class IvyModuleLoaderImplTest extends ExternalToolTest<IvyModuleLoader>
 
 
     /**
+     * An Ivy file with no configurations should not load any configurations.
+     *
+     * @throws IOException  if creating a test file fails.
+     */
+    @Test
+    public void fileWithoutConfigurationsLoadsNoConfiguration() throws IOException
+    {
+        // Given
+        File aModuleFile = createIvyModuleFile("<info organisation=\"org.myire\" module=\"test\"/>");
+
+        // Given
+        IvyModuleLoader aLoader = newToolProxy();
+        aLoader.init(aModuleFile, null);
+
+        // When
+        Collection<ConfigurationSpec> aConfigs = aLoader.getConfigurations();
+
+        // Then
+        assertEquals(0, aConfigs.size());
+    }
+
+
+    /**
      * An Ivy configuration with only a name should be loaded as a {@code ConfigurationSpec} with
      * that name and default values for all other properties.
      *
@@ -478,6 +501,51 @@ public class IvyModuleLoaderImplTest extends ExternalToolTest<IvyModuleLoader>
             "<info organisation=\"org.myire\" module=\"test\"/>",
             "<configurations><conf name=\"" + aConfiguration + "\"/></configurations>",
             "<dependencies defaultconf=\"" + aConfiguration + "\">",
+            "<dependency org=\"" + aOrganisation + "\" name=\"" + aName + "\" rev=\"" + aRevision + "\"/>",
+            "</dependencies>"
+        );
+
+        // Given
+        IvyModuleLoader aLoader = newToolProxy();
+        aLoader.init(aModuleFile, null);
+
+        // When
+        Collection<ModuleDependencySpec> aDependencies =  aLoader.getDependencies();
+
+        // Then
+        assertEquals(1, aDependencies.size());
+        ModuleDependencySpec aDependencySpec = aDependencies.iterator().next();
+        assertEquals(aOrganisation, aDependencySpec.getGroup());
+        assertEquals(aName, aDependencySpec.getName());
+        assertEquals(aRevision, aDependencySpec.getVersion());
+        assertEquals(aConfiguration, aDependencySpec.getConfiguration());
+        assertNull(aDependencySpec.getClassifier());
+        assertNull(aDependencySpec.getExtension());
+        assertTrue(aDependencySpec.isTransitive());
+        assertFalse(aDependencySpec.isChanging());
+        assertFalse(aDependencySpec.isForce());
+        assertEquals(0, aDependencySpec.getNumArtifacts());
+        assertEquals(0, aDependencySpec.getNumExclusions());
+    }
+
+
+    /**
+     * A dependency with no explicit configuration should get the '*' configuration if there are no
+     * configurations specified.
+     *
+     * @throws IOException  if creating a test file fails.
+     */
+    @Test
+    public void nonExistingDefaultConfigurationIsAppliedToDependency() throws IOException
+    {
+        // Given
+        String aConfiguration = "*";
+        String aOrganisation = "org.net";
+        String aName = "biz";
+        String aRevision = "4.712";
+        File aModuleFile = createIvyModuleFile(
+            "<info organisation=\"org.myire\" module=\"test\"/>",
+            "<dependencies>",
             "<dependency org=\"" + aOrganisation + "\" name=\"" + aName + "\" rev=\"" + aRevision + "\"/>",
             "</dependencies>"
         );

@@ -220,6 +220,10 @@ Specifying
 in the build script will dynamically add the configurations defined in the specified Ivy module file
 to the project.
 
+Note that the configuration "default", which only is present if no configurations are defined, will
+not be imported. The wildcard configuration "*" will be mapped to the value of the `ivyImport`
+extension's property `wildcardConfiguration`, which has the default value `compile`.
+
 Specifying
 
     dependencies.fromIvyFile()
@@ -252,23 +256,23 @@ ones, and to import from multiple Ivy files:
 ### Dynamically setting the group and version
 
 An Ivy module file's `organisation` and `revision` can be imported and applied to the Gradle project
-through the dynamic methods `setGroupFromIvyFile` and `setVersionFromIvyFile` that the plugin adds
-to the Gradle project. These methods take the Ivy file to import from as their only argument. The
-path to the Ivy file is resolved relative to the project directory.
+through the dynamic methods `applyGroupFromIvyFile` and `applyVersionFromIvyFile` that the plugin
+adds to the Gradle project. These methods take the Ivy file to import from as their only argument.
+The path to the Ivy file is resolved relative to the project directory.
 
 Specifying
 
-    setGroupFromIvyFile('/path/to/ivy.xml')
+    applyGroupFromIvyFile('/path/to/ivy.xml')
 
 will set the project's `group` property to the value of the `organisation` attribute in the Ivy
 file's `info` element.
 
-Similarly, the dynamic method `setVersionFromIvyFile` will set the  project's `version` property to
-the value of the `revision` attribute in the Ivy file's `info` element.
+Similarly, the dynamic method `applyVersionFromIvyFile` will set the  project's `version` property
+to the value of the `revision` attribute in the Ivy file's `info` element.
 
 If no file is specified, the default value 'ivy.xml' is assumed. Thus, specifying
 
-    setGroupFromIvyFile()
+    applyGroupFromIvyFile()
 
 will set the project's `group` property to the value of the `organisation` element in a file called
 'ivy.xml' in the Gradle project directory.

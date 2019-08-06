@@ -110,6 +110,11 @@ public class IvyModuleLoaderImpl implements IvyModuleLoader
         Collection<ConfigurationSpec> aConfigurations = new ArrayList<>();
         for (Configuration aIvyConfiguration : aModuleDescriptor.getConfigurations())
         {
+            if ("default".equals(aIvyConfiguration.getName()))
+                // Skip the default configuration, which is present only if no configurations have
+                // been specified.
+                continue;
+
             ConfigurationSpec aConfigurationSpec = new ConfigurationSpec(aIvyConfiguration.getName());
             aConfigurationSpec.setTransitive(aIvyConfiguration.isTransitive());
             aConfigurationSpec.setVisible((aIvyConfiguration.getVisibility() == Configuration.Visibility.PUBLIC));

@@ -88,14 +88,14 @@ class IvyImportPlugin implements Plugin<Project>
 
         // Add a dynamic method to the project that sets the project's group from an Ivy file's
         // module organisation.
-        pProject.metaClass.setGroupFromIvyFile
+        pProject.metaClass.applyGroupFromIvyFile
         {
             Object pIvyFile -> setGroupFromIvyOrganisation(pIvyFile);
         }
 
         // Add a dynamic method to the project that sets the project's version string from an Ivy
         // file's module revision.
-        pProject.metaClass.setVersionFromIvyFile
+        pProject.metaClass.applyVersionFromIvyFile
         {
             Object pIvyFile -> setVersionFromIvyRevision(pIvyFile);
         }

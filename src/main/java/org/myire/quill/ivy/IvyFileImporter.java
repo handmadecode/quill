@@ -19,6 +19,7 @@ import org.myire.quill.common.ExternalToolLoader;
 import org.myire.quill.common.ProjectAware;
 import org.myire.quill.common.Projects;
 import org.myire.quill.configuration.ConfigurationSpec;
+import org.myire.quill.dependency.DependencySpec;
 import org.myire.quill.dependency.ModuleDependencySpec;
 
 
@@ -135,7 +136,9 @@ public class IvyFileImporter extends ProjectAware
      */
     Collection<ModuleDependencySpec> importDependencies()
     {
-        return maybeCreateIvyLoader().getDependencies();
+        Collection<ModuleDependencySpec> aDependencies = maybeCreateIvyLoader().getDependencies();
+        aDependencies.forEach(this::replaceWildcardConfiguration);
+        return aDependencies;
     }
 
 
@@ -162,6 +165,20 @@ public class IvyFileImporter extends ProjectAware
     String getRevision()
     {
         return maybeCreateIvyLoader().getRevision();
+    }
+
+
+    /**
+     * Replace the configuration name in a {@code DependencySpec} if it is the wildcard
+     * configuration &quot;*&quot;. The new configuration name will be the wildcard configuration
+     * specified in the import extension.
+     *
+     * @param pDependency   The dependency to possibly replace the configuration name in.
+     */
+    private void replaceWildcardConfiguration(DependencySpec pDependency)
+    {
+        if ("*".equals(pDependency.getConfiguration()))
+            pDependency.setConfiguration(fExtension.getWildcardConfiguration());
     }
 
 

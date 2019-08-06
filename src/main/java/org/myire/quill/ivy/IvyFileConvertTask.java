@@ -60,7 +60,7 @@ public class IvyFileConvertTask extends DefaultTask
         onlyIf(ignore -> fConvertConfigurations || fConvertDependencies);
 
         // The extension's settings file is an input file.
-        Tasks.inputFile(this, pExtension::getSettingsFile);
+        Tasks.optionalInputFile(this, pExtension::getSettingsFile);
 
         // The extension's external library version is an input property.
         Tasks.inputProperty(this, "ivyVersion", pExtension::getIvyVersion);

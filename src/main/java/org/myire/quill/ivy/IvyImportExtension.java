@@ -26,6 +26,7 @@ public class IvyImportExtension extends ProjectAware
     static final String EXTENSION_NAME = "ivyImport";
 
     static private final String DEFAULT_IVY_VERSION = "2.4.0";
+    static private final String DEFAULT_WILDCARD_CONFIGURATION = "compile";
 
 
     private final Configuration fConfiguration;
@@ -33,6 +34,7 @@ public class IvyImportExtension extends ProjectAware
     private File fIvySettingsFile;
     private String fIvyVersion = DEFAULT_IVY_VERSION;
     private FileCollection fIvyClassPath;
+    private String fWildcardConfiguration = DEFAULT_WILDCARD_CONFIGURATION;
 
 
     /**
@@ -115,5 +117,29 @@ public class IvyImportExtension extends ProjectAware
     public void setIvyClassPath(FileCollection pIvyClassPath)
     {
         fIvyClassPath = pIvyClassPath != null ? pIvyClassPath : fConfiguration;
+    }
+
+
+    /**
+     * Get the name of the configuration to map the wildcard Ivy configuration to.
+     *
+     * @return  The wildcard configuration string, never null.
+     */
+    public String getWildcardConfiguration()
+    {
+        return fWildcardConfiguration;
+    }
+
+
+    /**
+     * Set the name of the configuration to map the wildcard Ivy configuration to.
+     *
+     * @param pWildcardConfiguration    The wildcard configuration name. Passing null will cause the
+     *                                  default value to be returned from
+     *                                  {@code getWildcardConfiguration}.
+     */
+    public void setWildcardConfiguration(String pWildcardConfiguration)
+    {
+        fWildcardConfiguration = pWildcardConfiguration != null ? pWildcardConfiguration : DEFAULT_WILDCARD_CONFIGURATION;
     }
 }

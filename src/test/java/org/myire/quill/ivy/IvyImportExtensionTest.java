@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 public class IvyImportExtensionTest
 {
     static private final String DEFAULT_IVY_VERSION = "2.4.0";
+    static private final String DEFAULT_WILDCARD_CONFIGURATION = "compile";
 
 
     private final Project fMockProject = mock(Project.class);
@@ -142,5 +143,37 @@ public class IvyImportExtensionTest
 
         // Then
         assertSame(fMockConfiguration, aExtension.getIvyClassPath());
+    }
+
+
+    @Test
+    public void getWildcardConfigurationReturnsDefaultValueIfNotSet()
+    {
+        // Given
+        IvyImportExtension aExtension = new IvyImportExtension(fMockProject, fMockConfiguration);
+
+        // Then
+        assertEquals(DEFAULT_WILDCARD_CONFIGURATION, aExtension.getWildcardConfiguration());
+    }
+
+
+    @Test
+    public void getWildcardConfigurationReturnsValueFromSetter()
+    {
+        // Given
+        String aConfig = "runtime";
+        IvyImportExtension aExtension = new IvyImportExtension(fMockProject, fMockConfiguration);
+
+        // When
+        aExtension.setWildcardConfiguration(aConfig);
+
+        // Then
+        assertEquals(aConfig, aExtension.getWildcardConfiguration());
+
+        // When
+        aExtension.setWildcardConfiguration(null);
+
+        // Then
+        assertEquals(DEFAULT_WILDCARD_CONFIGURATION, aExtension.getWildcardConfiguration());
     }
 }
