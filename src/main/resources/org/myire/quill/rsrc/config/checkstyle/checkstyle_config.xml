@@ -30,7 +30,7 @@
             <property name="severity" value="${severity.errorprone}" default="error"/>
         </module>
         <module name="IllegalCatch">
-            <property name="illegalClassNames" value="java.lang.Error, java.lang.Exception, java.lang.RuntimeException"/>
+            <property name="illegalClassNames" value="java.lang.Error, java.lang.Exception"/>
             <property name="severity" value="${severity.errorprone}" default="error"/>
         </module>
         <module name="ModifiedControlVariable">
@@ -215,12 +215,6 @@
         <module name="DeclarationOrder">
             <property name="severity" value="${severity.style}" default="warning"/>
         </module>
-        <module name="ImportOrder">
-            <property name="groups" value="java,javax,*"/>
-            <property name="ordered" value="false"/>
-            <property name="separated" value="true"/>
-            <property name="severity" value="${severity.style}" default="warning"/>
-        </module>
         <module name="InnerTypeLast">
             <property name="severity" value="${severity.style}" default="warning"/>
         </module>
@@ -303,11 +297,11 @@
         </module>
         <module name="NoWhitespaceBefore">
             <property name="severity" value="${severity.formatting}" default="warning"/>
-            <property name="tokens" value="COMMA, SEMI, POST_INC, POST_DEC, ELLIPSIS, METHOD_REF"/>
+            <property name="tokens" value="COMMA, POST_INC, POST_DEC, ELLIPSIS, METHOD_REF"/>
         </module>
         <module name="NoWhitespaceBefore">
             <property name="severity" value="${severity.formatting}" default="warning"/>
-            <property name="tokens" value="DOT"/>
+            <property name="tokens" value="DOT, SEMI"/>
             <property name="allowLineBreaks" value="true"/>
         </module>
         <module name="ParenPad">
