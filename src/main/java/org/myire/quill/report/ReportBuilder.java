@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2018 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018-2019 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -12,6 +12,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.time.Instant;
@@ -28,6 +29,7 @@ import javax.xml.transform.stream.StreamSource;
 
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
+
 import org.myire.quill.common.Projects;
 
 
@@ -272,7 +274,7 @@ public class ReportBuilder
         // potential network access when validating the input XML.
         try
         {
-            pTransformer.transform(new StreamSource(pXml), new StreamResult(fOutputStream));
+            pTransformer.transform(new StreamSource(new StringReader(pXml)), new StreamResult(fOutputStream));
         }
         catch (TransformerException e)
         {
