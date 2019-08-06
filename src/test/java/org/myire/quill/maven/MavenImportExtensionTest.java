@@ -33,6 +33,8 @@ import static org.mockito.Mockito.when;
 public class MavenImportExtensionTest
 {
     static private final String DEFAULT_MAVEN_VERSION = "3.6.1";
+    static private final String DEFAULT_AETHER_VERSION = "1.1.0";
+    static private final String DEFAULT_WAGON_VERSION = "3.3.2";
 
     private final Project fMockProject = mock(Project.class);
     private final Configuration fMockConfiguration = mock(Configuration.class);
@@ -121,6 +123,70 @@ public class MavenImportExtensionTest
 
         // Then
         assertEquals(DEFAULT_MAVEN_VERSION, aExtension.getMavenVersion());
+    }
+
+
+    @Test
+    public void getAetherVersionReturnsDefaultValueIfNotSet()
+    {
+        // Given
+        MavenImportExtension aExtension = new MavenImportExtension(fMockProject, fMockConfiguration);
+
+        // Then
+        assertEquals(DEFAULT_AETHER_VERSION, aExtension.getAetherVersion());
+    }
+
+
+    @Test
+    public void getAetherVersionReturnsValueFromSetter()
+    {
+        // Given
+        String aVersion = "1.0.2.v20150114";
+        MavenImportExtension aExtension = new MavenImportExtension(fMockProject, fMockConfiguration);
+
+        // When
+        aExtension.setAetherVersion(aVersion);
+
+        // Then
+        assertEquals(aVersion, aExtension.getAetherVersion());
+
+        // When
+        aExtension.setAetherVersion(null);
+
+        // Then
+        assertEquals(DEFAULT_AETHER_VERSION, aExtension.getAetherVersion());
+    }
+
+
+    @Test
+    public void getWagonVersionReturnsDefaultValueIfNotSet()
+    {
+        // Given
+        MavenImportExtension aExtension = new MavenImportExtension(fMockProject, fMockConfiguration);
+
+        // Then
+        assertEquals(DEFAULT_WAGON_VERSION, aExtension.getWagonVersion());
+    }
+
+
+    @Test
+    public void getWagonVersionReturnsValueFromSetter()
+    {
+        // Given
+        String aVersion = "2.10";
+        MavenImportExtension aExtension = new MavenImportExtension(fMockProject, fMockConfiguration);
+
+        // When
+        aExtension.setWagonVersion(aVersion);
+
+        // Then
+        assertEquals(aVersion, aExtension.getWagonVersion());
+
+        // When
+        aExtension.setWagonVersion(null);
+
+        // Then
+        assertEquals(DEFAULT_WAGON_VERSION, aExtension.getWagonVersion());
     }
 
 

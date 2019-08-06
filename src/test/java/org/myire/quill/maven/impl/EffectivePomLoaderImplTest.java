@@ -398,6 +398,38 @@ public class EffectivePomLoaderImplTest extends ExternalToolTest<EffectivePomLoa
     }
 
 
+    /**
+     * The local repository should be loaded as a {@code MavenRepositorySpec}.
+     *
+     * @throws IOException  if creating a test file fails.
+     */
+    @Test
+    public void localRepositoryIsLoaded() throws IOException
+    {
+        // Given
+        String aID = "local";
+        String aPath = "/path/to/local/repo";
+        File aPomFile = createPomFile(
+            "<artifactId>xyz</artifactId>",
+            "<groupId>org.grp</groupId>",
+            "<version>1</version>"
+        );
+        File aSettingsFile = createSettingsFile("<localRepository>" + aPath + "</localRepository>");
+
+        // Given
+        EffectivePomLoader aLoader = newToolProxy();
+        aLoader.init(aPomFile, aSettingsFile);
+
+        // When
+        RepositorySpec aLocalRepo = aLoader.getLocalRepository();
+
+        // Then
+        assertEquals(aID, aLocalRepo.getName());
+        assertEquals(aPath, aLocalRepo.getUrl());
+        assertNull(aLocalRepo.getCredentials());
+    }
+
+
     private File createPomFile(String... pContents) throws IOException
     {
         Collection<String> aLines = new ArrayList<>();

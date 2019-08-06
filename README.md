@@ -326,10 +326,15 @@ This configuration specifies the default classpath for the Maven classes used by
 contains dependencies equivalent to:
 
     mavenImport 'org.apache.maven:maven-embedder:<mavenVersion>'
+    mavenImport 'org.eclipse.aether:aether-connector-basic:<aetherVersion>'
+    mavenImport 'org.eclipse.aether:aether-transport-wagon:<aetherVersion>'
+    mavenImport 'org.apache.maven.wagon:wagon-file:<wagonVersion>'
+    mavenImport 'org.apache.maven.wagon:wagon-http:<wagonVersion>'
+    mavenImport 'org.apache.maven.wagon:wagon-provider-api:<wagonVersion>'
     mavenImport 'org.slf4j:slf4j-nop:1.7.26'
 
-where `<mavenVersion>` is the value of the `mavenImport` extension's property with the corresponding
-name, see below.
+where `<mavenVersion>`, `<aetherVersion>`, and `<wagonVersion>` are the values of the `mavenImport`
+extension's properties with the corresponding name, see below.
 
 ### Project extension
 
@@ -369,14 +374,21 @@ Example: to ignore all dependencies with scope 'system' and to map the 'provided
     mavenImport.scopeToConfiguration['system'] = null
     mavenImport.scopeToConfiguration['provided'] = 'compile'
 
-#### Maven version
+#### Library versions
 
 The extension also allows the version of Maven used by the plugin to be specified in the property
 `mavenVersion`. By default version 3.6.1 is used.
 
+In addition to the Maven libraries, the plugin needs some of the Eclipse Aether and Maven Wagon
+libraries to access repositories, e.g. to resolve remote parent poms. The versions of these
+artifacts can be specified in the properties `aetherVersion` and `wagonVersion`. The default
+versions are 1.1.0 and 3.3.2, respectively. 
+
 Example:
 
     mavenImport.mavenVersion = '3.3.9'
+    mavenImport.aetherVersion = '1.0.2.v20150114'
+    mavenImport.wagonVersion = '2.10'
 
 #### Maven class path
 
@@ -384,9 +396,12 @@ If more fine-grained control over the Maven classes used is needed, the extensio
 `mavenClassPath` can be set to a `FileCollection` containing the desired Maven classes. One way to
 do this is through a dependency configuration:
 
+    // Use aether-transport-http instead of the Wagon libraries
     configurations { customMavenImport }
     dependencies {
-        customMavenImport 'org.apache.maven:maven-embedder:3.3.3'
+        customMavenImport 'org.apache.maven:maven-embedder:3.6.1'
+        customMavenImport 'org.eclipse.aether:aether-connector-basic:1.1.0'
+        customMavenImport 'org.eclipse.aether:aether-transport-http:1.1.0'
         customMavenImport 'org.slf4j:slf4j-simple:1.7.25'
     }
     mavenImport.mavenClassPath = configurations['customMavenImport']
@@ -427,6 +442,19 @@ possible to mix repositories and dependencies from a pom file with explicitly de
 In the example above the repositories are imported from an explicit pom file and the dependencies
 from the default pom file. It is also possible to import repositories or dependencies from several
 pom files.
+
+Note that the Maven central repository is never imported from a pom file. Use the standard
+`RepositoryHandler` method `mavenCentral` if that repository should be used.
+
+It is also possible to import the Maven local repository from the Maven settings file through the
+dynamic method `mavenLocalFromSettings` added to the project's `RepositoryHandler`. This method
+differs from the standard method `mavenLocal` in that it can load the path to the local repository
+from an explicit settings file rather than using heuristics.
+
+Example:
+
+    mavenImport.settingsFile = '/not/known/by/heuristics/settings.xml'
+    repositories.mavenLocalFromSettings()
 
 Note that importing repositories creates a chicken-and-egg situation. In order to import a pom file
 the plugin needs the external libraries from the `mavenImport` dependency configuration (unless
@@ -493,11 +521,27 @@ do nothing. Default is `true`.
 * `convertRepositories` - a boolean specifying whether or not to import and convert repositories
 from the pom file. Default is `true`.
 
+* `convertLocalRepository` - a boolean specifying whether or not to import and convert the Maven
+local repository from the settings file. Default is `true`.
+
 * `convertDependencies` - a boolean specifying whether or not to import and convert dependencies
 from the pom file. Default is `true`.
 
 The task will use the Maven settings file specified in the `mavenImport` project extension, or the
 default Maven settings if no explicit settings file has been specified.
+
+### Full example
+
+A minimum Gradle build script for a standard Maven Java project would look like this (omitting the
+`buildscript` block that specifies how to retrieve the Quill artifact):
+
+    apply plugin: 'java'
+    apply plugin: 'org.myire.quill.maven'
+
+    repositories.mavenCentral()
+    dependencies.fromPomFile()
+    applyGroupFromPomFile()
+    applyVersionFromPomFile()
 
 
 ## Project Metadata Plugin

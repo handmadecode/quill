@@ -24,6 +24,7 @@ import org.myire.quill.dependency.Dependencies;
 import org.myire.quill.dependency.DependencySpec;
 import org.myire.quill.dependency.ModuleDependencySpec;
 import org.myire.quill.dependency.ProjectDependencySpec;
+import org.myire.quill.repository.MavenRepositorySpec;
 import org.myire.quill.repository.RepositorySpec;
 
 
@@ -148,6 +149,20 @@ class PomImporter extends ProjectAware
     Collection<RepositorySpec> importRepositories()
     {
         return maybeCreatePomLoader().getRepositories();
+    }
+
+
+    /**
+     * Import the local repository specification from the Maven settings file specified in the
+     * import extension.
+     *
+     * @return  The local repository specification.
+     *
+     * @throws GradleException  if loading the settings file fails.
+     */
+    RepositorySpec importLocalRepository()
+    {
+        return maybeCreatePomLoader().getLocalRepository();
     }
 
 
@@ -333,6 +348,12 @@ class PomImporter extends ProjectAware
         public Collection<RepositorySpec> getRepositories()
         {
             return Collections.emptyList();
+        }
+
+        @Override
+        public RepositorySpec getLocalRepository()
+        {
+            return new MavenRepositorySpec("local", "");
         }
 
         @Override

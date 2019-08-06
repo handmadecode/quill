@@ -53,6 +53,15 @@ public interface EffectivePomLoader
     Collection<RepositorySpec> getRepositories();
 
     /**
+     * Get the local repository from the settings file, possibly loading it first.
+     *
+     * @return  A {@code RepositorySpec} with the path to the local repository.
+     *
+     * @throws GradleException  if loading the settings file fails.
+     */
+    RepositorySpec getLocalRepository();
+
+    /**
      * Get the group ID from the effective pom, possibly loading it first.
      *
      * @return  The project model's group ID.

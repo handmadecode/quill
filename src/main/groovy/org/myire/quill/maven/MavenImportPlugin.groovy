@@ -25,7 +25,8 @@ import org.myire.quill.repository.RepositorySpec
  * added to the project's {@code DependencyHandler}.
  *<p>
  * Repositories can be added to a project through the dynamic method {@code fromPomFile} that is
- * added to the project's {@code RepositoryHandler}.
+ * added to the project's {@code RepositoryHandler}. The Maven local repository can be added through
+ * the dynamic method {@code mavenLocalFromSettings}.
  *<p>
  * A project's group ID and version can be through the dynamic methods {@code applyGroupFromPomFile}
  * and {@code applyVersionFromPomFile} that are added to the project.
@@ -44,6 +45,11 @@ class MavenImportPlugin implements Plugin<Project>
 
     // The default artifacts the import classpath should depend on.
     static private final String MAVEN_EMBEDDER_GROUP_ARTIFACT_ID = 'org.apache.maven:maven-embedder'
+    static private final String AETHER_BASIC_GROUP_ARTIFACT_ID = 'org.eclipse.aether:aether-connector-basic'
+    static private final String AETHER_WAGON_GROUP_ARTIFACT_ID = 'org.eclipse.aether:aether-transport-wagon'
+    static private final String WAGON_FILE_GROUP_ARTIFACT_ID = 'org.apache.maven.wagon:wagon-file'
+    static private final String WAGON_HTTP_GROUP_ARTIFACT_ID = 'org.apache.maven.wagon:wagon-http'
+    static private final String WAGON_PROVIDER_GROUP_ARTIFACT_ID = 'org.apache.maven.wagon:wagon-provider-api'
     static private final String SLF4J_NOOP_DEPENDENCY = 'org.slf4j:slf4j-nop:1.7.26'
 
 
@@ -93,6 +99,13 @@ class MavenImportPlugin implements Plugin<Project>
         pProject.repositories.metaClass.fromPomFile
         {
             Object pPomFile -> importMavenRepositories(pPomFile);
+        }
+
+        // Add a dynamic method to the project's repository handler that allows build scripts to
+        // specify that the Maven local repository should be imported from the Maven settings file.
+        pProject.repositories.metaClass.mavenLocalFromSettings
+        {
+            importMavenLocalRepository();
         }
 
         // Add a dynamic method to the project that sets the project's group from a pom file's group
@@ -152,6 +165,18 @@ class MavenImportPlugin implements Plugin<Project>
             cLogger.debug('Adding repository {}', aRepository.url);
             fProject.repositories.maven({ MavenArtifactRepository r -> copyValues(aRepository, r) } );
         }
+    }
+
+
+    /**
+     * Import the Maven local repository from the import extension's Maven settings file and add it
+     * to the project's repository handler.
+     */
+    void importMavenLocalRepository()
+    {
+        RepositorySpec aRepository = getPomImporter(asPomFile(null)).importLocalRepository();
+        cLogger.debug('Adding Maven local repository {}', aRepository.url);
+        fProject.repositories.maven({ MavenArtifactRepository r -> configureMavenLocalRepo(r, aRepository.url) } );
     }
 
 
@@ -245,6 +270,11 @@ class MavenImportPlugin implements Plugin<Project>
         if (fConfiguration.dependencies.empty)
         {
             addDependency("${MAVEN_EMBEDDER_GROUP_ARTIFACT_ID}:${fExtension.mavenVersion}");
+            addDependency("${AETHER_BASIC_GROUP_ARTIFACT_ID}:${fExtension.aetherVersion}");
+            addDependency("${AETHER_WAGON_GROUP_ARTIFACT_ID}:${fExtension.aetherVersion}");
+            addDependency("${WAGON_FILE_GROUP_ARTIFACT_ID}:${fExtension.wagonVersion}");
+            addDependency("${WAGON_HTTP_GROUP_ARTIFACT_ID}:${fExtension.wagonVersion}");
+            addDependency("${WAGON_PROVIDER_GROUP_ARTIFACT_ID}:${fExtension.wagonVersion}");
             addDependency(SLF4J_NOOP_DEPENDENCY);
         }
     }
@@ -272,6 +302,19 @@ class MavenImportPlugin implements Plugin<Project>
     private File asPomFile(Object pValue)
     {
         return fProject.file(pValue ?: 'pom.xml');
+    }
+
+
+    /**
+     * Configure a Maven local repository.
+     *
+     * @param pRepo     The repository to configure.
+     * @param pLocation The path to the local repository's location.
+     */
+    static private void configureMavenLocalRepo(MavenArtifactRepository pRepo, String pLocation)
+    {
+        pRepo.name = 'MavenLocal';
+        pRepo.url = pLocation;
     }
 
 

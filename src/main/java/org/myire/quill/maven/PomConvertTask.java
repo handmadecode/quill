@@ -8,6 +8,7 @@ package org.myire.quill.maven;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -40,6 +41,7 @@ public class PomConvertTask extends DefaultTask
     private File fPomFile;
     private File fDestination;
     private boolean fConvertRepositories = true;
+    private boolean fConvertLocalRepository = true;
     private boolean fConvertDependencies = true;
     private boolean fOverwrite = true;
 
@@ -56,7 +58,7 @@ public class PomConvertTask extends DefaultTask
         setDescription(TASK_DESCRIPTION);
 
         // Only execute the task if something should be converted.
-        onlyIf(ignore -> fConvertRepositories || fConvertDependencies);
+        onlyIf(ignore -> fConvertRepositories || fConvertLocalRepository || fConvertDependencies);
 
         // The extension's settings file is an input file.
         Tasks.optionalInputFile(this, pExtension::getSettingsFile);
@@ -64,8 +66,10 @@ public class PomConvertTask extends DefaultTask
         // The extension's scope mapping is an input property.
         Tasks.inputProperty(this, "scopeMapping", pExtension::getScopeToConfiguration);
 
-        // The extension's external library version is an input property.
+        // The extension's external library versions are input properties.
         Tasks.inputProperty(this, "mavenVersion", pExtension::getMavenVersion);
+        Tasks.inputProperty(this, "aetherVersion", pExtension::getAetherVersion);
+        Tasks.inputProperty(this, "wagonVersion", pExtension::getWagonVersion);
 
         // The extension's maven classpath is an input file collection.
         Tasks.inputFiles(this, pExtension::getMavenClassPath);
@@ -87,6 +91,25 @@ public class PomConvertTask extends DefaultTask
     public void setConvertRepositories(boolean pConvertRepositories)
     {
         fConvertRepositories = pConvertRepositories;
+    }
+
+
+    /**
+     * Should the local repository from the Maven settings file be imported and converted? Default
+     * is true.
+     *
+     * @return  True if the local repository  should be imported and converted, false if not.
+     */
+    @Input
+    public boolean isConvertLocalRepository()
+    {
+        return fConvertLocalRepository;
+    }
+
+
+    public void setConvertLocalRepository(boolean pConvertLocalRepository)
+    {
+        fConvertLocalRepository = pConvertLocalRepository;
     }
 
 
@@ -211,9 +234,11 @@ public class PomConvertTask extends DefaultTask
 
 
     /**
-     * Import repositories from a pom file if the {@code convertRepositories} property is true.
+     * Import repositories from a pom file if the {@code convertRepositories} property is true and
+     * from the Maven settings local repository if the {@code convertLocalRepository} property is
+     * true.
      *
-     * @param pImporter The importer that will load the pom file.
+     * @param pImporter The importer that will load the pom and settings files.
      *
      * @return  A collection of {@code RepositorySpec}, possibly empty, never null.
      *
@@ -221,18 +246,29 @@ public class PomConvertTask extends DefaultTask
      */
     private Collection<RepositorySpec> importRepositories(PomImporter pImporter)
     {
-        if (fConvertRepositories)
-        {
-            Collection<RepositorySpec> aRepositories = pImporter.importRepositories();
-            getLogger().debug(
-                "Imported {} repositories from '{}'",
-                aRepositories.size(),
-                pImporter.getPomFile().getAbsolutePath());
-
-            return aRepositories;
-        }
-        else
+        if (!fConvertRepositories && !fConvertLocalRepository)
+            // Nothing should be imported.
             return Collections.emptyList();
+
+        Collection<RepositorySpec> aRepositories;
+        if (fConvertRepositories && fConvertLocalRepository)
+        {
+            aRepositories = new ArrayList<>(pImporter.importRepositories());
+            aRepositories.add(pImporter.importLocalRepository());
+        }
+        else if (fConvertRepositories)
+            // Only remote repositories.
+            aRepositories = pImporter.importRepositories();
+        else
+            // Only the local repository.
+            aRepositories = Collections.singletonList(pImporter.importLocalRepository());
+
+        getLogger().debug(
+            "Imported {} repositories from '{}'",
+            aRepositories.size(),
+            pImporter.getPomFile().getAbsolutePath());
+
+        return aRepositories;
     }
 
 

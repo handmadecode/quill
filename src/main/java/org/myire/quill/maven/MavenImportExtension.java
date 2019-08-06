@@ -35,6 +35,11 @@ public class MavenImportExtension extends ProjectAware
     // Note: versions 3.5.0 - 3.6.0 are affected by https://issues.apache.org/jira/browse/MNG-5995
     static private final String DEFAULT_MAVEN_VERSION = "3.6.1";
 
+    // Default Aether and Wagon library versions, these artifacts must be added to provide
+    // connectors for Maven.
+    static private final String DEFAULT_AETHER_VERSION = "1.1.0";
+    static private final String DEFAULT_WAGON_VERSION = "3.3.2";
+
     static private final Resolver<ArtifactRepository> cResolver =
         new Resolver<>(ArtifactRepository.class);
 
@@ -43,6 +48,8 @@ public class MavenImportExtension extends ProjectAware
 
     private File fMavenSettingsFile;
     private String fMavenVersion = DEFAULT_MAVEN_VERSION;
+    private String fAetherVersion = DEFAULT_AETHER_VERSION;
+    private String fWagonVersion = DEFAULT_WAGON_VERSION;
     private FileCollection fMavenClassPath;
     private Object fDefaultRepository;
 
@@ -129,6 +136,42 @@ public class MavenImportExtension extends ProjectAware
     public void setMavenVersion(String pMavenVersion)
     {
         fMavenVersion = pMavenVersion != null ? pMavenVersion : DEFAULT_MAVEN_VERSION;
+    }
+
+
+    /**
+     * Get the version of the Eclipse Aether libraries to specify in the dependencies of the
+     * {@code mavenImport} configuration.
+     *
+     * @return  The Aether version string, never null.
+     */
+    public String getAetherVersion()
+    {
+        return fAetherVersion;
+    }
+
+
+    public void setAetherVersion(String pAetherVersion)
+    {
+        fAetherVersion = pAetherVersion != null ? pAetherVersion : DEFAULT_AETHER_VERSION;
+    }
+
+
+    /**
+     * Get the version of the Maven Wagon libraries to specify in the dependencies of the
+     * {@code mavenImport} configuration.
+     *
+     * @return  The Wagon version string, never null.
+     */
+    public String getWagonVersion()
+    {
+        return fWagonVersion;
+    }
+
+
+    public void setWagonVersion(String pWagonVersion)
+    {
+        fWagonVersion = pWagonVersion != null ? pWagonVersion : DEFAULT_WAGON_VERSION;
     }
 
 

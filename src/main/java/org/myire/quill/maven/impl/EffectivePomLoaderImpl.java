@@ -159,6 +159,20 @@ public class EffectivePomLoaderImpl implements EffectivePomLoader
 
 
     /**
+     * Get the local repository from the settings file, possibly loading it first.
+     *
+     * @return  A {@code RepositorySpec} with the path to the local repository.
+     *
+     * @throws GradleException  if loading the settings file fails.
+     */
+    @Override
+    public RepositorySpec getLocalRepository()
+    {
+        return new MavenRepositorySpec("local", maybeLoadSettings().getLocalRepository());
+    }
+
+
+    /**
      * Get the group ID from the effective pom. This will cause the effective pom to be loaded
      * from the file specified in {@code init} if that hasn't been done before.
      *
