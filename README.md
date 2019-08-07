@@ -4,9 +4,9 @@ A collection of Gradle plugins. Some of the plugins enhance existing functionali
 others provide new functionality. All of the plugins can be used individually; they do not depend on
 each other.
 
-The Quill plugins are designed for use with Gradle 2.0 or later, except for the Checkstyle Additions
-plugin, which requires Gradle 2.7 or later, and the Module Info plugin, which requires Gradle 4.2.1
-or later. Any success in using the plugins with earlier versions of Gradle than 2.0 is purely
+The Quill plugins are designed for use with Gradle 4.0 or later, except for the Module Info plugin,
+which requires Gradle 4.2.1 or later, and the SpotBugs Additions plugin, which requires Gradle 5.1
+or later. Any success in using the plugins with earlier versions of Gradle than 4.0 is purely
 coincidental.
 
 The Quill plugins were developed to support the author's way of working with Gradle. They may not
@@ -36,86 +36,7 @@ appeal to the taste of those who work in different ways.
 
 ## Release Notes
 
-### version 1.5
-
-* Gradle 4 compatibility.
-* [Module Info Plugin](#module-info-plugin) added.
-* Property `mainClass` added to the [projectMetaData](#the-projectmetadata-extension) extension.
-* Method [addMainClassAttribute](#main-class-attribute) added to the `manifest` of all `Jar` tasks.
-* The `scope` property of the `JavadocMethod` check in the built-in Checkstyle configuration
-changed from _private_ to  _package_.
-* Scent default version upgraded to 1.0.
-* Fixed incorrect group of the quill artifact in the dependency examples in this document.
-
-### version 1.4
-
-* The Maven Import plugin adds methods to the project that sets the group and version from a pom
-  file.
-* [Core Plugin](#general-usage) added.
-* PMD and CPD default versions upgraded to 5.5.7.
-
-### version 1.3
-
-* [Maven Import Plugin](#maven-import-plugin) added.
-* The Reports Dashboard plugin creates links to the dashboard reports of any child projects.
-* PMD and CPD default versions upgraded to 5.5.2.
-
-### version 1.2
-
-* Quill requires at least Java 1.7 to run.
-* [Scent Plugin](#scent-plugin) added. It replaces the JavaNCSS plugin as the Quill standard plugin
-for source code metrics since JavaNCSS does not support Java 8 code.
-* The JavaNCSS plugin is no longer applied by the 'all' plugin, it must be applied explicitly.
-* The Reports Dashboard no longer contains a section for JavaNCSS by default. If the JavaNCSS plugin
-is applied its Reports Dashboard section must be added explicitly.
-* The JDepend plugin is enhanced to use the guru-nidi fork for Java 8 support.
-
-### version 1.1
-
-* [Pom plugin](#pom-plugin) added.
-* The total number of types in the JavaNCSS HTML report now include inner types and local classes,
-  and the total number of methods include methods from inner types.
-* The JDepend HTML report correctly displays the number of cycles, previously this value always was 0.
-* The JDepend summary in the Reports Dashboard has the warning background colour if cycles have been
-  detected.
-* The Cobertura summary in the Reports Dashboard labels the number of types as 'types', not 'files'.
-* Checkstyle default version upgraded to 6.19.
-* PMD and CPD default versions upgraded to 5.5.1.
-
-### version 1.0
-
-* Check `JavaDocAuthor` removed from the built-in Checkstyle configuration.
-* Checkstyle default version upgraded to 6.17.
-
-### version 0.11
-
-* Cobertura report tasks no longer fail if the input data file doesn't exist (e.g. because no tests
-  were executed).
-* Loading a built-in configuration no longer fails when using the Gradle daemon.
-* Property `ignoreFailures` added to the `javancss` task.
-* Checkstyle default version upgraded to 6.16.1.
-* The built-in Checkstyle configuration requires version 6.15 or later of Checkstyle.
-* Checks based on `RegexpSingleline` in the built-in Checkstyle configuration have unique IDs to
-  allow suppressions based on ID.
-* Check `IllegalCatch` in the built-in Checkstyle configuration no longer rejects
- `java.lang.Throwable`.
-* Rules `AvoidCatchingThrowable` and `OptimizableToArrayCall` removed from the built-in PMD
-  configuration.
-
-### version 0.10
-
-* Property `group` added to the `projectMetaData` extension.
-* Method `disableTestChecks` added to all enhancements of `CodeQualityExtension` subclasses.
-* Tokens `GENERIC_START` and `GENERIC_END` removed from the `NoWhitespaceBefore` check in
-  the built-in Checkstyle configuration. Whitespace checking of type parameters is handled by the
-  `GenericWhitespace` check.
-* Check `InnerAssignment` removed from the built-in Checkstyle configuration.
-* Rules `AssignmentInOperand` and `UselessParentheses` removed from the built-in PMD configuration.
-
-### version 0.9
-
-* Initial release.
-
+The release notes can be found [here](./RELEASE_NOTES.md).
 
 ## General Usage
 
@@ -138,12 +59,25 @@ plugins individually:
 
     apply plugin: 'org.myire.quill.all'
 
-Note that the 'all' plugin applies both the Ivy Module plugin and the Maven Import plugin. The use
+Note that the 'all' plugin applies both the Ivy Import plugin and the Maven Import plugin. The use
 cases where a project uses both Ivy and Maven are probably rare, and most of the time neither of
-them is probably needed. For this majority of the use cases the 'core' plugin is a better choice. It
-applies all plugins except for the Ivy Module plugin and the Maven Import plugin:
+them is probably needed.
+
+The 'all' plugin also applies plugins that either require a Java version greater than 8 (the Module
+Info plugin), or have limited functionality with Java versions greater than 8 (the Cobertura and
+JDepend Additions plugins). This is most likely not a good mix in the majority of the use cases.
+
+Most of the time the 'core' plugin is a better choice. It applies all plugins except for the
+ - Ivy Import plugin
+ - Maven Import plugin
+ - Module Info plugin
+ - Cobertura plugin
+ - JDepend Additions plugin
+
+The excluded plugins can then be added explicitly as required:
 
     apply plugin: 'org.myire.quill.core'
+    apply plugin: 'org.myire.quill.moduleinfo'
 
 ### XSL transformation reports
 
@@ -1292,7 +1226,7 @@ second part is the ending pattern. The default value is "#if 0|#endif".
 * `ignoreUsings` - if this boolean is true, *using* directives in C# will be ignored in the
 analysis. Default is false.
 
-* `reports` - a `ReportContainer` holding the reports created by the task, see below.
+* `reports` - a nested property holding the reports created by the task, see below.
 
 ### Reports
 
@@ -1318,7 +1252,7 @@ and given the same base name as the XML report (e.g. "cpd.html" if the XML repor
 property is a `File` that is resolved relative to the project directory. If no XSL file is specified
 the default style sheet bundled with the Quill jar file will be used.
 
-The reports can be configured with a closure, just as any other `ReportContainer`:
+The reports can be configured with a closure:
 
     cpd {
       ...
@@ -1371,7 +1305,7 @@ through the following properties:
 * `sourceEncoding` - a string specifying the encoding of the Java files, e.g. "UTF-8". If this
 property isn't specified the platform's default encoding will be used.
 
-* `reports` - a `ReportContainer` holding the reports created by the task, see below.
+* `reports` - a nested property holding the reports created by the task, see below.
 
 * `scentClasspath` - a `FileCollection` specifying the classpath containing the Scent classes used
 by the task. The default is the `scent` dependency configuration, see below.
@@ -1396,7 +1330,7 @@ to use can be specified through the `xslFile` property. This property is a `File
 relative to the project directory. If no XSL file is specified the default style sheet bundled with
 the Quill jar file will be used.
 
-The reports can be configured with a closure, just as any other `ReportContainer`:
+The reports can be configured with a closure:
 
     scent {
       ...
