@@ -6,7 +6,7 @@ plugins
 }
 
 group = 'org.myire'
-version = '2.0-dev.1'
+version = '2.0'
 
 
 repositories
