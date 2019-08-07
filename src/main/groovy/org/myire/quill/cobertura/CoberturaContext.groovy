@@ -379,11 +379,7 @@ class CoberturaContext extends ProjectAware
      */
     static FileCollection defaultInputClasses(Project pProject)
     {
-        File aClassesDir = Projects.getSourceSet(pProject, SourceSet.MAIN_SOURCE_SET_NAME)?.output?.classesDir;
-        if (aClassesDir != null)
-            return pProject.files(aClassesDir);
-        else
-            return null;
+        return Projects.getSourceSet(pProject, SourceSet.MAIN_SOURCE_SET_NAME)?.output?.classesDirs;
     }
 
 

@@ -3,7 +3,7 @@
  *******************************************************************************
  *
  * XSL style sheet for transforming a Scent XML report into part of an HTML page.
- *                                                        
+ *
  * 2016-10-26 /PF    Created.
  *
  *******************************************************************************
@@ -75,7 +75,7 @@
         <td/>
         <td class="label">JavaDocs:</td>
         <xsl:call-template name="output-value-cell">
-          <xsl:with-param name="value" select="summary/@javadoc-comments"/>
+          <xsl:with-param name="value" select="summary/@javadocs"/>
         </xsl:call-template>
       </tr>
       <tr>
@@ -119,7 +119,7 @@
         <td/>
         <td class="label">Block comment lines:</td>
         <xsl:call-template name="output-value-cell">
-          <xsl:with-param name="value" select="summary/@block-comment-lines"/>
+          <xsl:with-param name="value" select="summary/@block-comments-lines"/>
         </xsl:call-template>
       </tr>
     </table>
@@ -149,7 +149,7 @@
           <td class="colheader" align="right">Block<br/>comments</td>
           <td class="colheader" align="right">Block<br/>comment lines</td>
         </tr>
- 
+
         <xsl:for-each select="packages/package">
           <xsl:sort data-type="number" order="descending" select="summary/@types"/>
           <tr>
@@ -171,7 +171,7 @@
               <xsl:with-param name="value" select="summary/@statements"/>
             </xsl:call-template>
             <xsl:call-template name="output-value-cell">
-              <xsl:with-param name="value" select="summary/@javadoc-comments"/>
+              <xsl:with-param name="value" select="summary/@javadocs"/>
             </xsl:call-template>
             <xsl:call-template name="output-value-cell">
               <xsl:with-param name="value" select="summary/@javadoc-lines"/>
@@ -183,7 +183,7 @@
               <xsl:with-param name="value" select="summary/@block-comments"/>
             </xsl:call-template>
             <xsl:call-template name="output-value-cell">
-              <xsl:with-param name="value" select="summary/@block-comment-lines"/>
+              <xsl:with-param name="value" select="summary/@block-comments-lines"/>
             </xsl:call-template>
           </tr>
         </xsl:for-each>

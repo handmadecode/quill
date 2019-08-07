@@ -1,5 +1,5 @@
 /*
- * Copyright 2014-2015 Peter Franzen. All rights reserved.
+ * Copyright 2014-2015, 2019 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -8,6 +8,7 @@ package org.myire.quill.cobertura
 import org.gradle.api.file.FileCollection
 import org.gradle.api.internal.AbstractTask
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
 
 
 /**
@@ -38,6 +39,7 @@ abstract class AbstractCoberturaTask extends AbstractTask
     /**
      * Get the extension holding default values for the task.
      */
+    @Internal
     CoberturaExtension getExtension()
     {
         return fExtension;
@@ -47,6 +49,7 @@ abstract class AbstractCoberturaTask extends AbstractTask
     /**
      * Get the context in which the task should execute.
      */
+    @Internal
     CoberturaContext getContext()
     {
         return fContext;

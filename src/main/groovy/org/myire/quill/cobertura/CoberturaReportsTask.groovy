@@ -1,19 +1,22 @@
 /*
- * Copyright 2014-2015 Peter Franzen. All rights reserved.
+ * Copyright 2014-2015, 2019 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
 package org.myire.quill.cobertura
 
+import org.gradle.api.Action
 import org.gradle.api.file.FileCollection
 import org.gradle.api.reporting.DirectoryReport
-import org.gradle.api.reporting.Reporting
 import org.gradle.api.reporting.SingleFileReport
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.Optional
 import org.gradle.api.tasks.TaskAction
+
+import org.myire.quill.report.ReportingEntity
 
 
 /**
@@ -27,7 +30,7 @@ import org.gradle.api.tasks.TaskAction
  * <a href="https://github.com/cobertura/cobertura/wiki/Ant-Task-Reference">reference</> for more
  * information.
  */
-class CoberturaReportsTask extends AbstractCoberturaTask implements Reporting<CoberturaReports>
+class CoberturaReportsTask extends AbstractCoberturaTask implements ReportingEntity<CoberturaReports>
 {
     // Properties accessed through getter and setter only.
     private CoberturaReportsImpl fReports
@@ -58,8 +61,17 @@ class CoberturaReportsTask extends AbstractCoberturaTask implements Reporting<Co
      * @return  The reports.
      */
     @Override
+    @Nested
     CoberturaReports getReports()
     {
+        return fReports;
+    }
+
+
+    @Override
+    CoberturaReports reports(Action<? super CoberturaReports> pAction)
+    {
+        pAction.execute(fReports);
         return fReports;
     }
 

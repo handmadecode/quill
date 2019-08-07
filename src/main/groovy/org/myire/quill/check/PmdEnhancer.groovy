@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2019 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -13,6 +13,7 @@ import org.gradle.api.plugins.quality.PmdPlugin
 import org.gradle.util.VersionNumber
 
 import org.myire.quill.common.Projects
+import org.myire.quill.common.Tasks
 
 
 /**
@@ -30,7 +31,7 @@ class PmdEnhancer extends AbstractPluginEnhancer<Pmd>
 {
     static private final String PMD_TOOL_NAME = 'PMD'
     static private final String PMD_EXTENSION_NAME = PMD_TOOL_NAME.toLowerCase()
-    static private final String DEFAULT_TOOL_VERSION = '5.5.7'
+    static private final String DEFAULT_TOOL_VERSION = '6.17.0'
 
     // The file name to use when extracting the built-in rule file from its resource.
     static private final String BUILTIN_RULE_FILE_NAME = 'pmd_rules.xml'
@@ -184,8 +185,8 @@ class PmdEnhancer extends AbstractPluginEnhancer<Pmd>
             task.doLast({ aFilter.apply() });
 
             // The filter file and its enabled flag are task inputs.
-            task.inputs.file({ -> aFilter.file });
-            task.inputs.property('filterEnabled', { -> aFilter.enabled });
+            Tasks.optionalInputFile(task, { -> aFilter.file });
+            Tasks.inputProperty(task, 'filterEnabled', { -> aFilter.enabled });
 
             // Add an HTML report that is created by transforming the XML report.
             addTransformingReport(task.reports.getXml(), BUILTIN_PMD_XSL);

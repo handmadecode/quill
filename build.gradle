@@ -1,35 +1,75 @@
-apply plugin: 'groovy'
-apply plugin: 'maven'
+plugins
+{
+    id 'java-gradle-plugin'
+    id 'groovy'
+    id 'maven'
+}
 
 group = 'org.myire'
-version = '1.5'
+version = '2.0'
+
 
 repositories
 {
     mavenCentral()
+    maven { url "https://plugins.gradle.org/m2/" }
 }
 
-ext.mavenDependencyVersion = '3.3.9'
 
 dependencies
 {
-    compile gradleApi()
+    // The scent plugin requires the scent artifact to compile.
+    compileOnly 'org.myire:scent:2.0'
 
-    compile 'org.myire:scent:1.0'
+    // The ivy import plugin requires the ivy artifact to compile.
+    compileOnly 'org.apache.ivy:ivy:2.4.0'
 
-    compile "org.apache.maven:maven-core:${mavenDependencyVersion}@jar"
-    compile "org.apache.maven:maven-builder-support:${mavenDependencyVersion}@jar"
-    compile "org.apache.maven:maven-embedder:${mavenDependencyVersion}@jar"
-    compile "org.apache.maven:maven-model-builder:${mavenDependencyVersion}@jar"
-    compile "org.apache.maven:maven-settings-builder:${mavenDependencyVersion}@jar"
-    compile 'org.codehaus.plexus:plexus-classworlds:2.5.2@jar'
-    compile 'org.eclipse.aether:aether-api:1.1.0@jar'
-    compile 'org.eclipse.sisu:org.eclipse.sisu.plexus:0.3.3@jar'
+    // The maven import plugin requires the maven-embedder artifact to compile, but only some of its
+    // transitive dependencies.
+    compileOnly('org.apache.maven:maven-embedder:3.6.1')
+    {
+        exclude group: 'javax.annotation'
+        exclude group: 'javax.inject'
+        exclude group: 'javax.enterprise'
+        exclude group: 'com.google.guava'
+        exclude group: 'com.google.inject'
+        exclude group: 'commons-cli'
+        exclude group: 'commons-io'
+        exclude group: 'org.apache.commons'
+        exclude group: 'org.apache.maven', module: 'maven-plugin-api'
+        exclude group: 'org.apache.maven', module: 'maven-resolver-provider'
+        exclude group: 'org.apache.maven', module: 'maven-resolver-impl'
+        exclude group: 'org.apache.maven.resolver', module: 'maven-resolver-impl'
+        exclude group: 'org.apache.maven.resolver', module: 'maven-resolver-spi'
+        exclude group: 'org.apache.maven.resolver', module: 'maven-resolver-util'
+        exclude group: 'org.apache.maven.shared'
+        exclude group: 'org.sonatype.plexus'
+        exclude group: 'org.slf4j'
+    }
+
+    // The cpd plugin requires the pmd-core artifact to compile, but none of its transitive
+    // dependencies.
+    compileOnly('net.sourceforge.pmd:pmd-core:6.1.0')
+    {
+        exclude group: 'com.beust', module: 'jcommander'
+        exclude group: 'com.google.code.gson'
+        exclude group: 'commons-io'
+        exclude group: 'jaxen', module: 'jaxen'
+        exclude group: 'net.java.dev.javacc'
+        exclude group: 'net.sourceforge.saxon'
+        exclude group: 'org.apache.commons', module: 'commons-lang3'
+        exclude group: 'org.ow2.asm'
+    }
+
+    // The SpotBugs additions plugin requires the SpotBugs plugin to compile
+    compileOnly 'gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:2.0.0'
 
     testCompile 'junit:junit:4.12'
+    testCompile 'org.mockito:mockito-core:2.27.0'
 }
 
-ext.sourceAndTargetCompatibility = 1.7
+
+ext.sourceAndTargetCompatibility = JavaVersion.VERSION_1_8
 
 tasks.withType(GroovyCompile)
 {
@@ -55,10 +95,10 @@ task ('groovydocJar', type: Jar, dependsOn: groovydoc)
     from groovydoc.destinationDir
 }
 
-task ('emptyJavadocJar', type: Jar)
+task ('javadocJar', type: Jar, dependsOn: javadoc)
 {
     classifier = 'javadoc'
-    from fileTree(dir:'meta', includes:['README-empty-javadoc.txt'])
+    from javadoc.destinationDir
 }
 
 task ('createPom')
@@ -83,4 +123,4 @@ task ('createPom')
     doFirst { pom.writeTo(pomFile) }
 }
 
-build.finalizedBy 'sourcesJar', 'groovydocJar', 'emptyJavadocJar', 'createPom'
+build.finalizedBy 'sourcesJar', 'groovydocJar', 'javadocJar', 'createPom'

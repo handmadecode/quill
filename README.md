@@ -4,118 +4,39 @@ A collection of Gradle plugins. Some of the plugins enhance existing functionali
 others provide new functionality. All of the plugins can be used individually; they do not depend on
 each other.
 
-The Quill plugins are designed for use with Gradle 2.0 or later, except for the Checkstyle Additions
-plugin, which requires Gradle 2.7 or later, and the Module Info plugin, which requires Gradle 4.2.1
-or later. Any success in using the plugins with earlier versions of Gradle than 2.0 is purely
+The Quill plugins are designed for use with Gradle 4.0 or later, except for the Module Info plugin,
+which requires Gradle 4.2.1 or later, and the SpotBugs Additions plugin, which requires Gradle 5.1
+or later. Any success in using the plugins with earlier versions of Gradle than 4.0 is purely
 coincidental.
 
 The Quill plugins were developed to support the author's way of working with Gradle. They may not
-appeal to the taste of those who work in different ways. 
+appeal to the taste of those who work in different ways.
 
 
 ## Contents
 1. [Release Notes](#release-notes)
 1. [General Usage](#general-usage)
-1. [Ivy Module Plugin](#ivy-module-plugin)
+1. [Ivy Import Plugin](#ivy-import-plugin)
 1. [Maven Import Plugin](#maven-import-plugin)
 1. [Project Metadata Plugin](#project-metadata-plugin)
 1. [Java Additions Plugin](#java-additions-plugin)
 1. [JUnit Additions Plugin](#junit-additions-plugin)
-1. [Cobertura Plugin](#cobertura-plugin)
-1. [FindBugs Additions Plugin](#findbugs-additions-plugin)
+1. [JaCoCo Additions Plugin](#jacoco-additions-plugin)
+1. [SpotBugs Additions Plugin](#spotbugs-additions-plugin)
 1. [Checkstyle Additions Plugin](#checkstyle-additions-plugin)
 1. [PMD Additions Plugin](#pmd-additions-plugin)
-1. [JDepend Additions Plugin](#jdepend-additions-plugin)
 1. [CPD Plugin](#cpd-plugin)
 1. [Scent Plugin](#scent-plugin)
 1. [Reports Dashboard Plugin](#reports-dashboard-plugin)
 1. [Pom Plugin](#pom-plugin)
 1. [Module Info Plugin](#module-info-plugin)
-1. [JavaNCSS Plugin](#javancss-plugin)
+1. [Cobertura Plugin](#cobertura-plugin)
+1. [JDepend Additions Plugin](#jdepend-additions-plugin)
 
 
 ## Release Notes
 
-### version 1.5
-
-* Gradle 4 compatibility.
-* [Module Info Plugin](#module-info-plugin) added.
-* Property `mainClass` added to the [projectMetaData](#the-projectmetadata-extension) extension.
-* Method [addMainClassAttribute](#main-class-attribute) added to the `manifest` of all `Jar` tasks.
-* The `scope` property of the `JavadocMethod` check in the built-in Checkstyle configuration
-changed from _private_ to  _package_.
-* Scent default version upgraded to 1.0.
-* Fixed incorrect group of the quill artifact in the dependency examples in this document.
-
-### version 1.4
-
-* The Maven Import plugin adds methods to the project that sets the group and version from a pom
-  file.
-* [Core Plugin](#general-usage) added.
-* PMD and CPD default versions upgraded to 5.5.7.
-
-### version 1.3
-
-* [Maven Import Plugin](#maven-import-plugin) added.
-* The Reports Dashboard plugin creates links to the dashboard reports of any child projects.
-* PMD and CPD default versions upgraded to 5.5.2.
-
-### version 1.2
-
-* Quill requires at least Java 1.7 to run.
-* [Scent Plugin](#scent-plugin) added. It replaces the JavaNCSS plugin as the Quill standard plugin
-for source code metrics since JavaNCSS does not support Java 8 code.
-* The JavaNCSS plugin is no longer applied by the 'all' plugin, it must be applied explicitly.
-* The Reports Dashboard no longer contains a section for JavaNCSS by default. If the JavaNCSS plugin
-is applied its Reports Dashboard section must be added explicitly.
-* The JDepend plugin is enhanced to use the guru-nidi fork for Java 8 support.
-
-### version 1.1
-
-* [Pom plugin](#pom-plugin) added.
-* The total number of types in the JavaNCSS HTML report now include inner types and local classes,
-  and the total number of methods include methods from inner types.
-* The JDepend HTML report correctly displays the number of cycles, previously this value always was 0.
-* The JDepend summary in the Reports Dashboard has the warning background colour if cycles have been
-  detected. 
-* The Cobertura summary in the Reports Dashboard labels the number of types as 'types', not 'files'.
-* Checkstyle default version upgraded to 6.19.
-* PMD and CPD default versions upgraded to 5.5.1.
-
-### version 1.0
-
-* Check `JavaDocAuthor` removed from the built-in Checkstyle configuration.
-* Checkstyle default version upgraded to 6.17.
-
-### version 0.11
-
-* Cobertura report tasks no longer fail if the input data file doesn't exist (e.g. because no tests
-  were executed).
-* Loading a built-in configuration no longer fails when using the Gradle daemon.
-* Property `ignoreFailures` added to the `javancss` task.
-* Checkstyle default version upgraded to 6.16.1.
-* The built-in Checkstyle configuration requires version 6.15 or later of Checkstyle.
-* Checks based on `RegexpSingleline` in the built-in Checkstyle configuration have unique IDs to
-  allow suppressions based on ID.
-* Check `IllegalCatch` in the built-in Checkstyle configuration no longer rejects
- `java.lang.Throwable`.
-* Rules `AvoidCatchingThrowable` and `OptimizableToArrayCall` removed from the built-in PMD
-  configuration.
-
-### version 0.10
-
-* Property `group` added to the `projectMetaData` extension.
-* Method `disableTestChecks` added to all enhancements of `CodeQualityExtension` subclasses.
-* Tokens `GENERIC_START` and `GENERIC_END` removed from the `NoWhitespaceBefore` check in
-  the built-in Checkstyle configuration. Whitespace checking of type parameters is handled by the
-  `GenericWhitespace` check.
-* Check `InnerAssignment` removed from the built-in Checkstyle configuration.
-* Rules `AssignmentInOperand` and `UselessParentheses` removed from the built-in PMD configuration.
-
-### version 0.9
-
-* Initial release.
-
+The release notes can be found [here](./RELEASE_NOTES.md).
 
 ## General Usage
 
@@ -129,7 +50,7 @@ To use the Quill plugins they must be added to the Gradle build script classpath
 
 The Quill plugins can then be applied to the Gradle project:
 
-    apply plugin: 'org.myire.quill.cobertura'
+    apply plugin: 'org.myire.quill.cpd'
     apply plugin: 'org.myire.quill.scent'
 
 To make all Quill plugins available in a build script, the plugin 'all' can be applied. This plugin
@@ -138,12 +59,25 @@ plugins individually:
 
     apply plugin: 'org.myire.quill.all'
 
-Note that the 'all' plugin applies both the Ivy Module plugin and the Maven Import plugin. The use
+Note that the 'all' plugin applies both the Ivy Import plugin and the Maven Import plugin. The use
 cases where a project uses both Ivy and Maven are probably rare, and most of the time neither of
-them is probably needed. For this majority of the use cases the 'core' plugin is a better choice. It
-applies all plugins except for the Ivy Module plugin and the Maven Import plugin:
+them is probably needed.
+
+The 'all' plugin also applies plugins that either require a Java version greater than 8 (the Module
+Info plugin), or have limited functionality with Java versions greater than 8 (the Cobertura and
+JDepend Additions plugins). This is most likely not a good mix in the majority of the use cases.
+
+Most of the time the 'core' plugin is a better choice. It applies all plugins except for the
+ - Ivy Import plugin
+ - Maven Import plugin
+ - Module Info plugin
+ - Cobertura plugin
+ - JDepend Additions plugin
+
+The excluded plugins can then be added explicitly as required:
 
     apply plugin: 'org.myire.quill.core'
+    apply plugin: 'org.myire.quill.moduleinfo'
 
 ### XSL transformation reports
 
@@ -159,92 +93,154 @@ directory. If no XSL file is specified the tasks will use a default style sheet 
 Quill jar file.
 
 
-## Ivy Module Plugin
+## Ivy Import Plugin
 
-The Ivy Module plugin imports dependency and/or configuration definitions from an Apache Ivy module
-file. It does **not** convert the Ivy module file into a Gradle file; the plugin reads the module
-file and dynamically adds the configurations and dependencies to the Gradle project.
+The Ivy Import plugin imports dependency and/or configuration definitions from an Apache Ivy module
+file.  The dependencies and configurations can either by dynamically added to the Gradle project for
+the current execution only, or be written to file for later inclusion.
 
 ### Usage
 
     apply plugin: 'org.myire.quill.ivy'
 
-The plugin also requires Ivy to be on the build script's classpath. One way of accomplishing this is
-to add Ivy to the `buildscript` dependencies:  
-
-    buildscript {
-      ...
-      dependencies {
-        classpath 'org.myire:quill:0.9'
-        classpath 'org.apache.ivy:ivy:2.4.0'
-      ...
-
 ### Project extension
 
-The plugin adds an extension with the name `ivyModule` to the Gradle project. The Ivy module file to
-import from is specified as a property in the extension:
+The plugin adds an extension with the name `ivyImport` to the Gradle project. This extension allows
+configuring the Ivy module import through a number of properties:
 
-    ivyModule.from = '/path/to/ivy.xml'
+#### Ivy settings file
+                                                                              
+The Ivy settings file to use is specified in the `settingsFile` property:
 
-The path to the module file is resolved relative to the project directory. The default value of this
-path is 'ivy.xml', which resolves to a file called 'ivy.xml' in the Gradle project directory.
+    ivyImport.settingsFile = '/path/to/ivy-settings.xml'
 
-An Ivy settings file can also be specified in the `ivyModule` extension:
+The path to the settings file is resolved relative to the project directory. If no settings file is
+specified, the default Ivy settings will be used. If a settings file is specified but does not exist
+or is inaccessible in some other way, the plugin will fall back to the default Ivy settings.
 
-    ivyModule {
-      from = '/path/to/ivy.xml'
-      settings = '/path/to/ivy.settings'
-    }
+#### Ivy version
 
-The path to the settings file is also resolved relative to the project directory. If no settings
-file is specified, the default Ivy settings will be used. If a settings file is specified but does
-not exist or is inaccessible in some other way, the plugin will fall back to the default Ivy
-settings.
+The extension also allows the version of Ivy used for the import to be specified in the property
+`ivyVersion`. By default version 2.4.0 is used.
 
-### Loading configurations and dependencies
+Example:
 
-The properties in the `ivyModule` extension only specify the Ivy module file and Ivy settings file
-to use. No configurations or dependencies will be added to the project unless explicitly specified.
+    ivyImport.ivyVersion = '2.5.0-rc1'
 
-Configurations are loaded and added through the dynamic method `fromIvyModule` that the plugin adds
-to the Gradle project's `ConfigurationContainer`.
+#### Ivy class path
+
+If more fine-grained control over the Ivy classes used is needed than just specifying the Ivy
+version, the extension property `ivyClassPath` can be set to a `FileCollection` containing the
+desired Ivy classes.
+
+Example:
+
+    ivyImport.ivyClassPath = files('/path/to/customIvy.jar')
+
+
+### Dynamically importing configurations and dependencies
+
+Configurations and dependencies can be imported and dynamically added to the Gradle project through
+the dynamic methods `fromIvyFile` that the plugin adds to the Gradle project's
+`ConfigurationContainer` and `DependencyHandler`. These methods take the Ivy module file to import
+from as the only argument. The path to the Ivy module file is resolved relative to the project
+directory. If no file is passed as argument to `fromIvyFile`, a file called `ivy.xml` in the project
+directory will be used.
 
 Specifying
 
-    configurations.fromIvyModule()
+    configurations.fromIvyFile('/path/to/ivy.xml')
 
-in the build script will dynamically add the configurations defined in the Ivy module file to the
-project.
+in the build script will dynamically add the configurations defined in the specified Ivy module file
+to the project.
 
-Similarly, the plugin adds a dynamic method called `fromIvyModule` to the Gradle project's
-`DependencyHandler`.
+Note that the configuration "default", which only is present if no configurations are defined, will
+not be imported. The wildcard configuration "*" will be mapped to the value of the `ivyImport`
+extension's property `wildcardConfiguration`, which has the default value `compile`.
 
 Specifying
 
-    dependencies.fromIvyModule()
+    dependencies.fromIvyFile()
 
-in the build script will dynamically add the dependencies defined in the Ivy module file to the
-project. Only dependencies with a configuration that exists in the Gradle project will be added, all
-others will be ignored. This means that if only the dependencies are imported from an Ivy module file
-and some of the dependencies in that file have configurations that are not defined elsewhere,
-implicitly or explicitly, those dependencies will **not** be added to the project.
+in the build script will dynamically add the dependencies defined in the file `ivy.xml` in the
+project directory to the Gradle project.
 
-Note that the loading of configurations and dependencies from an Ivy module file is additive. Any
-configurations or dependencies defined in the Gradle build script will not be overwritten. It is
-thus possible to mix configurations and dependencies from an Ivy module file with explicitly defined
-ones:
+If a configuration or dependency imported from the Ivy module file already is defined in the Gradle
+build script, it will not be overwritten. 
+
+Only dependencies with a configuration that exists in the Gradle project will be added, all others
+will be ignored. This means that if only dependencies are imported from an Ivy module file, and some
+of the dependencies in that file specify a configuration that is not defined elsewhere, those
+dependencies will **not** be added to the project.
+
+Note that importing configurations and dependencies from an Ivy module file is additive. It is thus
+possible to mix configurations and dependencies from an Ivy module file with explicitly defined
+ones, and to import from multiple Ivy files:
 
     configurations {
       myExplicitConfiguration
-      fromIvyModule()
+      fromIvyFile()
     }
-
-and
 
     dependencies {
-        fromIvyModule()
+        fromIvyFile('/another/ivy.xml')
         testCompile "org.mockito:mockito-core:1.10.19"
     }
+
+### Dynamically setting the group and version
+
+An Ivy module file's `organisation` and `revision` can be imported and applied to the Gradle project
+through the dynamic methods `applyGroupFromIvyFile` and `applyVersionFromIvyFile` that the plugin
+adds to the Gradle project. These methods take the Ivy file to import from as their only argument.
+The path to the Ivy file is resolved relative to the project directory.
+
+Specifying
+
+    applyGroupFromIvyFile('/path/to/ivy.xml')
+
+will set the project's `group` property to the value of the `organisation` attribute in the Ivy
+file's `info` element.
+
+Similarly, the dynamic method `applyVersionFromIvyFile` will set the  project's `version` property
+to the value of the `revision` attribute in the Ivy file's `info` element.
+
+If no file is specified, the default value 'ivy.xml' is assumed. Thus, specifying
+
+    applyGroupFromIvyFile()
+
+will set the project's `group` property to the value of the `organisation` element in a file called
+'ivy.xml' in the Gradle project directory.
+
+### Converting configurations and dependencies
+
+Configurations and dependencies can be read from an Ivy module file and written to a Gradle file
+with the `convertIvyModule` task. This task imports and converts Ivy configurations and dependencies
+in the same way as the dynamic methods `fromIvyFile` described above, but instead of adding the
+configurations and dependencies to the Gradle project the task writes them to a file. This file can
+then be applied to the Gradle build script in future executions.
+
+The `convertIvyModule` task's behaviour can be configured through the following properties:
+
+* `ivyFile` - the path to the Ivy module file to import from. The path is resolved relative to the
+project directory. Default is 'ivy.xml', i.e. a file called 'ivy.xml' in the Gradle project
+directory.
+
+* `destination` - the path to the file to write the converted configurations and dependencies to.
+The path is resolved relative to the project directory. Default is a file called
+'dependencies.gradle' in the same directory as the Ivy file.
+
+* `overwrite` - a boolean specifying whether or not to replace the destination file if it exists. If
+this property is `false` and the file specified in the `destination` property exists, the task will
+do nothing. Default is `true`.
+
+* `convertConfigurations` - a boolean specifying whether or not to import and convert configurations
+from the Ivy file. Default is `true`.
+
+* `convertDependencies` - a boolean specifying whether or not to import and convert dependencies
+from the Ivy file. Default is `true`.
+
+The task will use the Ivy settings file specified in the `ivyImport` project extension, or the
+default Ivy settings if no explicit settings file has been specified.
 
 
 ## Maven Import Plugin
@@ -261,16 +257,39 @@ file.
 
     apply plugin: 'org.myire.quill.maven'
 
+### Dependency configuration
+
+The Maven Import plugin adds a dependency configuration with the name `mavenImport` to the project.
+This configuration specifies the default classpath for the Maven classes used by the plugin, and it
+contains dependencies equivalent to:
+
+    mavenImport 'org.apache.maven:maven-embedder:<mavenVersion>'
+    mavenImport 'org.eclipse.aether:aether-connector-basic:<aetherVersion>'
+    mavenImport 'org.eclipse.aether:aether-transport-wagon:<aetherVersion>'
+    mavenImport 'org.apache.maven.wagon:wagon-file:<wagonVersion>'
+    mavenImport 'org.apache.maven.wagon:wagon-http:<wagonVersion>'
+    mavenImport 'org.apache.maven.wagon:wagon-provider-api:<wagonVersion>'
+    mavenImport 'org.slf4j:slf4j-nop:1.7.26'
+
+where `<mavenVersion>`, `<aetherVersion>`, and `<wagonVersion>` are the values of the `mavenImport`
+extension's properties with the corresponding name, see below.
+
 ### Project extension
 
 The plugin adds an extension with the name `mavenImport` to the Gradle project. This extension
-allows a Maven settings file to be specified:
+allows configuring the pom file import through a number of properties:
+
+#### Maven settings file
+
+The Maven settings file to use is specified in the `settingsFile` property:
 
     mavenImport.settingsFile = '/path/to/settings.xml'
 
 The path to the settings file is resolved relative to the project directory. If no settings file is
 specified, the default Maven settings will be used, as specified in the
 [Maven documentation](https://maven.apache.org/settings.html#Quick_Overview).
+
+#### Scope mapping
 
 The extension's property `scopeToConfiguration` contains the mapping from Maven dependency scope to
 Gradle configuration used by the dependency import. This property is a map from scope name to
@@ -285,44 +304,45 @@ By default this property contains the mappings
 * 'provided' -> 'compileOnly'
 
 meaning that the scopes 'compile', 'runtime', and 'system' will be mapped to configurations with the
-same names. Note that the configuration 'compileOnly' was introduced in Gradle version 2.12. If an
-older version of Gradle is used it may be necessary to define a different mapping for the 'provided'
-scope.
+same names.
 
 Example: to ignore all dependencies with scope 'system' and to map the 'provided' scope to the
-'compile' configuration instead of 'compileOnly' the mapping should be configured as
+'compile' configuration instead of 'compileOnly', the mapping should be configured as
 
     mavenImport.scopeToConfiguration['system'] = null
     mavenImport.scopeToConfiguration['provided'] = 'compile'
 
-The extension also allows the versions of the third-party libraries used by the plugin to be
-specified in the following properties:
+#### Library versions
 
-* `mavenVersion` - a string specifying the version of the Maven libraries to use. Default is version
-"3.3.9".
-* `sisuPlexusVersion` - a string specifying the version of the
-[org.eclipse.sisu.plexus](http://www.eclipse.org/sisu/) library to use. Default is version "0.3.3".
-* `sisuGuiceVersion` - a string specifying the version of the
-[sisu-guice](https://github.com/sonatype/sisu-guice) library to use. Default is version "3.2.6".
-* `aetherVersion` - a string specifying the version of the
-[org.eclipse.aether](http://www.eclipse.org/aether/) library to use. Default is version "1.1.0".
+The extension also allows the version of Maven used by the plugin to be specified in the property
+`mavenVersion`. By default version 3.6.1 is used.
 
-### Dependency configuration
+In addition to the Maven libraries, the plugin needs some of the Eclipse Aether and Maven Wagon
+libraries to access repositories, e.g. to resolve remote parent poms. The versions of these
+artifacts can be specified in the properties `aetherVersion` and `wagonVersion`. The default
+versions are 1.1.0 and 3.3.2, respectively. 
 
-The Maven Import plugin adds a dependency configuration with the name `mavenImport` to the project.
-This configuration specifies the default classpath for the Maven classes used by the plugin. By
-default, this configuration contains dependencies equivalent to:
+Example:
 
-    mavenImport 'org.apache.maven:maven-core:<mavenVersion>'
-    mavenImport 'org.apache.maven:maven-embedder:<mavenVersion>'
-    mavenImport 'org.eclipse.sisu:org.eclipse.sisu.plexus:<sisuPlexusVersion>@jar'
-    mavenImport 'org.sonatype.sisu:sisu-guice:<sisuGuiceVersion>:no_aop@jar'
-    mavenImport 'org.eclipse.aether:aether-connector-basic:<aetherVersion>'
-    mavenImport 'org.eclipse.aether:aether-transport-file:<aetherVersion>'
-    mavenImport 'org.eclipse.aether:aether-transport-http:<aetherVersion>'
+    mavenImport.mavenVersion = '3.3.9'
+    mavenImport.aetherVersion = '1.0.2.v20150114'
+    mavenImport.wagonVersion = '2.10'
 
-where `<mavenVersion>`, `<sisuPlexusVersion>`, `<sisuGuiceVersion>`, and `<aetherVersion>` are the
-values of the `mavenImport` extension's properties with the corresponding names.
+#### Maven class path
+
+If more fine-grained control over the Maven classes used is needed, the extension property
+`mavenClassPath` can be set to a `FileCollection` containing the desired Maven classes. One way to
+do this is through a dependency configuration:
+
+    // Use aether-transport-http instead of the Wagon libraries
+    configurations { customMavenImport }
+    dependencies {
+        customMavenImport 'org.apache.maven:maven-embedder:3.6.1'
+        customMavenImport 'org.eclipse.aether:aether-connector-basic:1.1.0'
+        customMavenImport 'org.eclipse.aether:aether-transport-http:1.1.0'
+        customMavenImport 'org.slf4j:slf4j-simple:1.7.25'
+    }
+    mavenImport.mavenClassPath = configurations['customMavenImport']
 
 ### Dynamically importing repositories and dependencies
 
@@ -354,21 +374,35 @@ possible to mix repositories and dependencies from a pom file with explicitly de
     }
     dependencies {
         fromPomFile()
-        testRuntime 'org.slf4j:slf4j-nop:1.7.22'
+        testRuntime 'com.h2database:h2:1.4.199'
     }
 
-In the example above the repositories are imported from the default pom file and the dependencies
-from an explicit pom file. It is also possible to import repositories or dependencies from several
+In the example above the repositories are imported from an explicit pom file and the dependencies
+from the default pom file. It is also possible to import repositories or dependencies from several
 pom files.
 
+Note that the Maven central repository is never imported from a pom file. Use the standard
+`RepositoryHandler` method `mavenCentral` if that repository should be used.
+
+It is also possible to import the Maven local repository from the Maven settings file through the
+dynamic method `mavenLocalFromSettings` added to the project's `RepositoryHandler`. This method
+differs from the standard method `mavenLocal` in that it can load the path to the local repository
+from an explicit settings file rather than using heuristics.
+
+Example:
+
+    mavenImport.settingsFile = '/not/known/by/heuristics/settings.xml'
+    repositories.mavenLocalFromSettings()
+
 Note that importing repositories creates a chicken-and-egg situation. In order to import a pom file
-the plugin needs the external libraries from the `mavenImport` dependency configuration, and these
-libraries must be retrieved from a repository. If this repository is defined in the pom file, it
-will not be available when resolving the dependency configuration.
+the plugin needs the external libraries from the `mavenImport` dependency configuration (unless
+another class path has been specified in the extension property `mavenClassPath`, see above), and
+these libraries must be retrieved from a repository. If this repository is defined in the pom file,
+it will not be available when resolving the dependency configuration.
 
 To handle this situation, the plugin uses a temporary repository if no repositories are available
 when the `mavenImport` configuration is about to be resolved. This temporary repository is specified
-in the `mavenImport` extension property `classpathRepository`, and defaults to the repository
+in the `mavenImport` extension's property `classpathRepository`, and defaults to the repository
 returned by `project.repositories.mavenCentral()`.
 
 The property should be set to an `ArtifactRepository` or to a closure that returns an instance of
@@ -378,40 +412,6 @@ the configuration's dependencies.
 Example:
 
     mavenImport.classpathRepository = { project.jcenter() }
-
-### Converting repositories and dependencies
-
-Repositories and dependencies can be imported and written to a Gradle file with the `convertPom`
-task. This task imports and converts Maven repositories and dependencies in the same way
-as the dynamic method `fromPomFile` described above, but instead of adding the repositories and
-dependencies to the Gradle project the task writes them to a file. This file can then be applied to
-the Gradle build script in future executions.
-
-The `convertPom` task's behaviour can be configured through the following properties: 
-
-* `pomFile` - the path to the Maven pom file to import from. The path is resolved relative to the
-project directory. Default is 'pom.xml', i.e. a file called 'pom.xml' in the Gradle project
-directory.
-
-* `destination` - the path to the file to write the converted repositories and dependencies to. The
-path is resolved relative to the project directory. Default is a file called 'dependencies.gradle'
-in the same directory as the pom file.
-
-* `overwrite` - a boolean specifying whether or not to replace the destination file if it exists. If
-this property is `false` and the file specified in the `destination` property exists, the task will
-do nothing. Default is `true`.
-
-* `convertRepositories` - a boolean specifying whether or not to import and convert repositories
-from the pom file. Default is `true`.
-
-* `convertDependencies` - a boolean specifying whether or not to import and convert dependencies
-from the pom file. Default is `true`.
-
-* `mavenClasspath` - a `FileCollection` specifying the classpath containing the Maven classes used
-by the task. The default is the `mavenImport` dependency configuration, see above.
-
-The task will use the Maven settings file specified in the `mavenImport` project extension, or the
-default Maven settings if no explicit settings file has been specified.
 
 ### Dynamically setting the group and version
 
@@ -433,6 +433,53 @@ If no file is specified, the default value 'pom.xml' is assumed. Thus, specifyin
 
 will set the project's `version` property to the value of the `version` element in a file called
 'pom.xml'  in the Gradle project directory.
+
+### Converting repositories and dependencies
+
+Repositories and dependencies can be read from a pom file and written to a Gradle file with the
+`convertPom` task. This task imports and converts Maven repositories and dependencies in the same
+way as the dynamic methods `fromPomFile` described above, but instead of adding the repositories and
+dependencies to the Gradle project the task writes them to a file. This file can then be applied to
+the Gradle build script in future executions.
+
+The `convertPom` task's behaviour can be configured through the following properties:
+
+* `pomFile` - the path to the Maven pom file to import from. The path is resolved relative to the
+project directory. Default is 'pom.xml', i.e. a file called 'pom.xml' in the Gradle project
+directory.
+
+* `destination` - the path to the file to write the converted repositories and dependencies to. The
+path is resolved relative to the project directory. Default is a file called 'dependencies.gradle'
+in the same directory as the pom file.
+
+* `overwrite` - a boolean specifying whether or not to replace the destination file if it exists. If
+this property is `false` and the file specified in the `destination` property exists, the task will
+do nothing. Default is `true`.
+
+* `convertRepositories` - a boolean specifying whether or not to import and convert repositories
+from the pom file. Default is `true`.
+
+* `convertLocalRepository` - a boolean specifying whether or not to import and convert the Maven
+local repository from the settings file. Default is `true`.
+
+* `convertDependencies` - a boolean specifying whether or not to import and convert dependencies
+from the pom file. Default is `true`.
+
+The task will use the Maven settings file specified in the `mavenImport` project extension, or the
+default Maven settings if no explicit settings file has been specified.
+
+### Full example
+
+A minimum Gradle build script for a standard Maven Java project would look like this (omitting the
+`buildscript` block that specifies how to retrieve the Quill artifact):
+
+    apply plugin: 'java'
+    apply plugin: 'org.myire.quill.maven'
+
+    repositories.mavenCentral()
+    dependencies.fromPomFile()
+    applyGroupFromPomFile()
+    applyVersionFromPomFile()
 
 
 ## Project Metadata Plugin
@@ -824,232 +871,92 @@ files
 files
 
 
-## Cobertura Plugin
+## JaCoCo Additions Plugin
 
-The Cobertura plugin adds functionality for generating Cobertura test coverage reports to all tasks
-of type `Test`.
-
-Although the plugin offers quite a few configuration options, the default values should be fine for
-most use cases. 
-
-### Usage
-
-    apply plugin: 'org.myire.quill.cobertura'
-
-### Cobertura documentation
-
-The tasks added by the plugin delegate their work to the corresponding Ant task in the Cobertura
-distribution. Consequently, the majority of the properties used to configure the plugin's extensions
-and tasks are the same as the ones used to configure the
-[Cobertura Ant tasks](https://github.com/cobertura/cobertura/wiki/Ant-Task-Reference).
-
-### Project extension
-
-The plugin adds an extension with the name `cobertura` to the Gradle project. This extension is used
-to configure the behaviour of all Cobertura enhanced tasks through the properties listed below.
-
-* `toolVersion` - a string specifying the version of Cobertura to use. Default is version "2.1.1".
-
-* `workDir` - a `File` specifying the global working directory for the Cobertura tasks. Default is a
-directory called `cobertura` in the Gradle project's temporary directory.
-
-* `coberturaClassPath` - a `FileCollection` specifying the classpath containing the Cobertura
-classes used by the tasks. Default is the `cobertura` dependency configuration (see below).
-
-* `ignoreTrivial` - a `boolean` that if true specifies that constructors/methods that contain one
-line of code should be excluded from the test coverage analysis. Examples of such methods are
-constructors only calling a super constructor, and getters/setters. Default is false.
-
-* `ignoreMethodNames` - a list of strings where each string is a regular expression specifying
-methods names that should be excluded from the coverage analysis. Note that the classes containing
-the methods will still be instrumented. Default is an empty list. Example: `.*PrintStream.*`. Note
-that the corresponding Ant task property is called `ignore`.
-
-* `ignoreMethodAnnotations` - a list of strings where each string is the fully qualified name of an
-annotations with which methods that should be excluded from the coverage analysis are annotated
-with. Default is an empty list.
-
-* `sourceEncoding` - a string with the name of the encoding that the report task(s) should use when
-reading the source files. The platform's default encoding will be used if this property isn't
-specified.
-
-### Task specific project extensions
-
-In addition to the global project extension described above, another project extension is added by
-the plugin for each `Test` task that is enhanced with Cobertura functionality. The name of a task
-specific extension is `cobertura` + *the capitalized name of the task*. For example, the extension
-corresponding to the `test` task will have the name `coberturaTest`.
-
-A task specific extension is used to configure the enhancement of the `Test` task, including the
-related instrumentation and report tasks (see below). Each task specific extension has the following
-properties:
-
-* `enabled` - a `boolean` specifying whether the Cobertura enhancement of the `Test` task is enabled
-or not. If the enhancement is disabled, the tests are run with the original classes under test, not
-the instrumented ones, and no coverage report will produced for the test run. Default is true,
-meaning that the tests will run with instrumented classes and that a coverage report will be
-produced.
-
-* `workDir` - a `File` specifying the working directory for the enhanced task. Default is a
-directory with the same name as the enhanced `Test` task in the directory specified by `workDir` in
-the global project extension.
-
-* `inputClasses` - a `FileCollection` specifying the classes to analyze for test coverage. Default
-is all files in the output classes directory of the main source set. Used as input by the
-instrumentation task.
-
-* `auxClassPath` - a `FileCollection` specifying a path containing any classes that shouldn't be
-analyzed but are needed by the instrumentation. Default is no auxiliary class path. Used as input by
-the instrumentation task.
-
-* `ignoreTrivial` - overrides `ignoreTrivial` in the global project extension if set. Used as input
-by the instrumentation task.
-
-* `ignoreMethodNames` - overrides `ignoreMethodNames` in the global project extension if set. Used
-as input by the instrumentation task.
-
-* `ignoreMethodAnnotations` - overrides `ignoreMethodAnnotations` in the global project extension if
-set. Used as input by the instrumentation task.
-
-* `instrumentedClassesDir` - a `File` specifying the directory containing the instrumented versions
-of the classes to analyze. Default is a directory named `instrumented` in the directory specified by
-`workDir`. Used as output by the instrumentation task and as input by the test task. 
-
-* `instrumentationDataFile` - a `File` specifying the file holding metadata about the instrumented
-classes. This file contains information about the names of the classes, their method names, line
-numbers, etc. It is created by the instrumentation task. The default value is a file named
-`cobertura.instrumentation.ser` in the directory specified by `workDir`. Used as output by the
-instrumentation task and input by the test task.
-
-* `executionDataFile` - a `File` specifying the file holding metadata about the test execution of
-the instrumented classes. This file contains updated information about the instrumented classes from
-the test runs. It is an updated version of `instrumentationDataFile`, created by the test task and
-used as input by the report task. The default value is a file named `cobertura.execution.ser` in
-the directory specified by `workDir`.
-
-* `sourceDirs` - a `FileCollection` specifying the directories containing the sources of the
-analyzed classes. Default is all source directories in the main source set. Used as input by the
-report task.
-
-* `sourceEncoding` - overrides `sourceEncoding` in the global project extension if set. Used as
-input by the report task.
-
-### Instrumentation tasks
-
-The plugin adds an instrumentation task for each enhanced `Test` task. The name of this task is
-the name of the `Test` task + `CoberturaInstrument`, e.g. `testCoberturaInstrument` for the `test`
-task.
-
-An instrumentation task gets its properties from the corresponding task specific project extension.
-When executed, the instrumentation task instruments the classes in `inputClasses` and writes the
-instrumented versions of those classes to `instrumentedClassesDir`. The task also creates the
-`instrumentationDataFile` file.
-
-### Enhancement of Test tasks 
-
-The plugin adds two actions to each enhanced `Test` task.
-
-The first action is added to the beginning of the task's action list. This action prepares the test
-execution by prepending the `instrumentedClassesDir` and the `coberturaClassPath` to the test task's
-classpath. It also set the system property `net.sourceforge.cobertura.datafile` in the test task's
-forked JVM to the value of `executionDataFile`, and copies `instrumentationDataFile` to
-`executionDataFile`.
-
-The second action is added to the end of the task's action list. This action restores the test task
-by setting its classpath and `net.sourceforge.cobertura.datafile` system property to the values they
-had before the preparing action was run.
-
-The instrumentation task associated with an enhanced `Test` task is added to the latter's
-dependencies. 
-
-### Report tasks
-
-The plugin adds an report task for each enhanced `Test` task. The name of this task is `cobertura` +
-the name of the `Test` task + `Report`, e.g. `coberturaTestReport` for the `test` task. This means
-that it normally is sufficient to specify `cobertura` as the task to execute.
-
-A report task gets most of its properties from the corresponding task specific project extension,
-see above. In addition to these, it has a read-only property `reports` that holds two report
-specifications:
-
-* `xml` - a `SingleFileReport` specifying the XML report file. Default is a file called
-`coverage.xml` in a directory with the same name as the associated enhanced `Test` task in a
-directory called `cobertura` in the Gradle project's report directory.
-
-* `html` - a `DirectoryReport` specifying the directory where the HTML report is created. Default is
-a directory with the same name as the associated enhanced `Test` task in a directory called
-`cobertura` in the Gradle project's report directory.
-
-These two reports can be configured as any Gradle report, e.g.
-
-    coberturaTestReport.reports.xml.enabled = false
-    coberturaTestReport.reports.html.destination = "${project.buildDir}/reports/coverage"
-
-A report task depends on the associated enhanced `Test` task. 
-
-The report tasks implement the `Reporting` interface, meaning that the produced reports are picked
-up by the Build Dashboard plugin.
-
-### Dependency configuration
-
-The Cobertura plugin adds a `cobertura` dependency configuration to the project. This configuration
-specifies the default classpath for the Cobertura task. By default, this configuration has one
-dependency, equivalent to:
-
-    cobertura 'net.sourceforge.cobertura:cobertura:<toolVersion>'
-
-where `<toolVersion>` is the value of the `cobertura` extension's `toolVersion` property.
-
-
-## FindBugs Additions Plugin
-
-The FindBugs Additions plugin applies the standard Gradle plugin `findbugs` to the project and
-configures the corresponding project extension and tasks with some defaults and additions.
+The JaCoCo Additions plugin applies the standard Gradle plugin `jacoco` to the project and
+configures the corresponding project extension and tasks with some defaults. The plugin applies the
+standard `java` plugin before applying the `jacoco` plugin to make the latter add the
+`jacocoTestReport` task to the project.
 
 ### Usage
 
-    apply plugin: 'org.myire.quill.findbugs'
+    apply plugin: 'org.myire.quill.jacoco'
 
 ### Default values
 
-The plugin configures the `findbugs` extension in the project to let the build continue even if
-violations are found, and to use FindBugs version 3.0.1 as the default version. This is equivalent
-to configuring the extension explicitly in the build script as follows:
+The plugin configures the `jacoco` extension in the project to use version 0.8.4 of JaCoCo. This is
+equivalent to configuring the extension explicitly in the build script as follows:
 
-    findbugs {
-      ignoreFailures = true
-      toolVersion = '3.0.1'
+    jacoco {
+      toolVersion = '0.8.4'
     }
 
-Note that using FindBugs versions >= 3.0 requires that the Gradle build is run with Java 7 or later.
+The plugin also configures the `jacoco` extension added to all test tasks by setting the `append`
+property to false. This is however only done if running a Gradle version less than 5.0, since the
+`append` property was deprecated in Gradle version 5.0. This is equivalent to
 
-All tasks of type `FindBugs` (normally `findbugsMain` and `findbugsTest`) are configured to produce
-XML reports with messages, which is equivalent to the build script configuration
+    test {
+      jacoco {
+        append = false
+      }
+    }
 
-    tasks.withType(FindBugs) {
+The `jacocoTestReport` task is configured to have the `xml` and `html` reports enabled and the `csv`
+report disabled. The `build`  task is also set to depend on the `jacocoTestReport` task.
+
+
+## SpotBugs Additions Plugin
+
+The SpotBugs Additions plugin configures the project extension and tasks added by the
+[SpotBugs Gradle plugin](https://plugins.gradle.org/plugin/com.github.spotbugs) with some defaults
+and additions.
+
+Note that unlike the other plugins that enhance existing plugins, the SpotBugs Additions plugin does
+_not_ apply the SpotBugs Gradle plugin. That plugin must be applied explicitly in the build script.
+
+### Usage
+
+    plugins { id 'com.github.spotbugs' version '2.0.0' }
+    apply plugin: 'org.myire.quill.spotbugs'
+
+### Default values
+
+The plugin configures the `spotbugs` extension in the project to let the build continue even if
+violations are found, and to use SpotBugs version 3.1.12 as the default version. This is equivalent
+to configuring the extension explicitly in the build script as follows:
+
+    spotbugs {
+      ignoreFailures = true
+      toolVersion = '3.1.12'
+    }
+
+All tasks of type `SpotBugsTask` (normally `spotbugsMain` and `spotbugsTest`) are configured to
+produce XML reports with messages, which is equivalent to the build script configuration
+
+    tasks.withType(SpotBugsTask) {
       reports.xml.withMessages = true
     }
 
 ### Extension additions
 
-A method with the name `disableTestChecks` is added to the `findbugs` extension. If this method is
+A method with the name `disableTestChecks` is added to the `spotbugs` extension. If this method is
 called in the build script it will remove the `test` source set from the extension's source sets,
-thus disabling the `findbugsTest` task:
+thus disabling the `spotbugsTest` task:
 
-    findbugs.disableTestChecks()
+    spotbugs.disableTestChecks()
 
 ### Task additions
 
-The plugin adds an [XSL transformation report](#xsl-transformation-reports) to the `FindBugs` tasks.
-These reports have the name `quillHtmlReport` and are `enabled` by default. They can be configured
-per task, e.g. to use another XSL file than the one distributed in the Quill jar:
+The plugin adds an [XSL transformation report](#xsl-transformation-reports) to the `SpotBugsTask` 
+tasks. These reports have the name `quillHtmlReport` and are `enabled` by default. They can be
+configured per task, e.g. to use another XSL file than the one distributed in the Quill jar:
 
-    findbugsMain {
-      quillHtmlReport.xslFile = 'resources/findbugs.xsl'
-      quillHtmlReport.destination = "$buildDir/reports/fbugs.html"
+    spotbugsMain {
+      quillHtmlReport.xslFile = 'xsl/spotbugs.xsl'
+      quillHtmlReport.destination = "$buildDir/reports/spotbugs.html"
     }
-    
-    findbugsTest.quillHtmlReport.enabled = false
+
+    spotbugsTest.quillHtmlReport.enabled = false
 
 
 ## Checkstyle Additions Plugin
@@ -1064,18 +971,18 @@ configures the corresponding project extension and tasks with some defaults and 
 ### Default values
 
 The plugin configures the `checkstyle` extension in the project to let the build continue even if
-violations are found, and to not log every found violation. The Checkstyle version to use is set to 
-6.19. This is equivalent to configuring the extension explicitly in the build script as follows:
+violations are found, and to not log every found violation. The Checkstyle version to use is set to
+8.23. This is equivalent to configuring the extension explicitly in the build script as follows:
 
     checkstyle {
       ignoreFailures = true
       showViolations = false
-      toolVersion = '6.19'
+      toolVersion = '8.23'
     }
 
 The Checkstyle configuration file is specified to be the one bundled with the Quill jar. This
 configuration file is extracted to the path "tmp/checkstyle/checkstyle_config.xml" relative to the
-project's build directory. Note that this configuration file requires at least version 6.15 of
+project's build directory. Note that this configuration file requires at least version 8.22 of
 Checkstyle. When setting `toolVersion` to an older version of Checkstyle, another configuration file
 must be explicitly configured.
 
@@ -1086,21 +993,6 @@ location of this file is specified through the Checkstyle configuration property
     checkstyle.configProperties.put('suppressions.file', file('checkstyle_suppressions.xml'))
 
 If this property isn't specified, no suppression filter file is used.
-
-### Checkstyle version considerations
-
-The version of Checkstyle used may put some requirements on the Gradle version and Java runtime:
-
-* Using Checkstyle versions >= 6.2 requires that the Gradle build is run with Java 7 or later.
-
-* Using Checkstyle versions >= 6.8 requires that Gradle version 2.7 or later is used due to an
-incompatibility in the Checkstyle Ant task that was introduced in Checkstyle version 6.8. Gradle
-doesn't have a work-around for this incompatibility in versions before 2.7.
-
-* Using Checkstyle versions >= 7.0 requires that the Gradle build is run with Java 8 or later.
-
-This means that by default the Checkstyle Additions plugin requires Gradle version 2.7 or later and
-Java 7 or later. 
 
 ### Extension additions
 
@@ -1120,14 +1012,13 @@ be configured per task, e.g. to use another XSL file than the one distributed in
       quillHtmlReport.xslFile = 'resources/checkstyle.xsl'
       quillHtmlReport.destination = "$buildDir/reports/checkstyle/checkstyle.html"
     }
-    
+
     checkstyleTest.quillHtmlReport.enabled = false
 
-In Gradle version 2.10 an HTML report was added to the `reports` container of all `Checkstyle`
-tasks. The plugin disables this report since adds its own HTML report. This is (logically)
-equivalent to the build script
+The plugin disables the standard HTML report for all tasks of type `Checkstyle`
+(normally `checkstyleMain` and `checkstyleTest`). This is equivalent to the build script
 
-     tasks.withType(Checkstyle) {
+    tasks.withType(Checkstyle) {
       reports.html.enabled = false
     }
 
@@ -1152,15 +1043,13 @@ corresponding project extension and tasks with some defaults and additions.
 ### Default values
 
 The plugin configures the `pmd` extension in the project to let the build continue even if
-violations are found, and to use version 5.5.7 of PMD. This is equivalent to configuring the
+violations are found, and to use version 6.17.0 of PMD. This is equivalent to configuring the
 extension explicitly in the build script as follows:
 
     pmd {
       ignoreFailures = true
-      toolVersion = '5.5.7'
+      toolVersion = '6.17.0'
     }
-
-Note that using PMD versions >= 5.4.0 requires that the Gradle build is run with Java 7 or later.
 
 The plugin removes the built-in PMD rule sets from the extension's configuration and specifies that
 the rule set file bundled with the Quill jar is used. This file is extracted to the path
@@ -1171,7 +1060,7 @@ extension is configured to use another rule set file through the incubating `rul
 property, the built-in rule set file will still be in use. It must be explicitly disabled by setting
 `ruleSetFiles` to en empty file collection, e.g. `pmd.ruleSetFiles = files()`.
 
-Note that the built-in rule set file requires at least version 5.4.0 of PMD. When setting
+Note that the built-in rule set file requires at least version 6.12.0 of PMD. When setting
 `toolVersion` to an older version of PMD, another rule set file must be explicitly configured.
 
 ### Extension additions
@@ -1185,20 +1074,22 @@ disabling the `pmdTest` task:
 ### Task additions
 
 The plugin adds an [XSL transformation report](#xsl-transformation-reports) to all tasks of type
-`PMD`. These reports have the name `quillHtmlReport` and are `enabled` by default. They can be 
+`PMD`. These reports have the name `quillHtmlReport` and are `enabled` by default. They can be
 configured per task, e.g. to use another XSL file than the one distributed in the Quill jar:
 
     pmdMain {
       quillHtmlReport.xslFile = 'resources/pmd.xsl'
       quillHtmlReport.destination = "$buildDir/reports/static_analysis/pmd.html"
     }
-    
+
     pmdTest.quillHtmlReport.enabled = false
 
-The the standard HTML report for all tasks of type `PMD` (normally `pmdMain` and `pmdTest`) is
-disabled. This is equivalent to the build script
+Note that the default XSL file requires XML reports produced by PMD 6.0 or later.
 
-     tasks.withType(PMD) {
+The plugin disables the standard HTML report for all tasks of type `Pmd` (normally `pmdMain` and
+`pmdTest`). This is equivalent to the build script
+
+    tasks.withType(Pmd) {
       reports.html.enabled = false
     }
 
@@ -1220,12 +1111,12 @@ The file is specified relative to the project directory:
     pmdMain {
       filter.file = 'pmd_filters.xml'
     }
- 
+
 It is possible to disable the filter function per task:
 
     pmdTest.filter.enabled = false
 
-The filter file defines a collection of rule violation filters on the format 
+The filter file defines a collection of rule violation filters on the format
 
     <?xml version="1.0"?>
     <rule-violation-filters>
@@ -1267,96 +1158,12 @@ Filter out everything in files matching the pattern ".\*Test.\*\\.java":
     <rule-violation-filter files=".*Test.*\.java"/>
 
 
-## JDepend Additions Plugin
-
-The JDepend Additions plugin applies the standard Gradle plugin `jdepend` to the project and
-configures the corresponding project extension and tasks with some defaults and additions. It also
-replaces the `jdepend` configuration's dependency on the standard JDepend distribution with a
-dependency on the [guru-nidi](https://github.com/nidi3/jdepend) fork.
-
-### Usage
-
-    apply plugin: 'org.myire.quill.jdepend'
-
-### Configuration dependencies
-
-The latest version of the JDepend tool is 2.9.1, which was released in 2005. This version does not
-recognize the Java 8 class format, and it omits classes with Java 8 specific constructs (e.g. method
-handles) from the analysis.
-
-To support dependency analysis of Java 8 code, the plugin uses the
-[guru-nidi](https://github.com/nidi3/jdepend) fork of JDepend rather than the standard distribution.
-This is done by replacing the `jdepend` configuration's dependency on the `jdepend:jdepend` artifact
-with a dependency on the `guru.nidi:jdepend` artifact. The version of the `guru.nidi:jdepend`
-artifact is specified through the extension property `guruNidiVersion` (see below).
-
-This replacement of the standard JDepend library can be disabled by setting the `guruNidiVersion`
-property to null.
-
-### Default values
-
-The plugin configures the `jdepend` extension in the project to let the build continue even if
-failures occur. This currently is a no-op as JDepend does not have the concept of failure; the
-property is an inheritance from `CodeQualityExtension`. This is equivalent to specifying the
-following in the build script:
-
-    jdepend.ignoreFailures = true
-
-### Extension additions
-
-The plugin adds a method called `disableTestChecks` to the `jdepend` extension. Calling this method
-in the build script it will remove the `test` source set from the extension's source sets, thus
-disabling the `jdependTest` task:
-
-    jdepend.disableTestChecks()
-
-The plugin also adds two properties:
-
-* `guruNidiVersion` - a string specifying the version of the guru-nidi JDepend fork to use. Default
-is version "2.9.5". If this property is set to null, the guru-nidi fork will *not* be used.
-
-* `antTaskVersion` - a string specifying the version of the JDepend Ant task to use in conjunction
-with the guru-nidi fork. Default is "1.9.7". Note that this property does not affect the version of
-the Ant task used when the guru-nidi fork is disabled.
-
-### Task additions
-
-The plugin adds an [XSL transformation report](#xsl-transformation-reports) to all tasks of type
-`JDepend`. These reports have the name `quillHtmlReport` and are `enabled` by default. They can be
-configured per task, e.g. to use another XSL file than the one distributed in the Quill jar:
-
-    jdependMain {
-      quillHtmlReport.xslFile = 'resources/jdepend.xsl'
-      quillHtmlReport.destination = "$buildDir/reports/tools/jdepend.html"
-    }
-    
-    jdependTest.quillHtmlReport.enabled = false
-
-The plugin also adds a read-only property `jdependProperties` to all tasks of type `JDepend`. This
-property allows specifying a properties file with runtime options for JDepend, as described in the
-[documentation](http://clarkware.com/software/JDepend.html#customize). Normally this can only be
-achieved by adding the properties file to the JDepend classpath (which is what the plugin does if a
-properties file is specified for the task).
-
-The properties file resolved relative to the project directory and is configured like
-
-    jdependMain {
-        jdependProperties.file = 'jdepend.properties'
-    }  
-
-If no properties file is explicitly configured the plugin uses a file bundled with the Quill jar
-that excludes the `java.lang` package from the JDepend analysis:
-
-    ignore.java=java.lang
-
-This file is extracted to the path "tmp/jdepend/jdepend.properties" relative to the project's build
-directory.
-
-
 ## CPD Plugin
 
 The CPD plugin adds a verification task for copy-paste detection using the CPD tool that is part of
 the [PMD](https://pmd.github.io/latest) distribution.
+
+The plugin works with CPD version 6.1 or later.
 
 ### Usage
 
@@ -1371,11 +1178,13 @@ files to analyze, such as include and exclude patterns. By default, the `cpd` ta
 source set's Java files as input files.
 
 In addition to the standard source task properties, the `cpd` task's behaviour can be configured
-through the following properties: 
+through the properties described below. Most of these properties are direct equivalents to one of the
+[CPD command line options](https://pmd.github.io/latest/pmd_userdocs_cpd.html#cli-options-reference).
 
 * `toolVersion` - a string specifying the version of CPD to use. The default is the version
 specified in `pmd.toolVersion`, or, if the `pmd` extension isn't available in the project, version
-"5.5.7".
+"6.16.0". Note however that `pmd.toolVersion` is only used if it is equal to or greater than the
+minimum CPD version "6.1.0".
 
 * `cpdClasspath` - a `FileCollection` specifying the classpath containing the CPD classes used by
 the task. The default is the `cpd` dependency configuration (see below).
@@ -1384,72 +1193,66 @@ the task. The default is the `cpd` dependency configuration (see below).
 the report. The platform's default encoding will be used if this property isn't specified.
 
 * `language` - a string specifying the language of the source files to analyze, e.g. "cpp", "java",
-"php", "ruby", or "ecmascript". See the CPD documentation at the
-[PMD site](https://pmd.github.io/latest)  for the list of languages supported by the different
-versions of CPD. The default is "java". Note that this property can only be used with CPD
-version 3.6 or newer.
+"php", "ruby", or "ecmascript". See the
+[CPD documentation](https://pmd.github.io/latest/pmd_userdocs_cpd.html#supported-languages) for a
+list of the languages supported by CPD. The default is "java".
 
-* `minimumTokenCount` - an integer specifying the minimum duplicate size to be reported. Defaults to
-100.
+* `minimumTokenCount` - an integer specifying the minimum duplicate size to be reported. Defaults
+to 100.
 
 * `ignoreLiterals` - if this boolean is true, CPD ignores literal value differences when evaluating
 a duplicate block. This means `foo=42;` and `foo=43;` will be seen as equivalent. Default is false.
-Note that this property can only be used with CPD version 2.2 or newer.
 
 * `ignoreIdentifiers` - a boolean similar to `ignoreLiterals`, differences in e.g. variable names
-and method names will be ignored. Default is false. Note that this property can only be used with
-CPD version 2.2 or newer.
+and method names will be ignored. Default is false.
 
 * `ignoreAnnotations` - if this boolean is true, annotations will be ignored. This property can be
-useful when analyzing J2EE code where annotations become very repetitive. Default is false. Note
-that this property can only be used with CPD version 5.0.1 or newer.
+useful when analyzing code based one some frameworks where annotations become very repetitive.
+Default is false.
 
 * `skipDuplicateFiles` - if this boolean is true, CPD will ignore multiple copies of files with the
-same name and length in comparison. Default is false. Note that this property can only be used with
-CPD version 5.1.1 or newer.
+same name and length. Default is false.
 
 * `skipLexicalErrors` - if this boolean is true, CPD will skip files which can't be tokenized due to
-invalid characters instead of aborting the analysis. Default is false. Note that this property can
-only be used with CPD version 5.1.1 or newer.
+invalid characters instead of aborting the analysis. Default is false.
 
-* `skipBlocks` - if this boolean is true, skipping of blocks is enabled with the patterns specified
-in the `skipBlocksPattern` property. Default is false. Note that this property can only be used with
-CPD version 5.2.2 or newer.
+* `skipBlocks` - if this boolean is true, blocks with the pattern specified in the
+`skipBlocksPattern` property will be excluded from the analysis. Default is false.
 
 * `skipBlocksPattern` - a string specifying the pattern to find the blocks to skip when `skipBlocks`
 is true. The value contains two parts, separated by a `|`. The first part is the start pattern, the
-second part is the ending pattern. The default value is "#if 0|#endif". Note that this property can
-only be used with CPD version 5.2.2 or newer.
+second part is the ending pattern. The default value is "#if 0|#endif".
 
-* `ignoreUsings` - if this boolean is true, *using directives* in C# will be ignored in the
-analysis. Default is false. Note that this property can only be used with CPD version 5.4.1 or
-newer.
+* `ignoreUsings` - if this boolean is true, *using* directives in C# will be ignored in the
+analysis. Default is false.
 
-* `reports` - a `ReportContainer` holding the reports created by the task, see below.
+* `reports` - a nested property holding the reports created by the task, see below.
 
 ### Reports
 
 The `cpd` task creates a primary report with the result of the copy-paste detection. This report can
-be on one of the formats XML, CSV, or text. If the primary report is on the XML format, the task can
-optionally produce an HTML report by applying an XSL transformation on the XML report.
+be on one of the formats supported by CPD, see the
+[documentation](https://pmd.github.io/latest/pmd_userdocs_cpd.html#available-report-formats). If the
+primary report is on the XML format, the task can optionally produce an HTML report by applying an
+XSL transformation on the XML report.
 
 The two reports are configured through the `reports` property of the `cpd` task:
 
 * `primary` - a `SingleFileReport` that also allows the format to be specified in its `format`
-property. Valid values for the format are "xml", "csv", or "text", with "xml" as the default value.
-The default report is a file called "cpd.*ext*" where *ext* is the value of the `format` property.
-The default report file is located in a directory called "cpd" in the project's report directory or,
-if no project report directory is defined, in a directory called "cpd" in the project's build
-directory.
+property. Valid values for the format are "xml", "text", "csv", "csv_with_linecount_per_file", or
+"vs", with "xml" as the default value. The default report is a file called "cpd.*ext*" where *ext*
+is the value of the `format` property. The default report file is located in a directory called
+"cpd" in the project's report directory or, if no project report directory is defined, in a
+directory called "cpd" in the project's build directory.
 
-* `html` - a `SingleFileReport` that will be created if the primary report is `enabled` and its 
+* `html` - a `SingleFileReport` that will be created if the primary report is `enabled` and its
 `format` is "xml". This report produces an HTML version of the tasks's XML report by applying an XSL transformation. By default, the HTML report is created in the same directory as the XML report
 and given the same base name as the XML report (e.g. "cpd.html" if the XML report has the name
 "cpd.xml"). The XSL style sheet to use can be specified through the `xslFile` property. This
 property is a `File` that is resolved relative to the project directory. If no XSL file is specified
-the default style sheet bundled with the GaQuillar file will be used.
+the default style sheet bundled with the Quill jar file will be used.
 
-The reports can be configured with a closure, just as any other `ReportContainer`:
+The reports can be configured with a closure:
 
     cpd {
       ...
@@ -1465,9 +1268,6 @@ The reports can also be configured through chained access of the properties:
       ...
       reports.primary.format = 'csv'
     }
-
-The `cpd` task implements the `Reporting` interface, meaning that the produced reports are picked
-up by the Build Dashboard plugin.
 
 ### Dependency configuration
 
@@ -1505,7 +1305,7 @@ through the following properties:
 * `sourceEncoding` - a string specifying the encoding of the Java files, e.g. "UTF-8". If this
 property isn't specified the platform's default encoding will be used.
 
-* `reports` - a `ReportContainer` holding the reports created by the task, see below.
+* `reports` - a nested property holding the reports created by the task, see below.
 
 * `scentClasspath` - a `FileCollection` specifying the classpath containing the Scent classes used
 by the task. The default is the `scent` dependency configuration, see below.
@@ -1530,7 +1330,7 @@ to use can be specified through the `xslFile` property. This property is a `File
 relative to the project directory. If no XSL file is specified the default style sheet bundled with
 the Quill jar file will be used.
 
-The reports can be configured with a closure, just as any other `ReportContainer`:
+The reports can be configured with a closure:
 
     scent {
       ...
@@ -1546,9 +1346,6 @@ The reports can also be configured through chained access of the properties:
       ...
       reports.xml.destination = 'myreport.xml'
     }
-
-The `scent` task implements the `Reporting` interface, meaning that the produced reports are
-picked up by the Build Dashboard plugin.
 
 Note that if the XML report isn't enabled, the `scent` task will not run. This means that the task
 can be skipped by adding the configuration line
@@ -1569,7 +1366,10 @@ where `<toolVersion>` is the value of the `scent` task's `toolVersion` property.
 ## Reports Dashboard Plugin
 
 The Reports Dashboard plugin creates a one-page HTML report containing a summary of some other
-reports generated during a build. 
+reports generated during a build. It is somewhat similar to the standard Gradle Build Dashboard
+plugin, but it produces a much richer summary than simply adding links to all available reports.
+This comes at the price of needing to have explicit knowledge about the reports it summarizes. This
+means that the plugin cannot produce a summary for any unknown reports generated during a build.
 
 ### Usage
 
@@ -1611,27 +1411,32 @@ By default, the report contains sections for the following tasks:
 (see the [JUnit Additions plugin](#junit-additions-plugin)). The linked report is the task's `html`
 report.
 
+* All tasks of type `JacocoReport`. The summarized report is the task's `xml` report and the linked
+report is the task's `html` report.
+
 * All tasks of type `CoberturaReportsTask` (see the [Cobertura plugin](#cobertura-plugin)). The
 summarized report is the task's `xml` report and the linked report is the task's `html` report.
 
 * All tasks of type `ScentTask` (see the [Scent plugin](#scent-plugin)). The summarized report is
 the task's `xml` report and the linked report is the task's `html` report.
 
-* The `jdependMain` task. The summarized report is the task's `xml` report and the linked report is
-the task's XSL transformation report, if one exists (see the
+* The `jdependMain` task, if present. The summarized report is the task's `xml` report and the
+linked report is the task's XSL transformation report, if one exists (see the
 [JDepend Additions plugin](#jdepend-additions-plugin)).
 
-* The `findbugsMain` task. The summarized report is the task's `xml` report and the linked report is
-the task's XSL transformation report, if one exists (see the
-[FindBugs Additions plugin](#findbugs-additions-plugin)).
+* The `spotbugsMain` task, if present. The summarized report is the task's `xml` report and the
+linked report is the task's XSL transformation report, if one exists (see the
+[SpotBugs Additions plugin](#spotbugs-additions-plugin)).
 
-* The `checkstyleMain` task. The summarized report is the task's `xml` report and the linked report
-is the task's XSL transformation report, if one exists (see the
-[Checkstyle Additions plugin](#checkstyle-additions-plugin)).
+* The `checkstyleMain` task, if present. The summarized report is the task's `xml` report and the
+linked report is the task's XSL transformation report (see the
+[Checkstyle Additions plugin](#checkstyle-additions-plugin)) or, if that report hasn't been added to
+the task, the task's `html` report.
 
-* The `pmdMain` task. The summarized report is the task's `xml` report and the linked report is the
-task's XSL transformation report (see the [PMD Additions plugin](#pmd-additions-plugin)) or, if that
-report hasn't been added to the task, the task's `html` report.
+* The `pmdMain` task, if present. The summarized report is the task's `xml` report and the linked
+report is the task's XSL transformation report (see the
+[PMD Additions plugin](#pmd-additions-plugin)) or, if that report hasn't been added to the task, the
+task's `html` report.
 
 * All tasks of type `CpdTask` that have "xml" as the format for the primary report (see the
 [CPD plugin](#cpd-plugin)). The linked report is the task's `html` report.
@@ -1648,7 +1453,7 @@ produces the XML report as section name.
 An existing report section's XSL file can be changed:
 
     reportsDashboard {
-        sections['findbugsMain']?.xslFile = 'src/main/resources/xsl/findbugs_summary.xsl'
+        sections['scent']?.xslFile = 'src/main/resources/xsl/scent_summary.xsl'
         ....
     }
 
@@ -1672,9 +1477,9 @@ New sections can be added with the method `addSection`:
 The detailed report can be omitted when adding a new section:
 
     reportsDashboard {
-        addSection('findbugsTest',
-                   findbugsTest.reports.xml,
-                   'src/main/resources/xsl/findbugs_summary.xsl')
+        addSection('pmdTest',
+                   pmdTest.reports.xml,
+                   'src/main/resources/xsl/pmd_summary.xsl')
         ....
     }
 
@@ -1686,12 +1491,9 @@ by passing the task to the `addBuiltInSection` method:
         ...
     }
 
-The tasks with built-in support are the ones that have default sections (see above) and tasks of
-type `javancss`.
-
 The sections will appear in the order they were added to the `LinkedHashMap`. The default sections
 are added in the order they are listed above. New sections will thereby appear last in the report.
-One way to rearrange the sections is to remove a report and add it back:
+One way to rearrange the default sections is to remove a report and add it back:
 
     reportsDashboard {
         def testsection = sections.remove('test')
@@ -1703,32 +1505,29 @@ One way to rearrange the sections is to remove a report and add it back:
 
 The HTML report contains the following parts:
 
-* The header, which is the entire `<head>` tag, the opening `<body>` tag and any HTML code that
+* _The header_, which is the entire `<head>` tag, the opening `<body>` tag and any HTML code that
 should appear before the sections. The default layout has a `<head>` tag containing the CSS style
 sheet expected by the XSL files distributed with the Quill jar, and the opening `<body>` tag is
-followed by a headline on the format "<Project name> build report summary".
+followed by a headline on the format "<project name> build report summary".
 
-* The sections, which are output in a logical matrix with a configurable number of columns. This
+* _The sections_, which are output in a logical matrix with a configurable number of columns. This
 matrix, each of its rows and each of its cells are all enclosed in an opening and an closing HTML
 snippet, see below. The HTML snippet for each cell, i.e. report section, is created by applying the
 XSL transformation to the XML report.
 
-* The footer, which least must contain the closing `</body>` and `</html>` tags. It may also contain
-additional HTML code that should appear after the sections.
+* _The footer_, which least must contain the closing `</body>` and `</html>` tags. It may also
+contain additional HTML code that should appear after the sections.
 
 ### Configuring the report layout
 
-The following properties on the `reportsDashboard` task are used to configure the report layout:
+The `layout` property of the `reportsDashboard` task is used to configure the report layout. It has
+the following nested properties:
 
-* `columns` - an int specifying the number of columns in the sections matrix. Default is 2.
-
-* `htmlTitle` - a string to put inside the `<title>` tag in the HTML `<head>`. Default is
-"<project name> build reports summary". This property is ignored if a custom header is specified in
-the `headerHtmlFile` property.
+* `numColumns` - an int specifying the number of columns in the sections matrix. Default is 2.
 
 * `headlineHtmlCode` - a string with an HTML snippet to put between the header and the sections.
-Default is `<p class="headline">htmlTitle</p>`, where "htmlTitle" is the value of the `htmlTitle`
-property.
+Default is `<p class="headline">project-name build reports summary</p>`, where "project-name" is the
+project's name..
 
 * `sectionsStartHtmlCode` - a string with an HTML snippet to put directly before the sections.
 Default is `<table width="100%">`.
@@ -1743,8 +1542,8 @@ matrix. Default is `<tr>`.
 matrix. Default is `</tr>`.
 
 * `cellStartHtmlCode` - a string with an HTML snippet to put directly before each section in the
-sections matrix. Default is `<td valign="top" width="x%">` where "x" is 100/`columns`. For instance,
-if `columns` is 3, each table cell will have a width of 33%.
+sections matrix. Default is `<td valign="top" width="x%">` where "x" is 100/`numColumns`. For
+instance, if `numColumns` is 3, each table cell will have a width of 33%.
 
 * `cellEndHtmlCode` - a string with an HTML snippet to put directly after each section in the
 sections matrix. Default is `</td>`.
@@ -1756,7 +1555,7 @@ header, to contain the CSS style sheet used by those transformations. Default is
 that an internally created HTML snippet should be used.
 
 * `footerHtmlFile` - a file with the footer of the HTML report. This file contains the HTML code
-that should appear after the sections. The minimum is the closing `<body>` and `<html>` tags.
+that should appear after the sections. The minimum is the closing `</body>` and `</html>` tags.
 Default is no file, meaning that an internally created HTML snippet should be used.
 
 Examples:
@@ -1764,21 +1563,25 @@ Examples:
 To make the sections matrix only occupy 80% of its container's width:
 
     reportsDashboard {
-        sectionsStartHtmlCode = '<table width="80%">'
+        layout.sectionsStartHtmlCode = '<table width="80%">'
         ...
     }
 
 To make all report sections have gray background:
 
     reportsDashboard {
-        rowStartHtmlCode = '<tr bgcolor="#999999">'
+        layout {
+            rowStartHtmlCode = '<tr bgcolor="#999999">'
+        }
         ...
     }
 
 To make all report sections align with the bottom of each other:
 
     reportsDashboard {
-        cellStartHtmlCode = '<td valign="bottom">'
+        layout {
+            cellStartHtmlCode = '<td valign="bottom">'
+        }
         ...
     }
 
@@ -1786,24 +1589,9 @@ To add a timestamp after the sections:
 
     reportsDashboard {
         def tstamp = new java.text.SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(new Date())
-        sectionsEndHtmlCode = "</table><p>${tstamp}</p>"
+        layout.sectionsEndHtmlCode = "</table><p>${tstamp}</p>"
         ...
     }
-
-### Using with the Build Dashboard plugin
-
-The Reports Dashboard plugin is somewhat similar to the standard Gradle Build Dashboard plugin,
-but it produces a much richer summary than simply adding links to all available reports. This comes
-at the price of needing to have explicit knowledge about the reports it summarizes. This means that
-the plugin cannot produce a summary for any unknown reports generated during a build.
-
-The two Dashboard plugins can be used together, but a bug in Gradle versions 2.1 and earlier can  
-cause the following error:
-
-    java.lang.IndexOutOfBoundsException: Index: 0, Size: 0
- 
-when the both plugins are applied and the `build` task is executed. This bug is described
-[here](https://issues.gradle.org/browse/GRADLE-2957) and was resolved in Gradle 2.2.
 
 
 ## Pom Plugin
@@ -1939,127 +1727,271 @@ declaration must be compiled with at least JDK 9. Running Gradle with Java 9 is 
 with Gradle version 4.2.1.
 
 
-## JavaNCSS Plugin
+## Cobertura Plugin
 
-The JavaNCSS plugin adds a task for calculating source code metrics using the
-[JavaNCSS](https://github.com/codehaus/javancss) tool.
+The Cobertura plugin adds functionality for generating Cobertura test coverage reports to all tasks
+of type `Test`.
 
-Note that the JavaNCSS tool hasn't received an update since July 2014 and currently does not support
-Java 8 specific syntax, e.g. lambdas. Because of this, the JavaNCSS plugin is *not* applied by the
-'all' plugin or by the 'core' plugin; it must always be applied explicitly.
+Although the plugin offers quite a few configuration options, the default values should be fine for
+most use cases.
+
+Note that the latest release of Cobertura is from February 2015, and that it doesn't work with
+classes compiled for Java 11 or newer (the tool can however still be run with Java 11). Consider
+using the [JaCoCo Additions plugin](#jacoco-additions-plugin) instead for code coverage. Because of
+this, the Cobertura plugin is *not* applied by the 'all' plugin or by the 'core' plugin; it must
+always be applied explicitly.
 
 ### Usage
 
-    apply plugin: 'org.myire.quill.javancss'
+    apply plugin: 'org.myire.quill.cobertura'
 
-### Task
+### Cobertura documentation
 
-The plugin adds a `javancss` task to the project and also adds it to the dependencies of the `build`
-task. The `javancss` task operates on Java source files and is a subclass of
-`org.gradle.api.tasks.SourceTask`, thereby using the standard mechanisms for specifying which source
-files to calculate metrics for, such as include and exclude patterns. By default, the `javancss`
-task uses the `main` source set's Java files as input files.
+The tasks added by the plugin delegate their work to the corresponding Ant task in the Cobertura
+distribution. Consequently, the majority of the properties used to configure the plugin's extensions
+and tasks are the same as the ones used to configure the
+[Cobertura Ant tasks](https://github.com/cobertura/cobertura/wiki/Ant-Task-Reference).
 
-In addition to the standard source task properties, the `javancss` task's behaviour can be
-configured through the following properties:
+### Project extension
 
-* `toolVersion` - a string specifying the version of JavaNCSS to use. The default is version
-"33.54".
+The plugin adds an extension with the name `cobertura` to the Gradle project. This extension is used
+to configure the behaviour of all Cobertura enhanced tasks through the properties listed below.
 
-* `javancssClasspath` - a `FileCollection` specifying the classpath containing the JavaNCSS classes
-used by the task. The default is the `javancss` dependency configuration (see below).
+* `toolVersion` - a string specifying the version of Cobertura to use. Default is version "2.1.1".
 
-* `ncss` - a boolean specifying if the total number of non commenting source statements in the input
-files should be calculated. Default is true.
+* `workDir` - a `File` specifying the global working directory for the Cobertura tasks. Default is a
+directory called `cobertura` in the Gradle project's temporary directory.
 
-* `packageMetrics` - a boolean specifying if metrics data should be calculated for each package.
-Default is true.
+* `coberturaClassPath` - a `FileCollection` specifying the classpath containing the Cobertura
+classes used by the tasks. Default is the `cobertura` dependency configuration (see below).
 
-* `classMetrics` - a boolean specifying if metrics data should be calculated for each
-class/interface. Default is true.
+* `ignoreTrivial` - a `boolean` that if true specifies that constructors/methods that contain one
+line of code should be excluded from the test coverage analysis. Examples of such methods are
+constructors only calling a super constructor, and getters/setters. Default is false.
 
-* `functionMetrics` - a boolean specifying if metrics data should be calculated for each
-method/function. Default is true.
+* `ignoreMethodNames` - a list of strings where each string is a regular expression specifying
+methods names that should be excluded from the coverage analysis. Note that the classes containing
+the methods will still be instrumented. Default is an empty list. Example: `.*PrintStream.*`. Note
+that the corresponding Ant task property is called `ignore`.
 
-* `ignoreFailures` - a boolean specifying if the build should continue if the JavaNCSS execution
-fails. Default is true.
+* `ignoreMethodAnnotations` - a list of strings where each string is the fully qualified name of an
+annotations with which methods that should be excluded from the coverage analysis are annotated
+with. Default is an empty list.
 
-* `reports` - a `ReportContainer` holding the reports created by the task, see below.
+* `sourceEncoding` - a string with the name of the encoding that the report task(s) should use when
+reading the source files. The platform's default encoding will be used if this property isn't
+specified.
 
-### Reports
+### Task specific project extensions
 
-The `javancss` task creates a primary report with the result of the source code metrics calculation.
-This report can either be o the XML format or the text format. If the primary report is on the XML
-format, the task can optionally produce an HTML report by applying an XSL transformation on the XML
-report.
+In addition to the global project extension described above, another project extension is added by
+the plugin for each `Test` task that is enhanced with Cobertura functionality. The name of a task
+specific extension is `cobertura` + *the capitalized name of the task*. For example, the extension
+corresponding to the `test` task will have the name `coberturaTest`.
 
-The two reports are configured through the `reports` property of the `javancss` task:
+A task specific extension is used to configure the enhancement of the `Test` task, including the
+related instrumentation and report tasks (see below). Each task specific extension has the following
+properties:
 
-* `primary` - a `SingleFileReport` that also allows the format to be specified in its `format`
-property. Valid values for the format are "xml" or "text", with "xml" as the default value. The
-default report is a file called "javancss.*ext*" where *ext* is the value of the `format` property.
-The default report file is located in a directory called "javancss" in the project's report
-directory or, if no project report directory is defined, in a directory called "javancss" in the
-project's build directory.
+* `enabled` - a `boolean` specifying whether the Cobertura enhancement of the `Test` task is enabled
+or not. If the enhancement is disabled, the tests are run with the original classes under test, not
+the instrumented ones, and no coverage report will produced for the test run. Default is true,
+meaning that the tests will run with instrumented classes and that a coverage report will be
+produced.
 
-* `html` - a `SingleFileReport` that will be created if the primary report is `enabled` and its 
-`format` is "xml". This report produces an HTML version of the tasks's XML report by applying an XSL transformation. By default, the HTML report is created in the same directory as the XML report
-and given the same base name as the XML report (e.g. "javancss.html" if the XML report has the name
-"javancss.xml"). The XSL style sheet to use can be specified through the `xslFile` property. This
-property is a `File` that is resolved relative to the project directory. If no XSL file is specified
-the default style sheet bundled with the Quill jar file will be used.
+* `workDir` - a `File` specifying the working directory for the enhanced task. Default is a
+directory with the same name as the enhanced `Test` task in the directory specified by `workDir` in
+the global project extension.
 
-The reports can be configured with a closure, just as any other `ReportContainer`:
+* `inputClasses` - a `FileCollection` specifying the classes to analyze for test coverage. Default
+is all files in the output classes directory of the main source set. Used as input by the
+instrumentation task.
 
-    javancss {
-      ...
-      reports {
-        primary.destination = "$buildDir/reports/metrics.xml"
-        html.xslFile = 'xsl/javancss.xsl'
-      }
-    }
+* `auxClassPath` - a `FileCollection` specifying a path containing any classes that shouldn't be
+analyzed but are needed by the instrumentation. Default is no auxiliary class path. Used as input by
+the instrumentation task.
 
-The reports can also be configured through chained access of the properties:
+* `ignoreTrivial` - overrides `ignoreTrivial` in the global project extension if set. Used as input
+by the instrumentation task.
 
-    javancss {
-      ...
-      reports.primary.format = 'text'
-    }
+* `ignoreMethodNames` - overrides `ignoreMethodNames` in the global project extension if set. Used
+as input by the instrumentation task.
 
-The `javancss` task implements the `Reporting` interface, meaning that the produced reports are
-picked up by the Build Dashboard plugin.
+* `ignoreMethodAnnotations` - overrides `ignoreMethodAnnotations` in the global project extension if
+set. Used as input by the instrumentation task.
 
-Note that if the primary report isn't enabled, the `javancss` task will not run. This means that the
-task can be skipped by adding the configuration line
+* `instrumentedClassesDir` - a `File` specifying the directory containing the instrumented versions
+of the classes to analyze. Default is a directory named `instrumented` in the directory specified by
+`workDir`. Used as output by the instrumentation task and as input by the test task.
 
-    javancss.reports.primary.enabled = false
+* `instrumentationDataFile` - a `File` specifying the file holding metadata about the instrumented
+classes. This file contains information about the names of the classes, their method names, line
+numbers, etc. It is created by the instrumentation task. The default value is a file named
+`cobertura.instrumentation.ser` in the directory specified by `workDir`. Used as output by the
+instrumentation task and input by the test task.
+
+* `executionDataFile` - a `File` specifying the file holding metadata about the test execution of
+the instrumented classes. This file contains updated information about the instrumented classes from
+the test runs. It is an updated version of `instrumentationDataFile`, created by the test task and
+used as input by the report task. The default value is a file named `cobertura.execution.ser` in
+the directory specified by `workDir`.
+
+* `sourceDirs` - a `FileCollection` specifying the directories containing the sources of the
+analyzed classes. Default is all source directories in the main source set. Used as input by the
+report task.
+
+* `sourceEncoding` - overrides `sourceEncoding` in the global project extension if set. Used as
+input by the report task.
+
+### Instrumentation tasks
+
+The plugin adds an instrumentation task for each enhanced `Test` task. The name of this task is
+the name of the `Test` task + `CoberturaInstrument`, e.g. `testCoberturaInstrument` for the `test`
+task.
+
+An instrumentation task gets its properties from the corresponding task specific project extension.
+When executed, the instrumentation task instruments the classes in `inputClasses` and writes the
+instrumented versions of those classes to `instrumentedClassesDir`. The task also creates the
+`instrumentationDataFile` file.
+
+### Enhancement of Test tasks
+
+The plugin adds two actions to each enhanced `Test` task.
+
+The first action is added to the beginning of the task's action list. This action prepares the test
+execution by prepending the `instrumentedClassesDir` and the `coberturaClassPath` to the test task's
+classpath. It also set the system property `net.sourceforge.cobertura.datafile` in the test task's
+forked JVM to the value of `executionDataFile`, and copies `instrumentationDataFile` to
+`executionDataFile`.
+
+The second action is added to the end of the task's action list. This action restores the test task
+by setting its classpath and `net.sourceforge.cobertura.datafile` system property to the values they
+had before the preparing action was run.
+
+The instrumentation task associated with an enhanced `Test` task is added to the latter's
+dependencies.
+
+### Report tasks
+
+The plugin adds an report task for each enhanced `Test` task. The name of this task is `cobertura` +
+the name of the `Test` task + `Report`, e.g. `coberturaTestReport` for the `test` task. This means
+that it normally is sufficient to specify `cobertura` as the task to execute.
+
+A report task gets most of its properties from the corresponding task specific project extension,
+see above. In addition to these, it has a read-only property `reports` that holds two report
+specifications:
+
+* `xml` - a `SingleFileReport` specifying the XML report file. Default is a file called
+`coverage.xml` in a directory with the same name as the associated enhanced `Test` task in a
+directory called `cobertura` in the Gradle project's report directory.
+
+* `html` - a `DirectoryReport` specifying the directory where the HTML report is created. Default is
+a directory with the same name as the associated enhanced `Test` task in a directory called
+`cobertura` in the Gradle project's report directory.
+
+These two reports can be configured as any Gradle report, e.g.
+
+    coberturaTestReport.reports.xml.enabled = false
+    coberturaTestReport.reports.html.destination = "${project.buildDir}/reports/coverage"
+
+A report task depends on the associated enhanced `Test` task.
 
 ### Dependency configuration
 
-The JavaNCSS plugin adds a `javancss` dependency configuration to the project. This configuration
-specifies the default classpath for the `javancss` task. By default, this configuration has one
+The Cobertura plugin adds a `cobertura` dependency configuration to the project. This configuration
+specifies the default classpath for the Cobertura task. By default, this configuration has one
 dependency, equivalent to:
 
-    javancss 'org.codehaus.javancss:javancss:<toolVersion>'
+    cobertura 'net.sourceforge.cobertura:cobertura:<toolVersion>'
 
-where `<toolVersion>` is the value of the `javancss` task's `toolVersion` property.
+where `<toolVersion>` is the value of the `cobertura` extension's `toolVersion` property.
 
-### Use with Reports Dashboard
 
-The JavaNCSS report is not included in the Reports Dashboard by default when the JavaNCSS plugin is
-applied. A section for the JavaNCSS report must be added explicitly, e.g.:
+## JDepend Additions Plugin
 
-    reportsDashboard {
-        addSection('javancss',
-                   javancss.reports.primary,
-                   javancss.reports.html,
-                   'path/to/javancss.xsl')
+The JDepend Additions plugin applies the standard Gradle plugin `jdepend` to the project and
+configures the corresponding project extension and tasks with some defaults and additions. It also
+replaces the `jdepend` configuration's dependency on the standard JDepend distribution with a
+dependency on the [guru-nidi](https://github.com/nidi3/jdepend) fork.
+
+The `jdepend` plugin was deprecated in Gradle version 5 and is scheduled to be removed in Gradle
+version 6. Because of this, the JDepend Additions plugin is *not* applied by the 'all' plugin or by
+the 'core' plugin; it must always be applied explicitly.
+
+### Usage
+
+    apply plugin: 'org.myire.quill.jdepend'
+
+### Configuration dependencies
+
+The latest version of the JDepend tool is 2.9.1, which was released in 2005. This version does not
+recognize the Java 8 class format, and it omits classes with Java 8 specific constructs (e.g. method
+handles) from the analysis.
+
+To support dependency analysis of Java 8 code, the plugin uses the
+[guru-nidi](https://github.com/nidi3/jdepend) fork of JDepend rather than the standard distribution.
+This is done by replacing the `jdepend` configuration's dependency on the `jdepend:jdepend` artifact
+with a dependency on the `guru.nidi:jdepend` artifact. The version of the `guru.nidi:jdepend`
+artifact is specified through the extension property `guruNidiVersion` (see below).
+
+This replacement of the standard JDepend library can be disabled by setting the `guruNidiVersion`
+property to null.
+
+### Default values
+
+The plugin configures the `jdepend` extension in the project to let the build continue even if
+failures occur. This currently is a no-op as JDepend does not have the concept of failure; the
+property is an inheritance from `CodeQualityExtension`. This is equivalent to specifying the
+following in the build script:
+
+    jdepend.ignoreFailures = true
+
+### Extension additions
+
+The plugin adds a method called `disableTestChecks` to the `jdepend` extension. Calling this method
+in the build script it will remove the `test` source set from the extension's source sets, thus
+disabling the `jdependTest` task:
+
+    jdepend.disableTestChecks()
+
+The plugin also adds two properties:
+
+* `guruNidiVersion` - a string specifying the version of the guru-nidi JDepend fork to use. Default
+is version "2.9.5". If this property is set to null, the guru-nidi fork will *not* be used.
+
+* `antTaskVersion` - a string specifying the version of the JDepend Ant task to use in conjunction
+with the guru-nidi fork. Default is "1.9.7". Note that this property does not affect the version of
+the Ant task used when the guru-nidi fork is disabled.
+
+### Task additions
+
+The plugin adds an [XSL transformation report](#xsl-transformation-reports) to all tasks of type
+`JDepend`. These reports have the name `quillHtmlReport` and are `enabled` by default. They can be
+configured per task, e.g. to use another XSL file than the one distributed in the Quill jar:
+
+    jdependMain {
+      quillHtmlReport.xslFile = 'resources/jdepend.xsl'
+      quillHtmlReport.destination = "$buildDir/reports/tools/jdepend.html"
     }
 
-The Reports Dashboard does however have built-in support for JavaNCSS sections, just as for all
-other Quill tasks that produce reports, which means that the section can be added with the
-`addBuiltInSection` method:
+    jdependTest.quillHtmlReport.enabled = false
 
-    reportsDashboard {
-        addBuiltInSection(javancss)
+The plugin also adds a read-only property `jdependProperties` to all tasks of type `JDepend`. This
+property allows specifying a properties file with runtime options for JDepend, as described in the
+[documentation](http://clarkware.com/software/JDepend.html#customize). Normally this can only be
+achieved by adding the properties file to the JDepend classpath (which is what the plugin does if a
+properties file is specified for the task).
+
+The properties file resolved relative to the project directory and is configured like
+
+    jdependMain {
+        jdependProperties.file = 'jdepend.properties'
     }
+
+If no properties file is explicitly configured the plugin uses a file bundled with the Quill jar
+that excludes the `java.lang` package from the JDepend analysis:
+
+    ignore.java=java.lang
+
+This file is extracted to the path "tmp/jdepend/jdepend.properties" relative to the project's build
+directory.

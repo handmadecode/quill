@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2019 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -10,11 +10,10 @@ import java.io.File;
 import groovy.lang.Closure;
 
 import org.gradle.api.Project;
-import org.gradle.api.reporting.ConfigurableReport;
 import org.gradle.api.reporting.DirectoryReport;
 import org.gradle.api.reporting.Report;
 import org.gradle.api.reporting.SingleFileReport;
-import org.gradle.api.reporting.internal.TaskReportContainer;
+import org.gradle.util.ConfigureUtil;
 
 import org.myire.quill.common.Projects;
 import org.myire.quill.report.DefaultDirectoryReport;
@@ -22,17 +21,16 @@ import org.myire.quill.report.DefaultSingleFileReport;
 
 
 /**
- * Default implementation of {@code CoberturaReports}. For some reason the Groovy compiler cannot
- * handle the covariant return types of some overridden methods in {@code NamedDomainObjectSet}. The
- * Java compiler has no problems handling it, so this implementation is in Java. Note that all
- * subclasses of {@code TaskReportContainer} in the Gradle distribution (e.g. {@code PmdReportsImpl}
- * and {@code DefaultBuildDashboardReports} are Java classes.
+ * Default implementation of {@code CoberturaReports}.
  */
-public class CoberturaReportsImpl extends TaskReportContainer<Report> implements CoberturaReports
+public class CoberturaReportsImpl implements CoberturaReports
 {
     static private final String XML_REPORT_NAME = "coberturaXml";
     static private final String HTML_REPORT_NAME = "coberturaHtml";
     static private final String DEFAULT_XML_REPORT_FILE_NAME = "coverage.xml";
+
+    private final SingleFileReport fXmlReport;
+    private final DirectoryReport fHtmlReport;
 
 
     /**
@@ -42,31 +40,28 @@ public class CoberturaReportsImpl extends TaskReportContainer<Report> implements
      */
     CoberturaReportsImpl(CoberturaReportsTask pTask)
     {
-        super(ConfigurableReport.class, pTask);
-
         // By default the reports reside in a directory with the same name as the context.
         String aReportDirName = pTask.getContext().getName();
 
-        // Add the XML report, which is a single file.
-        SingleFileReport aXmlReport =
-                add(DefaultSingleFileReport.class,
-                    pTask.getProject(),
-                    XML_REPORT_NAME,
-                    "Cobertura XML report",
-                    new DefaultXmlReportFile(pTask.getProject(), aReportDirName, DEFAULT_XML_REPORT_FILE_NAME));
+        fXmlReport =
+            new DefaultSingleFileReport(
+                pTask.getProject(),
+                XML_REPORT_NAME,
+                "Cobertura XML report",
+                new DefaultXmlReportFile(pTask.getProject(), aReportDirName, DEFAULT_XML_REPORT_FILE_NAME));
 
         // Add the HTML report, which is a directory report.
-        DirectoryReport aHtmlReport =
-                add(DefaultDirectoryReport.class,
-                    pTask.getProject(),
-                    HTML_REPORT_NAME,
-                    "Cobertura HTML report",
-                    "index.html",
-                    new DefaultReportsDir(pTask.getProject(), aReportDirName));
+        fHtmlReport =
+            new DefaultDirectoryReport(
+                pTask.getProject(),
+                HTML_REPORT_NAME,
+                "Cobertura HTML report",
+                "index.html",
+                new DefaultReportsDir(pTask.getProject(), aReportDirName));
 
         // Both reports are enabled by default.
-        aXmlReport.setEnabled(true);
-        aHtmlReport.setEnabled(true);
+        fXmlReport.setEnabled(true);
+        fHtmlReport.setEnabled(true);
     }
 
 
@@ -80,7 +75,7 @@ public class CoberturaReportsImpl extends TaskReportContainer<Report> implements
     @Override
     public SingleFileReport getXml()
     {
-        return (SingleFileReport) getByName(XML_REPORT_NAME);
+        return fXmlReport;
     }
 
 
@@ -94,7 +89,27 @@ public class CoberturaReportsImpl extends TaskReportContainer<Report> implements
     @Override
     public DirectoryReport getHtml()
     {
-        return (DirectoryReport) getByName(HTML_REPORT_NAME);
+        return fHtmlReport;
+    }
+
+
+    @Override
+    public Report getReportByName(String pReportName)
+    {
+        if (XML_REPORT_NAME.equalsIgnoreCase(pReportName))
+            return fXmlReport;
+        else if (HTML_REPORT_NAME.equalsIgnoreCase(pReportName))
+            return fHtmlReport;
+        else
+            return null;
+    }
+
+
+    @Override
+    public CoberturaReports configure(Closure pClosure)
+    {
+        ConfigureUtil.configureSelf(pClosure, this);
+        return this;
     }
 
 

@@ -30,6 +30,19 @@ abstract class AbstractPluginEnhancer<T extends Task> extends ProjectAware
      * Create a new {@code AbstractPluginEnhancer}.
      *
      * @param pProject      The enhanced plugin's project.
+     * @param pToolName     The plugin's tool name.
+     */
+    protected AbstractPluginEnhancer(Project pProject, String pToolName)
+    {
+        super(pProject);
+        fToolName = pToolName;
+    }
+
+
+    /**
+     * Create a new {@code AbstractPluginEnhancer}, applying the plugin to the project.
+     *
+     * @param pProject      The enhanced plugin's project.
      * @param pPluginClass  The plugin's class.
      * @param pToolName     The plugin's tool name.
      */
@@ -37,8 +50,7 @@ abstract class AbstractPluginEnhancer<T extends Task> extends ProjectAware
                                      Class<? extends Plugin<Project>> pPluginClass,
                                      String pToolName)
     {
-        super(pProject);
-        fToolName = pToolName;
+        this(pProject, pToolName);
 
         // Make sure the task's plugin is applied.
         pProject.plugins.apply(pPluginClass);
