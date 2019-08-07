@@ -1738,8 +1738,7 @@ most use cases.
 Note that the latest release of Cobertura is from February 2015, and that it doesn't work with
 classes compiled for Java 11 or newer (the tool can however still be run with Java 11). Consider
 using the [JaCoCo Additions plugin](#jacoco-additions-plugin) instead for code coverage. Because of
-this, the Cobertura plugin is *not* applied by the 'all' plugin or by the 'core' plugin; it must
-always be applied explicitly.
+this, the Cobertura plugin is *not* applied by the 'core' plugin.
 
 ### Usage
 
@@ -1915,8 +1914,7 @@ replaces the `jdepend` configuration's dependency on the standard JDepend distri
 dependency on the [guru-nidi](https://github.com/nidi3/jdepend) fork.
 
 The `jdepend` plugin was deprecated in Gradle version 5 and is scheduled to be removed in Gradle
-version 6. Because of this, the JDepend Additions plugin is *not* applied by the 'all' plugin or by
-the 'core' plugin; it must always be applied explicitly.
+version 6. Because of this, the JDepend Additions plugin is *not* applied by the 'core' plugin.
 
 ### Usage
 
