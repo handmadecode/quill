@@ -172,8 +172,12 @@
             <property name="severity" value="${severity.design}" default="error"/>
         </module>
 
+
 <!-- Checks that find incomplete Javadoc documentation. -->
 
+        <module name="JavadocBlockTagLocation">
+            <property name="severity" value="${severity.documentation}" default="warning"/>
+        </module>
         <module name="JavadocMethod">
             <property name="scope" value="package"/>
             <property name="allowUndeclaredRTE" value="true"/>
@@ -199,7 +203,9 @@
             <property name="severity" value="${severity.documentation}" default="warning"/>
         </module>
 
+
 <!-- Checks for the myire Java style guide naming. -->
+
         <module name="CatchParameterName">
             <property name="format" value="^[a-z]*[e,t]$"/>
             <property name="severity" value="${severity.style}" default="warning"/>
@@ -262,6 +268,7 @@
             <property name="severity" value="${severity.style}" default="warning"/>
         </module>
 
+
 <!-- Checks for consistent formatting. -->
 
         <module name="ArrayTypeStyle">
@@ -292,7 +299,12 @@
         </module>
         <module name="NoWhitespaceAfter">
             <property name="allowLineBreaks" value="false"/>
-            <property name="tokens" value="ARRAY_INIT, AT, INC, DEC, UNARY_MINUS, UNARY_PLUS, BNOT, LNOT, DOT, ARRAY_DECLARATOR, INDEX_OP, METHOD_REF"/>
+            <property name="tokens" value="AT, INC, DEC, UNARY_MINUS, UNARY_PLUS, BNOT, LNOT, DOT, ARRAY_DECLARATOR, INDEX_OP, METHOD_REF"/>
+            <property name="severity" value="${severity.formatting}" default="warning"/>
+        </module>
+        <module name="NoWhitespaceAfter">
+            <property name="allowLineBreaks" value="true"/>
+            <property name="tokens" value="ARRAY_INIT"/>
             <property name="severity" value="${severity.formatting}" default="warning"/>
         </module>
         <module name="NoWhitespaceBefore">
@@ -309,6 +321,9 @@
         </module>
         <module name="RightCurly">
             <property name="option" value="alone"/>
+            <property name="severity" value="${severity.formatting}" default="warning"/>
+        </module>
+        <module name="UnnecessarySemicolonAfterTypeMemberDeclaration">
             <property name="severity" value="${severity.formatting}" default="warning"/>
         </module>
         <module name="UnnecessarySemicolonInEnumeration">
