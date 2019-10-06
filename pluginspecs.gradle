@@ -1,0 +1,114 @@
+// Generate plugin descriptors and specify plugin ids
+gradlePlugin
+{
+    plugins
+    {
+        quillAllPlugin
+        {
+            id = 'org.myire.quill.all'
+            implementationClass = 'org.myire.quill.QuillAllPlugin'
+        }
+
+        quillCorePlugin
+        {
+            id = 'org.myire.quill.core'
+            implementationClass = 'org.myire.quill.QuillCorePlugin'
+        }
+
+        quillCheckstylePlugin
+        {
+            id = 'org.myire.quill.checkstyle'
+            implementationClass = 'org.myire.quill.check.CheckstyleAdditionsPlugin'
+        }
+
+        quillCoberturaPlugin
+        {
+            id = 'org.myire.quill.cobertura'
+            implementationClass = 'org.myire.quill.cobertura.CoberturaPlugin'
+        }
+
+        quillCpdPlugin
+        {
+            id = 'org.myire.quill.cpd'
+            implementationClass = 'org.myire.quill.cpd.CpdPlugin'
+        }
+
+        quillDashboardPlugin
+        {
+            id = 'org.myire.quill.dashboard'
+            implementationClass = 'org.myire.quill.dashboard.DashboardPlugin'
+        }
+
+        quillIvyPlugin
+        {
+            id = 'org.myire.quill.ivy'
+            implementationClass = 'org.myire.quill.ivy.IvyImportPlugin'
+        }
+
+        quillJacocoPlugin
+        {
+            id = 'org.myire.quill.jacoco'
+            implementationClass = 'org.myire.quill.jacoco.JacocoAdditionsPlugin'
+        }
+
+        quillJavaPlugin
+        {
+            id = 'org.myire.quill.java'
+            implementationClass = 'org.myire.quill.java.JavaAdditionsPlugin'
+        }
+
+        quillJdependPlugin
+        {
+            id = 'org.myire.quill.jdepend'
+            implementationClass = 'org.myire.quill.check.JDependAdditionsPlugin'
+        }
+
+        quillJunitPlugin
+        {
+            id = 'org.myire.quill.junit'
+            implementationClass = 'org.myire.quill.junit.JUnitAdditionsPlugin'
+        }
+
+        quillMavenPlugin
+        {
+            id = 'org.myire.quill.maven'
+            implementationClass = 'org.myire.quill.maven.MavenImportPlugin'
+        }
+
+        quillMetaPlugin
+        {
+            id = 'org.myire.quill.meta'
+            implementationClass = 'org.myire.quill.meta.ProjectMetaDataPlugin'
+        }
+
+        quillModuleinfoPlugin
+        {
+            id = 'org.myire.quill.moduleinfo'
+            implementationClass = 'org.myire.quill.jigsaw.ModuleInfoPlugin'
+        }
+
+        quillPmdPlugin
+        {
+            id = 'org.myire.quill.pmd'
+            implementationClass = 'org.myire.quill.check.PmdAdditionsPlugin'
+        }
+
+        quillPomPlugin
+        {
+            id = 'org.myire.quill.pom'
+            implementationClass = 'org.myire.quill.pom.PomPlugin'
+        }
+
+        quillScentPlugin
+        {
+            id = 'org.myire.quill.scent'
+            implementationClass = 'org.myire.quill.scent.ScentPlugin'
+        }
+
+        quillSpotbugsPlugin
+        {
+            id = 'org.myire.quill.spotbugs'
+            implementationClass = 'org.myire.quill.check.SpotBugsAdditionsPlugin'
+        }
+    }
+}
