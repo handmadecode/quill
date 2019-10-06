@@ -37,7 +37,7 @@ import org.myire.quill.report.TransformingReport;
 public class ScentTask extends SourceTask implements ReportingEntity<ScentReports>
 {
     // The default version of Scent to use.
-    static private final String DEFAULT_TOOL_VERSION = "2.1";
+    static private final String DEFAULT_TOOL_VERSION = "2.2";
 
     // Fully qualified name of the ScentRunner implementation class to use.
     static private final String IMPLEMENTATION_PACKAGE = "org.myire.quill.scent.impl.";
