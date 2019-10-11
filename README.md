@@ -40,22 +40,42 @@ The release notes can be found [here](./RELEASE_NOTES.md).
 
 ## General Usage
 
-To use the Quill plugins they must be added to the Gradle build script classpath:
+### Using the plugins DSL
+
+Starting with version 2.1, the easiest way to apply the Quill plugins is to use the plugins DSL:
+
+    plugins {
+      id 'org.myire.quill.cpd' version '2.1'
+      id 'org.myire.quill.scent' version '2.1'
+    }
+
+### Using the buildscript block
+
+If the plugins DSL isn't used, the Quill artifact must be added to the build script's classpath:
 
     buildscript {
       ...
       dependencies {
-        classpath 'org.myire:quill:1.5'
-      ...
+        classpath 'org.myire:quill:2.1'
+        ...
+      }
 
 The Quill plugins can then be applied to the Gradle project:
 
     apply plugin: 'org.myire.quill.cpd'
     apply plugin: 'org.myire.quill.scent'
 
-To make all Quill plugins available in a build script, the plugin 'all' can be applied. This plugin
+### The 'all' and 'core' plugins
+
+To make all Quill plugins available in a build script, the 'all' plugin can be applied. This plugin
 will simply apply all Quill plugins to the Gradle project, thus removing the need to apply the
 plugins individually:
+
+    plugins {
+      id 'org.myire.quill.all' version '2.1'
+      ...
+
+or
 
     apply plugin: 'org.myire.quill.all'
 
@@ -76,6 +96,13 @@ Most of the time the 'core' plugin is a better choice. It applies all plugins ex
 
 The excluded plugins can then be added explicitly as required:
 
+    plugins {
+      id 'org.myire.quill.core' version '2.1'
+      id 'org.myire.quill.moduleinfo' version '2.1'
+      ...
+
+or
+
     apply plugin: 'org.myire.quill.core'
     apply plugin: 'org.myire.quill.moduleinfo'
 
@@ -95,13 +122,11 @@ Quill jar file.
 
 ## Ivy Import Plugin
 
+Plugin ID: `org.myire.quill.ivy`
+
 The Ivy Import plugin imports dependency and/or configuration definitions from an Apache Ivy module
 file.  The dependencies and configurations can either by dynamically added to the Gradle project for
 the current execution only, or be written to file for later inclusion.
-
-### Usage
-
-    apply plugin: 'org.myire.quill.ivy'
 
 ### Project extension
 
@@ -245,6 +270,8 @@ default Ivy settings if no explicit settings file has been specified.
 
 ## Maven Import Plugin
 
+Plugin ID: `org.myire.quill.maven`
+
 The Maven Import plugin imports repository and/or dependency definitions from a Maven pom file. The
 repositories and dependencies can either by dynamically added to the Gradle project for the current
 execution only, or be written to file for later inclusion.
@@ -252,10 +279,6 @@ execution only, or be written to file for later inclusion.
 The plugin does **not** convert the entire pom file to a Gradle build script like the standard
 Gradle Build Init plugin does. It only operates on the repositories and dependencies in the pom
 file.
-
-### Usage
-
-    apply plugin: 'org.myire.quill.maven'
 
 ### Dependency configuration
 
@@ -484,13 +507,11 @@ A minimum Gradle build script for a standard Maven Java project would look like 
 
 ## Project Metadata Plugin
 
+Plugin ID: `org.myire.quill.meta`
+
 The Project Metadata plugin adds two extensions to the Gradle project, `projectMetaData` and
 `semanticVersion`. These two extensions allow additional metadata and version properties to be
 specified for the project.
-
-### Usage
-
-    apply plugin: 'org.myire.quill.meta'
 
 ### Common features
 
@@ -587,15 +608,11 @@ If loaded from a JSON file, that file should contain a single object with the ex
 
 ## Java Additions Plugin
 
+Plugin ID: `org.myire.quill.java`
+
 The Java Additions plugin configures existing Java tasks with default values, enhances existing Java
-tasks, and adds new Java related tasks.
-
-### Usage
-
-    apply plugin: 'org.myire.quill.java'
-
-The Java Additions plugin makes sure the built-in Java plugin has been applied to the project,
-meaning it isn't necessary to apply that plugin explicitly.
+tasks, and adds new Java related tasks. It also makes sure the built-in Java plugin has been applied
+to the project, meaning it isn't necessary to apply that plugin explicitly.
 
 ### Default values
 
@@ -784,13 +801,10 @@ and
 
 ## JUnit Additions Plugin
 
+Plugin ID: `org.myire.quill.junit`
+
 The JUnit Additions plugin adds a JUnit summary report to the `Test` task. If the `Test` task isn't
 present in the project, the plugin has no effect.
-
-### Usage
-
-    apply plugin: 'org.myire.quill.junit'
-
 
 ### JUnit summary report
 
@@ -873,14 +887,12 @@ files
 
 ## JaCoCo Additions Plugin
 
+Plugin ID: `org.myire.quill.jacoco`
+
 The JaCoCo Additions plugin applies the standard Gradle plugin `jacoco` to the project and
 configures the corresponding project extension and tasks with some defaults. The plugin applies the
 standard `java` plugin before applying the `jacoco` plugin to make the latter add the
 `jacocoTestReport` task to the project.
-
-### Usage
-
-    apply plugin: 'org.myire.quill.jacoco'
 
 ### Default values
 
@@ -907,17 +919,19 @@ report disabled. The `build`  task is also set to depend on the `jacocoTestRepor
 
 ## SpotBugs Additions Plugin
 
+Plugin ID: `org.myire.quill.spotbugs`
+
 The SpotBugs Additions plugin configures the project extension and tasks added by the
 [SpotBugs Gradle plugin](https://plugins.gradle.org/plugin/com.github.spotbugs) with some defaults
 and additions.
 
 Note that unlike the other plugins that enhance existing plugins, the SpotBugs Additions plugin does
-_not_ apply the SpotBugs Gradle plugin. That plugin must be applied explicitly in the build script.
+_not_ apply the SpotBugs Gradle plugin. That plugin must be applied explicitly in the build script:
 
-### Usage
-
-    plugins { id 'com.github.spotbugs' version '2.0.0' }
-    apply plugin: 'org.myire.quill.spotbugs'
+    plugins {
+        id 'com.github.spotbugs' version '2.0.0'
+        id 'org.myire.quill.spotbugs' version '2.1'
+    }
 
 ### Default values
 
@@ -961,28 +975,26 @@ configured per task, e.g. to use another XSL file than the one distributed in th
 
 ## Checkstyle Additions Plugin
 
+Plugin ID: `org.myire.quill.checkstyle`
+
 The Checkstyle Additions plugin applies the standard Gradle plugin `checkstyle` to the project and
 configures the corresponding project extension and tasks with some defaults and additions.
-
-### Usage
-
-    apply plugin: 'org.myire.quill.checkstyle'
 
 ### Default values
 
 The plugin configures the `checkstyle` extension in the project to let the build continue even if
 violations are found, and to not log every found violation. The Checkstyle version to use is set to
-8.23. This is equivalent to configuring the extension explicitly in the build script as follows:
+8.25. This is equivalent to configuring the extension explicitly in the build script as follows:
 
     checkstyle {
       ignoreFailures = true
       showViolations = false
-      toolVersion = '8.23'
+      toolVersion = '8.25'
     }
 
 The Checkstyle configuration file is specified to be the one bundled with the Quill jar. This
 configuration file is extracted to the path "tmp/checkstyle/checkstyle_config.xml" relative to the
-project's build directory. Note that this configuration file requires at least version 8.22 of
+project's build directory. Note that this configuration file requires at least version 8.24 of
 Checkstyle. When setting `toolVersion` to an older version of Checkstyle, another configuration file
 must be explicitly configured.
 
@@ -1033,12 +1045,10 @@ non-default file destination, e.g.
 
 ## PMD Additions Plugin
 
+Plugin ID: `org.myire.quill.pmd`
+
 The PMD Additions plugin applies the standard Gradle plugin `pmd` to the project and configures the
 corresponding project extension and tasks with some defaults and additions.
-
-### Usage
-
-    apply plugin: 'org.myire.quill.pmd'
 
 ### Default values
 
@@ -1160,14 +1170,12 @@ Filter out everything in files matching the pattern ".\*Test.\*\\.java":
 
 ## CPD Plugin
 
+Plugin ID: `org.myire.quill.cpd`
+
 The CPD plugin adds a verification task for copy-paste detection using the CPD tool that is part of
 the [PMD](https://pmd.github.io/latest) distribution.
 
 The plugin works with CPD version 6.1 or later.
-
-### Usage
-
-    apply plugin: 'org.myire.quill.cpd'
 
 ### Task
 
@@ -1282,12 +1290,10 @@ where `<toolVersion>` is the value of the `cpd` task's `toolVersion` property.
 
 ## Scent Plugin
 
+Plugin ID: `org.myire.quill.scent`
+
 The Scent plugin adds a task for collecting source code metrics using the
 [Scent](https://github.com/handmadecode/scent) library.
-
-### Usage
-
-    apply plugin: 'org.myire.quill.scent'
 
 ### Task
 
@@ -1300,7 +1306,7 @@ task uses the `main` source set's Java files as input files.
 In addition to the standard source task properties, the `scent` task's behaviour can be configured
 through the following properties:
 
-* `toolVersion` - a string specifying the version of Scent to use. Default is version "1.0".
+* `toolVersion` - a string specifying the version of Scent to use. Default is version "2.2".
 
 * `sourceEncoding` - a string specifying the encoding of the Java files, e.g. "UTF-8". If this
 property isn't specified the platform's default encoding will be used.
@@ -1365,15 +1371,13 @@ where `<toolVersion>` is the value of the `scent` task's `toolVersion` property.
 
 ## Reports Dashboard Plugin
 
+Plugin ID: `org.myire.quill.dashboard`
+
 The Reports Dashboard plugin creates a one-page HTML report containing a summary of some other
 reports generated during a build. It is somewhat similar to the standard Gradle Build Dashboard
 plugin, but it produces a much richer summary than simply adding links to all available reports.
 This comes at the price of needing to have explicit knowledge about the reports it summarizes. This
 means that the plugin cannot produce a summary for any unknown reports generated during a build.
-
-### Usage
-
-    apply plugin: 'org.myire.quill.dashboard'
 
 ### Task
 
@@ -1596,12 +1600,10 @@ To add a timestamp after the sections:
 
 ## Pom Plugin
 
+Plugin ID: `org.myire.quill.pom`
+
 The Pom plugin applies the Maven plugin to the project and adds a task for creating pom files
 outside the context of uploading to a Maven repository.
-
-### Usage
-
-    apply plugin: 'org.myire.quill.pom'
 
 ### Task
 
@@ -1678,13 +1680,11 @@ This method returns the `createPom` task instance to allow method chaining.
 
 ## Module Info Plugin
 
+Plugin ID: `org.myire.quill.moduleinfo`
+
 The Module Info plugin adds functionality for creating modular jar files for Java 8 projects. It
 adds a task for compiling a module declaration and another task for updating the modular jar file
 with a `ModuleMainClass` attribute in the `module-info.class` entry.
-
-### Usage
-
-    apply plugin: 'org.myire.quill.moduleinfo'
 
 ### The compileModuleInfo task
 
@@ -1729,6 +1729,8 @@ with Gradle version 4.2.1.
 
 ## Cobertura Plugin
 
+Plugin ID: `org.myire.quill.cobertura`
+
 The Cobertura plugin adds functionality for generating Cobertura test coverage reports to all tasks
 of type `Test`.
 
@@ -1738,12 +1740,7 @@ most use cases.
 Note that the latest release of Cobertura is from February 2015, and that it doesn't work with
 classes compiled for Java 11 or newer (the tool can however still be run with Java 11). Consider
 using the [JaCoCo Additions plugin](#jacoco-additions-plugin) instead for code coverage. Because of
-this, the Cobertura plugin is *not* applied by the 'all' plugin or by the 'core' plugin; it must
-always be applied explicitly.
-
-### Usage
-
-    apply plugin: 'org.myire.quill.cobertura'
+this, the Cobertura plugin is *not* applied by the 'core' plugin.
 
 ### Cobertura documentation
 
@@ -1909,18 +1906,15 @@ where `<toolVersion>` is the value of the `cobertura` extension's `toolVersion` 
 
 ## JDepend Additions Plugin
 
+Plugin ID: `org.myire.quill.jdepend`
+
 The JDepend Additions plugin applies the standard Gradle plugin `jdepend` to the project and
 configures the corresponding project extension and tasks with some defaults and additions. It also
 replaces the `jdepend` configuration's dependency on the standard JDepend distribution with a
 dependency on the [guru-nidi](https://github.com/nidi3/jdepend) fork.
 
 The `jdepend` plugin was deprecated in Gradle version 5 and is scheduled to be removed in Gradle
-version 6. Because of this, the JDepend Additions plugin is *not* applied by the 'all' plugin or by
-the 'core' plugin; it must always be applied explicitly.
-
-### Usage
-
-    apply plugin: 'org.myire.quill.jdepend'
+version 6. Because of this, the JDepend Additions plugin is *not* applied by the 'core' plugin.
 
 ### Configuration dependencies
 

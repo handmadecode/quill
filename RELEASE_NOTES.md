@@ -1,5 +1,6 @@
 # Quill Release Notes
 
+[version 2.1](#version-21)  
 [version 2.0](#version-20)  
 [version 1.5](#version-15)  
 [version 1.4](#version-14)  
@@ -10,6 +11,17 @@
 [version 0.11](#version-011)  
 [version 0.10](#version-010)  
 [version 0.9](#version-09)
+
+### version 2.1
+
+* The Quill plugins can be applied using the plugins DSL.
+* Checkstyle default version upgraded to 8.25. The built-in configuration file requires at least
+  version 8.24.
+* Checks `JavadocBlockTagLocation` and `UnnecessarySemicolonAfterTypeMemberDeclaration` added to
+  built-in Checkstyle configuration. The `NoWhitespaceAfter` check allows line breaks after an array
+  initialization's opening brace.
+* Scent default version upgraded to 2.2.
+
 
 ### version 2.0
 
