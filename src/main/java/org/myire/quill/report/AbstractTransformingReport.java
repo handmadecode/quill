@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2018, 2019 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018, 2019-2020 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -13,6 +13,7 @@ import java.util.Map;
 import groovy.lang.Closure;
 
 import org.gradle.api.Project;
+import org.gradle.api.tasks.Internal;
 
 
 /**
@@ -116,6 +117,7 @@ abstract class AbstractTransformingReport extends DefaultSingleFileReport implem
      *
      * @return  The XML input file.
      */
+    @Internal
     abstract protected File getInputFile();
 
 

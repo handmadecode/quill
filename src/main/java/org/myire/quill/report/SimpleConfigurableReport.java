@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Peter Franzen. All rights reserved.
+ * Copyright 2018, 2020 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -11,9 +11,11 @@ import java.io.File;
 import groovy.lang.Closure;
 
 import org.gradle.api.Project;
+import org.gradle.api.logging.Logger;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.reporting.ConfigurableReport;
 import org.gradle.api.reporting.Report;
+import org.gradle.api.tasks.Internal;
 import org.gradle.util.ConfigureUtil;
 
 import org.myire.quill.common.ProjectAware;
@@ -130,6 +132,24 @@ public class SimpleConfigurableReport extends ProjectAware implements Configurab
     public Report configure(Closure pConfigureClosure)
     {
         return ConfigureUtil.configureSelf(pConfigureClosure, this);
+    }
+
+
+    // Override to add @Internal annotation
+    @Override
+    @Internal
+    public Project getProject()
+    {
+        return super.getProject();
+    }
+
+
+    // Override to add @Internal annotation
+    @Override
+    @Internal
+    public Logger getProjectLogger()
+    {
+        return super.getProjectLogger();
     }
 
 
