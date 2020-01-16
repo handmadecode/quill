@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, 2018 Peter Franzen. All rights reserved.
+ * Copyright 2014, 2018, 2020 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -124,7 +124,7 @@ class JavaAdditionsPlugin implements Plugin<Project>
         aTask.description = 'Assembles a jar archive containing the main source code.';
         aTask.from aSourceSet.allSource;
         aTask.classifier = 'sources';
-        aTask.extension = 'jar';
+        setExtensionProperty(aTask, 'jar');
         aTask.group = 'build';
 
         fProject.artifacts.add('archives', aTask);
@@ -146,7 +146,7 @@ class JavaAdditionsPlugin implements Plugin<Project>
         aTask.dependsOn += aJavadocTask;
         aTask.from aJavadocTask.destinationDir;
         aTask.classifier = 'javadoc';
-        aTask.extension = 'jar';
+        setExtensionProperty(aTask, 'jar');
         aTask.group = 'build';
 
         fProject.artifacts.add('archives', aTask);
@@ -314,5 +314,21 @@ class JavaAdditionsPlugin implements Plugin<Project>
                                aSemanticVersionExtension?.longVersionString ?: pProject.version);
 
         pManifest.attributes(aPackageAttributes, pPackageName);
+    }
+
+
+    /**
+     * Set the property holding a jar's extension on a {@code Jar} task. The {@code extension}
+     * property was deprecated in Gradle 5.1 in favour of {@code archiveExtension}.
+     *
+     * @param pTask     The task.
+     * @param pValue    The property's value.
+     */
+    static private void setExtensionProperty(Jar pTask, String pValue)
+    {
+        if (pTask.hasProperty('archiveExtension'))
+            pTask.setProperty('archiveExtension', pValue);
+        else
+            pTask.extension = pValue;
     }
 }
