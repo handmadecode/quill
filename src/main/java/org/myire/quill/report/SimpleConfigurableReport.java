@@ -12,9 +12,11 @@ import groovy.lang.Closure;
 
 import org.gradle.api.Project;
 import org.gradle.api.logging.Logger;
+import org.gradle.api.provider.Property;
 import org.gradle.api.provider.Provider;
 import org.gradle.api.reporting.ConfigurableReport;
 import org.gradle.api.reporting.Report;
+import org.gradle.api.tasks.Input;
 import org.gradle.api.tasks.Internal;
 import org.gradle.util.ConfigureUtil;
 
@@ -30,8 +32,8 @@ public class SimpleConfigurableReport extends ProjectAware implements Configurab
     private final String fDisplayName;
     private final Report.OutputType fOutputType;
 
+    private final Property<Boolean> fRequiredProperty;
     private Object fDestination;
-    private boolean fEnabled;
 
 
     /**
@@ -51,9 +53,13 @@ public class SimpleConfigurableReport extends ProjectAware implements Configurab
             Report.OutputType pOutputType)
     {
         super(pProject);
+
         fName = pName;
         fDisplayName = pDisplayName;
         fOutputType = pOutputType;
+
+        fRequiredProperty = pProject.getObjects().property(Boolean.class);
+        fRequiredProperty.set(Boolean.FALSE);
     }
 
 
@@ -110,21 +116,21 @@ public class SimpleConfigurableReport extends ProjectAware implements Configurab
     @Override
     public boolean isEnabled()
     {
-        return fEnabled;
+        return fRequiredProperty.get().booleanValue();
     }
 
 
     @Override
     public void setEnabled(boolean pEnabled)
     {
-        fEnabled = pEnabled;
+        fRequiredProperty.set(Boolean.valueOf(pEnabled));
     }
 
 
     @Override
     public void setEnabled(Provider<Boolean> pProvider)
     {
-        fEnabled = pProvider.get().booleanValue();
+        fRequiredProperty.set(pProvider);
     }
 
 
@@ -132,6 +138,14 @@ public class SimpleConfigurableReport extends ProjectAware implements Configurab
     public Report configure(Closure pConfigureClosure)
     {
         return ConfigureUtil.configureSelf(pConfigureClosure, this);
+    }
+
+
+    // 6.1 compatibility.
+    @Input
+    public Property<Boolean> getRequired()
+    {
+        return fRequiredProperty;
     }
 
 
