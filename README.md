@@ -4,10 +4,9 @@ A collection of Gradle plugins. Some of the plugins enhance existing functionali
 others provide new functionality. All of the plugins can be used individually; they do not depend on
 each other.
 
-The Quill plugins are designed for use with Gradle 4.0 or later, except for the Module Info plugin,
-which requires Gradle 4.2.1 or later, and the SpotBugs Additions plugin, which requires Gradle 5.1
-or later. Any success in using the plugins with earlier versions of Gradle than 4.0 is purely
-coincidental.
+The Quill plugins are designed for use with Gradle 4.3 or later, except for the SpotBugs Additions
+plugin, which requires Gradle 5.1 or later. Any success in using the plugins with earlier versions
+of Gradle is purely coincidental.
 
 The Quill plugins were developed to support the author's way of working with Gradle. They may not
 appeal to the taste of those who work in different ways.
@@ -323,17 +322,21 @@ the dependency import.
 
 By default this property contains the mappings
 
-* 'test' -> 'testCompile'
+* 'compile' -> 'implementation'
+* 'test' -> 'testImplementation'
+* 'runtime' -> 'runtimeOnly'
 * 'provided' -> 'compileOnly'
 
-meaning that the scopes 'compile', 'runtime', and 'system' will be mapped to configurations with the
-same names.
+Note that the scope 'system' does not have an explicit default mapping and will thus be mapped to a
+configuration with the name 'system'. That configuration will have to be defined explicitly in the
+project if dependencies with the 'system' scope are imported.
 
-Example: to ignore all dependencies with scope 'system' and to map the 'provided' scope to the
-'compile' configuration instead of 'compileOnly', the mapping should be configured as
+If the default mappings aren't satisfactory they can be configured in the build script. For example,
+to ignore all dependencies with scope 'system' and to map the 'compile' scope to the 'api'
+configuration instead of 'implementation', the mapping should be configured as
 
     mavenImport.scopeToConfiguration['system'] = null
-    mavenImport.scopeToConfiguration['provided'] = 'compile'
+    mavenImport.scopeToConfiguration['compile'] = 'api'
 
 #### Library versions
 
@@ -984,12 +987,12 @@ configures the corresponding project extension and tasks with some defaults and 
 
 The plugin configures the `checkstyle` extension in the project to let the build continue even if
 violations are found, and to not log every found violation. The Checkstyle version to use is set to
-8.25. This is equivalent to configuring the extension explicitly in the build script as follows:
+8.28. This is equivalent to configuring the extension explicitly in the build script as follows:
 
     checkstyle {
       ignoreFailures = true
       showViolations = false
-      toolVersion = '8.25'
+      toolVersion = '8.28'
     }
 
 The Checkstyle configuration file is specified to be the one bundled with the Quill jar. This
@@ -1053,12 +1056,12 @@ corresponding project extension and tasks with some defaults and additions.
 ### Default values
 
 The plugin configures the `pmd` extension in the project to let the build continue even if
-violations are found, and to use version 6.17.0 of PMD. This is equivalent to configuring the
+violations are found, and to use version 6.20.0 of PMD. This is equivalent to configuring the
 extension explicitly in the build script as follows:
 
     pmd {
       ignoreFailures = true
-      toolVersion = '6.17.0'
+      toolVersion = '6.20.0'
     }
 
 The plugin removes the built-in PMD rule sets from the extension's configuration and specifies that
@@ -1191,7 +1194,7 @@ through the properties described below. Most of these properties are direct equi
 
 * `toolVersion` - a string specifying the version of CPD to use. The default is the version
 specified in `pmd.toolVersion`, or, if the `pmd` extension isn't available in the project, version
-"6.16.0". Note however that `pmd.toolVersion` is only used if it is equal to or greater than the
+"6.20.0". Note however that `pmd.toolVersion` is only used if it is equal to or greater than the
 minimum CPD version "6.1.0".
 
 * `cpdClasspath` - a `FileCollection` specifying the classpath containing the CPD classes used by

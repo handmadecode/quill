@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2019 Peter Franzen. All rights reserved.
+ * Copyright 2017-2020 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -18,6 +18,7 @@ import org.gradle.api.artifacts.Configuration;
 import org.gradle.api.artifacts.dsl.RepositoryHandler;
 import org.gradle.api.artifacts.repositories.ArtifactRepository;
 import org.gradle.api.file.FileCollection;
+import org.gradle.api.plugins.JavaPlugin;
 
 import org.myire.quill.common.ProjectAware;
 import org.myire.quill.common.Resolver;
@@ -325,8 +326,10 @@ public class MavenImportExtension extends ProjectAware
     static private Map<String, String> defaultScopeToConfiguration()
     {
         Map<String, String> aScopeToConfiguration = new HashMap<>();
-        aScopeToConfiguration.put("test", "testCompile");
-        aScopeToConfiguration.put("provided", "compileOnly");
+        aScopeToConfiguration.put("compile", JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME);
+        aScopeToConfiguration.put("test", JavaPlugin.TEST_IMPLEMENTATION_CONFIGURATION_NAME);
+        aScopeToConfiguration.put("runtime", JavaPlugin.RUNTIME_ONLY_CONFIGURATION_NAME);
+        aScopeToConfiguration.put("provided", JavaPlugin.COMPILE_ONLY_CONFIGURATION_NAME);
         return aScopeToConfiguration;
     }
 }

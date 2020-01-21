@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Peter Franzen. All rights reserved.
+ * Copyright 2018, 2020 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -10,8 +10,6 @@ import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.plugins.BasePlugin
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.plugins.quality.FindBugs
-import org.gradle.api.plugins.quality.JDepend
 import org.gradle.api.tasks.bundling.Jar
 
 import org.myire.quill.common.Projects
@@ -57,8 +55,8 @@ class ModuleInfoPlugin implements Plugin<Project>
         // Exclude the &quot;module-info.class&quot; from FindBugs and JDepend analysis if any such
         // tasks are available in the project. These tools can (currently) not read class files
         // newer than version 52 (Java 8).
-        pProject.afterEvaluate( { excludeModuleInfoFromTasks(FindBugs.class) } );
-        pProject.afterEvaluate( { excludeModuleInfoFromTasks(JDepend.class) } );
+        pProject.afterEvaluate( { excludeModuleInfoFromTasks(" org.gradle.api.plugins.quality.FindBugs") } );
+        pProject.afterEvaluate( { excludeModuleInfoFromTasks("org.gradle.api.plugins.quality.JDepend") } );
     }
 
 
@@ -122,22 +120,51 @@ class ModuleInfoPlugin implements Plugin<Project>
      * by renaming the file before the task executes, and renaming it back when the task is
      * finished.
      */
-    private void excludeModuleInfoFromTasks(Class<? extends Task> pTaskClass)
+    private void excludeModuleInfoFromTasks(String pTaskClassName)
     {
-        fProject.tasks.withType(pTaskClass)
+        Class<? extends Task> aTaskClass = findTaskClass(pTaskClassName);
+        if (aTaskClass != null)
         {
-            File aModuleInfoClass = new File(fCompileModuleInfoTask.destinationDir, 'module-info.class');
-            File aModuleInfoTmp = new File(fCompileModuleInfoTask.destinationDir, 'module-info.tmp');
+            fProject.tasks.withType(aTaskClass)
+            {
+                File aModuleInfoClass = new File(fCompileModuleInfoTask.destinationDir, 'module-info.class');
+                File aModuleInfoTmp = new File(fCompileModuleInfoTask.destinationDir, 'module-info.tmp');
 
-            doFirst {
-                if (aModuleInfoClass.exists())
-                    aModuleInfoClass.renameTo(aModuleInfoTmp);
-            }
+                doFirst {
+                    if (aModuleInfoClass.exists())
+                        aModuleInfoClass.renameTo(aModuleInfoTmp);
+                }
 
-            doLast {
-                if (aModuleInfoTmp.exists())
-                    aModuleInfoTmp.renameTo(aModuleInfoClass);
+                doLast {
+                    if (aModuleInfoTmp.exists())
+                        aModuleInfoTmp.renameTo(aModuleInfoClass);
+                }
             }
+        }
+    }
+
+
+    /**
+     * Find a task class by its name.
+     *
+     * @param pClassName    The name of the task class.
+     *
+     * @return  The task class, or null if the class with the specified name cannot be found or is
+     *          not a subclass of {@code Task}.
+     */
+    static private Class<? extends Task> findTaskClass(String pClassName)
+    {
+        try
+        {
+            Class<?> aClass = Class.forName(pClassName);
+            if (Task.class.isAssignableFrom(aClass))
+                return (Class<? extends Task>) aClass;
+            else
+                return null;
+        }
+        catch (Throwable ignore)
+        {
+            return null;
         }
     }
 }

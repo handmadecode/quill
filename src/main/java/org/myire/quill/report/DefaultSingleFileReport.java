@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2018 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018, 2020 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -10,8 +10,12 @@ import java.io.File;
 import groovy.lang.Closure;
 
 import org.gradle.api.Project;
+import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.reporting.Report;
 import org.gradle.api.reporting.SingleFileReport;
+import org.gradle.api.tasks.OutputFile;
+
+import org.myire.quill.common.Providers;
 
 
 /**
@@ -19,6 +23,9 @@ import org.gradle.api.reporting.SingleFileReport;
  */
 public class DefaultSingleFileReport extends DefaultDestinationReport implements SingleFileReport
 {
+    private RegularFileProperty fOutputLocation;
+
+
     /**
      * Create a new {@code DefaultSingleFileReport}.
      *
@@ -41,5 +48,19 @@ public class DefaultSingleFileReport extends DefaultDestinationReport implements
               pDisplayName,
               Report.OutputType.FILE,
               pDefaultDestination);
+    }
+
+
+    // 6.1 compatibility
+    @OutputFile
+    public RegularFileProperty getOutputLocation()
+    {
+        if (fOutputLocation == null)
+        {
+            fOutputLocation = Providers.createFileProperty(getProject());
+            fOutputLocation.set(getDestination());
+        }
+
+        return fOutputLocation;
     }
 }

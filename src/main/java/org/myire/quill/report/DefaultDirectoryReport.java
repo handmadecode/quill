@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2018 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018, 2020 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -10,8 +10,12 @@ import java.io.File;
 import groovy.lang.Closure;
 
 import org.gradle.api.Project;
+import org.gradle.api.file.DirectoryProperty;
 import org.gradle.api.reporting.DirectoryReport;
 import org.gradle.api.reporting.Report;
+import org.gradle.api.tasks.OutputDirectory;
+
+import org.myire.quill.common.Providers;
 
 
 /**
@@ -20,6 +24,7 @@ import org.gradle.api.reporting.Report;
 public class DefaultDirectoryReport extends DefaultDestinationReport implements DirectoryReport
 {
     private final String fEntryPointRelativePath;
+    private DirectoryProperty fOutputLocation;
 
 
     /**
@@ -59,5 +64,19 @@ public class DefaultDirectoryReport extends DefaultDestinationReport implements 
             return new File(getDestination(), fEntryPointRelativePath);
         else
             return getDestination();
+    }
+
+
+    // 6.1 compatibility
+    @OutputDirectory
+    public DirectoryProperty getOutputLocation()
+    {
+        if (fOutputLocation == null)
+        {
+            fOutputLocation = Providers.createDirectoryProperty(getProject());
+            fOutputLocation.set(getDestination());
+        }
+
+        return fOutputLocation;
     }
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2019 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2019-2020 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -14,7 +14,6 @@ import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.plugins.Convention;
 import org.gradle.api.plugins.quality.Checkstyle;
-import org.gradle.api.plugins.quality.JDepend;
 import org.gradle.api.plugins.quality.Pmd;
 import org.gradle.api.reporting.Report;
 import org.gradle.api.reporting.ReportContainer;
@@ -52,11 +51,18 @@ class DashboardSectionFactory extends ProjectAware
 
     // The SpotBugs classes can't be referenced explicitly since the SpotBugs plugin may not be
     // available.
-    static private final Class<? extends Task> cSpotBugsTaskClass = getSpotBugsTaskClass();
+    static private final Class<? extends Task> cSpotBugsTaskClass =
+        getTaskClass("com.github.spotbugs.SpotBugsTask");
 
-    // The cobertura classes can't be referenced explicitly since the're still in the Groovy source
+    // The JDepend classes can't be referenced explicitly since the JDepend plugin may not be
+    // available (it was removed in Gradle 6.0).
+    static private final Class<? extends Task> cJDependTaskClass =
+        getTaskClass("org.gradle.api.plugins.quality.JDepend");
+
+    // The Cobertura classes can't be referenced explicitly since the're still in the Groovy source
     // tree.
-    static private final Class<? extends Task> cCoberturaReportsTaskClass = getCoberturaReportsTaskClass();
+    static private final Class<? extends Task> cCoberturaReportsTaskClass =
+        getTaskClass("org.myire.quill.cobertura.CoberturaReportsTask");
 
 
     /**
@@ -86,8 +92,6 @@ class DashboardSectionFactory extends ProjectAware
             return createCpdSection((CpdTask) pTask);
         else if (pTask instanceof JacocoReport)
             return createJacocoSection((JacocoReport) pTask);
-        else if (pTask instanceof JDepend)
-            return createJDependSection((JDepend) pTask);
         else if (pTask instanceof Test)
             return createJUnitSection((Test) pTask);
         else if (pTask instanceof Pmd)
@@ -96,6 +100,8 @@ class DashboardSectionFactory extends ProjectAware
             return createScentSection((ScentTask) pTask);
         else if (cSpotBugsTaskClass != null && cSpotBugsTaskClass.isAssignableFrom(pTask.getClass()))
             return createSpotBugsSection(pTask);
+        else if (cJDependTaskClass != null && cJDependTaskClass.isAssignableFrom(pTask.getClass()))
+            return createJDependSection(pTask);
         else if (cCoberturaReportsTaskClass != null && cCoberturaReportsTaskClass.isAssignableFrom(pTask.getClass()))
             return createCoberturaSection(pTask);
         else
@@ -112,7 +118,8 @@ class DashboardSectionFactory extends ProjectAware
         if (cCoberturaReportsTaskClass != null)
             addSectionsForTaskType(aSections, cCoberturaReportsTaskClass, this::createCoberturaSection);
         addSectionsForTaskType(aSections, ScentTask.class, this::createScentSection);
-        addSectionsForTaskType(aSections, JDepend.class, this::createJDependMainSection);
+        if (cJDependTaskClass != null)
+            addSectionsForTaskType(aSections, cJDependTaskClass, this::createJDependMainSection);
         if (cSpotBugsTaskClass != null)
             addSectionsForTaskType(aSections, cSpotBugsTaskClass, this::createSpotBugsMainSection);
         addSectionsForTaskType(aSections, Checkstyle.class, this::createCheckstyleMainSection);
@@ -239,7 +246,7 @@ class DashboardSectionFactory extends ProjectAware
      * @return  A new {@code DashboardSection}, or null if the task isn't the
      *          &quot;jdependMain&quot; task.
      */
-    private DashboardSection createJDependMainSection(JDepend pTask)
+    private DashboardSection createJDependMainSection(Task pTask)
     {
         if ("jdependMain".equals(pTask.getName()))
             return createJDependSection(pTask);
@@ -255,20 +262,11 @@ class DashboardSectionFactory extends ProjectAware
      *
      * @return  A new {@code DashboardSection}.
      */
-    private DashboardSection createJDependSection(JDepend pTask)
+    private DashboardSection createJDependSection(Task pTask)
     {
-        Report aDetailedReport = null;
-
-        Convention aConvention = pTask.getConvention();
-        if (aConvention != null)
-            aDetailedReport = (Report) aConvention.findByName(ENHANCED_CHECK_TASK_REPORT_NAME);
-
-        return new DashboardSection(
-            pTask.getProject(),
-            pTask.getName(),
-            pTask.getReports().getXml(),
-            aDetailedReport,
-            XSL_RESOURCE_JDEPEND);
+        // Can't refer to the JDepend plugin types since they plugin may not be available (it was
+        // removed in Gradle 6.0).
+        return createReportingTaskSection(pTask, XSL_RESOURCE_JDEPEND);
     }
 
 
@@ -397,32 +395,7 @@ class DashboardSectionFactory extends ProjectAware
     private DashboardSection createSpotBugsSection(Task pTask)
     {
         // Can't refer to the SpotBugs plugin types since they plugin may not be available.
-        ReportContainer<?> aReports = null;
-        if (pTask instanceof Reporting<?>)
-            aReports = ((Reporting<?>) pTask).getReports();
-
-        if (aReports == null)
-            return null;
-
-        Report aXmlReport =  aReports.getByName("xml");
-        if (aXmlReport == null)
-            return null;
-
-        Report aDetailedReport = null;
-
-        Convention aConvention = pTask.getConvention();
-        if (aConvention != null)
-            aDetailedReport = (Report) aConvention.findByName(ENHANCED_CHECK_TASK_REPORT_NAME);
-
-        if (aDetailedReport == null)
-            aDetailedReport = aReports.getByName("html");
-
-        return new DashboardSection(
-            pTask.getProject(),
-            pTask.getName(),
-            aXmlReport,
-            aDetailedReport,
-            XSL_RESOURCE_SPOTBUGS);
+        return createReportingTaskSection(pTask, XSL_RESOURCE_SPOTBUGS);
     }
 
 
@@ -456,41 +429,59 @@ class DashboardSectionFactory extends ProjectAware
 
 
     /**
-     * Get the &quot;com.github.spotbugs.SpotBugsTask&quot; class.
+     * Create a dashboard section for the XML and HTML reports, if available, of a {@code Reporting}
+     * task.
      *
-     * @return  The class, or null if not found.
+     * @param pTask         The task.
+     * @param pXslResource  The dashboard section's default XSL resource.
+     *
+     * @return  A new {@code DashboardSection}, or null if {@code pTask} does not implement the
+     *          {@code Reporting} interface or does not have an XML report.
      */
-    @SuppressWarnings("unchecked")
-    static private Class<? extends Task> getSpotBugsTaskClass()
+    static private DashboardSection createReportingTaskSection(Task pTask, String pXslResource)
     {
-        try
-        {
-            Class<?> aClass = Class.forName("com.github.spotbugs.SpotBugsTask");
-            if (Task.class.isAssignableFrom(aClass))
-                return (Class<? extends Task>) aClass;
-            else
-                // Shouldn't happen unless the classpath contains an unexpected class with the
-                // expected name.
-                return null;
-        }
-        catch (ClassNotFoundException ignore)
-        {
+        ReportContainer<?> aReports = null;
+        if (pTask instanceof Reporting<?>)
+            aReports = ((Reporting<?>) pTask).getReports();
+
+        if (aReports == null)
             return null;
-        }
+
+        Report aXmlReport =  aReports.getByName("xml");
+        if (aXmlReport == null)
+            return null;
+
+        Report aDetailedReport = null;
+
+        Convention aConvention = pTask.getConvention();
+        if (aConvention != null)
+            aDetailedReport = (Report) aConvention.findByName(ENHANCED_CHECK_TASK_REPORT_NAME);
+
+        if (aDetailedReport == null)
+            aDetailedReport = aReports.getByName("html");
+
+        return new DashboardSection(
+            pTask.getProject(),
+            pTask.getName(),
+            aXmlReport,
+            aDetailedReport,
+            pXslResource);
     }
 
 
     /**
-     * Get the &quot;org.myire.quill.cobertura.CoberturaReportsTask&quot; class.
+     * Get a task class by its fully qualified name.
+     *
+     * @param pClassName    The name of the class.
      *
      * @return  The class, or null if not found.
      */
     @SuppressWarnings("unchecked")
-    static private Class<? extends Task> getCoberturaReportsTaskClass()
+    static private Class<? extends Task> getTaskClass(String pClassName)
     {
         try
         {
-            Class<?> aClass = Class.forName("org.myire.quill.cobertura.CoberturaReportsTask");
+            Class<?> aClass = Class.forName(pClassName);
             if (Task.class.isAssignableFrom(aClass))
                 return (Class<? extends Task>) aClass;
             else
