@@ -1,5 +1,6 @@
 # Quill Release Notes
 
+[version 2.2](#version-22)  
 [version 2.1](#version-21)  
 [version 2.0](#version-20)  
 [version 1.5](#version-15)  
@@ -11,6 +12,17 @@
 [version 0.11](#version-011)  
 [version 0.10](#version-010)  
 [version 0.9](#version-09)
+
+### version 2.2
+
+* Support for Gradle 6.
+* Requires Gradle 4.3 to run, tested up to version 6.1.
+* Default `scopeToConfiguration` mapping in the
+  [Maven Import plugin](./README.md#maven-import-plugin) changed to use configurations not scheduled
+  for removal in Gradle 7.
+* Checkstyle default version upgraded to 8.28.
+* PMD and CPD default versions upgraded to 6.20.
+
 
 ### version 2.1
 
