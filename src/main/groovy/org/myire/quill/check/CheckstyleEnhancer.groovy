@@ -27,7 +27,7 @@ class CheckstyleEnhancer extends AbstractPluginEnhancer<Checkstyle>
 {
     static private final String CHECKSTYLE_TOOL_NAME = 'Checkstyle'
     static private final String CHECKSTYLE_EXTENSION_NAME = CHECKSTYLE_TOOL_NAME.toLowerCase()
-    static private final String DEFAULT_TOOL_VERSION = '8.25'
+    static private final String DEFAULT_TOOL_VERSION = '8.28'
 
     // The file name to use when extracting the built-in config file from its resource.
     static private final String BUILTIN_CONFIG_FILE_NAME = 'checkstyle_config.xml'
