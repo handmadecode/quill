@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2019 Peter Franzen. All rights reserved.
+ * Copyright 2018-2020 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -39,6 +39,26 @@ public class FileBasedTest
 
 
     /**
+     * Create a temporary file. If successfully created, the file will be put into the list of files
+     * to be automatically deleted when the test finishes.
+     *
+     * @param pPrefix   The temporary file's prefix, possibly null.
+     * @param pSuffix   The temporary file's suffix, possibly null.
+     *
+     * @return  A {@code Path} referring to the created files.
+     *
+     * @throws IOException  if creating the file fails.
+     */
+    protected Path createTemporaryFile(String pPrefix, String pSuffix)
+        throws IOException
+    {
+        Path aPath = Files.createTempFile(pPrefix, pSuffix);
+        fCreatedFiles.add(aPath);
+        return aPath;
+    }
+
+
+    /**
      * Create a temporary file and write a sequence of text lines to it. If successfully created,
      * the file will be put into the list of files to be automatically deleted when the test
      * finishes.
@@ -55,8 +75,7 @@ public class FileBasedTest
     protected Path createTemporaryFile(String pPrefix, String pSuffix, Collection<String> pLines)
         throws IOException
     {
-        Path aPath = Files.createTempFile(pPrefix, pSuffix);
-        fCreatedFiles.add(aPath);
+        Path aPath = createTemporaryFile(pPrefix, pSuffix);
         Files.write(aPath, pLines);
         return aPath;
     }
