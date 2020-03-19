@@ -63,6 +63,12 @@ gradlePlugin
             implementationClass = 'org.myire.quill.check.JDependAdditionsPlugin'
         }
 
+        quillJolPlugin
+        {
+            id = 'org.myire.quill.jol'
+            implementationClass = 'org.myire.quill.jol.JolPlugin'
+        }
+
         quillJunitPlugin
         {
             id = 'org.myire.quill.junit'
@@ -192,6 +198,13 @@ pluginBundle
             displayName = 'Quill JDepend Additions plugin'
             description = 'Configuration of and additional functionality for the standard JDepend plugin'
             tags = ['jdepend', 'defaults', 'enhancements']
+        }
+
+        quillJolPlugin
+        {
+            displayName = 'Quill Java Object Layout plugin'
+            description = 'Java Object Layout report created with the jol-core library'
+            tags = ['jol', 'object', 'layout']
         }
 
         quillJunitPlugin
