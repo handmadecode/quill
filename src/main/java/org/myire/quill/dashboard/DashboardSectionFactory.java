@@ -23,6 +23,7 @@ import org.gradle.testing.jacoco.tasks.JacocoReport;
 
 import org.myire.quill.common.ProjectAware;
 import org.myire.quill.cpd.CpdTask;
+import org.myire.quill.jol.JolTask;
 import org.myire.quill.report.FormatChoiceReport;
 import org.myire.quill.report.ReportSet;
 import org.myire.quill.report.ReportingEntity;
@@ -40,6 +41,7 @@ class DashboardSectionFactory extends ProjectAware
     static private final String XSL_RESOURCE_CPD = "/org/myire/quill/rsrc/report/cpd/cpd_summary.xsl";
     static private final String XSL_RESOURCE_JACOCO = "/org/myire/quill/rsrc/report/jacoco/jacoco_summary.xsl";
     static private final String XSL_RESOURCE_JDEPEND = "/org/myire/quill/rsrc/report/jdepend/jdepend_summary.xsl";
+    static private final String XSL_RESOURCE_JOL = "/org/myire/quill/rsrc/report/jol/jol_summary.xsl";
     static private final String XSL_RESOURCE_JUNIT = "/org/myire/quill/rsrc/report/junit/junit_summary.xsl";
     static private final String XSL_RESOURCE_PMD = "/org/myire/quill/rsrc/report/pmd/pmd_summary.xsl";
     static private final String XSL_RESOURCE_SCENT = "/org/myire/quill/rsrc/report/scent/scent_summary.xsl";
@@ -98,6 +100,8 @@ class DashboardSectionFactory extends ProjectAware
             return createPmdSection((Pmd) pTask);
         else if (pTask instanceof ScentTask)
             return createScentSection((ScentTask) pTask);
+        else if (pTask instanceof JolTask)
+            return createJolSection((JolTask) pTask);
         else if (cSpotBugsTaskClass != null && cSpotBugsTaskClass.isAssignableFrom(pTask.getClass()))
             return createSpotBugsSection(pTask);
         else if (cJDependTaskClass != null && cJDependTaskClass.isAssignableFrom(pTask.getClass()))
@@ -117,14 +121,15 @@ class DashboardSectionFactory extends ProjectAware
         addSectionsForTaskType(aSections, JacocoReport.class, this::createJacocoSection);
         if (cCoberturaReportsTaskClass != null)
             addSectionsForTaskType(aSections, cCoberturaReportsTaskClass, this::createCoberturaSection);
-        addSectionsForTaskType(aSections, ScentTask.class, this::createScentSection);
-        if (cJDependTaskClass != null)
-            addSectionsForTaskType(aSections, cJDependTaskClass, this::createJDependMainSection);
         if (cSpotBugsTaskClass != null)
             addSectionsForTaskType(aSections, cSpotBugsTaskClass, this::createSpotBugsMainSection);
         addSectionsForTaskType(aSections, Checkstyle.class, this::createCheckstyleMainSection);
         addSectionsForTaskType(aSections, Pmd.class, this::createPmdMainSection);
         addSectionsForTaskType(aSections, CpdTask.class, this::createCpdSection);
+        addSectionsForTaskType(aSections, ScentTask.class, this::createScentSection);
+        addSectionsForTaskType(aSections, JolTask.class, this::createJolSection);
+        if (cJDependTaskClass != null)
+            addSectionsForTaskType(aSections, cJDependTaskClass, this::createJDependMainSection);
 
         return aSections;
     }
@@ -267,6 +272,24 @@ class DashboardSectionFactory extends ProjectAware
         // Can't refer to the JDepend plugin types since they plugin may not be available (it was
         // removed in Gradle 6.0).
         return createReportingTaskSection(pTask, XSL_RESOURCE_JDEPEND);
+    }
+
+
+    /**
+     * Create a dashboard section for the XML report of a Jol task.
+     *
+     * @param pTask The Jol task.
+     *
+     * @return  A new {@code DashboardSection}.
+     */
+    private DashboardSection createJolSection(JolTask pTask)
+    {
+        return new DashboardSection(
+            pTask.getProject(),
+            pTask.getName(),
+            pTask.getReports().getXml(),
+            pTask.getReports().getHtml(),
+            XSL_RESOURCE_JOL);
     }
 
 

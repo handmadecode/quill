@@ -1616,13 +1616,6 @@ report is the task's `html` report.
 * All tasks of type `CoberturaReportsTask` (see the [Cobertura plugin](#cobertura-plugin)). The
 summarized report is the task's `xml` report and the linked report is the task's `html` report.
 
-* All tasks of type `ScentTask` (see the [Scent plugin](#scent-plugin)). The summarized report is
-the task's `xml` report and the linked report is the task's `html` report.
-
-* The `jdependMain` task, if present. The summarized report is the task's `xml` report and the
-linked report is the task's XSL transformation report, if one exists (see the
-[JDepend Additions plugin](#jdepend-additions-plugin)).
-
 * The `spotbugsMain` task, if present. The summarized report is the task's `xml` report and the
 linked report is the task's XSL transformation report, if one exists (see the
 [SpotBugs Additions plugin](#spotbugs-additions-plugin)).
@@ -1639,6 +1632,16 @@ task's `html` report.
 
 * All tasks of type `CpdTask` that have "xml" as the format for the primary report (see the
 [CPD plugin](#cpd-plugin)). The linked report is the task's `html` report.
+
+* All tasks of type `ScentTask` (see the [Scent plugin](#scent-plugin)). The summarized report is
+the task's `xml` report and the linked report is the task's `html` report.
+
+* All tasks of type `JolTask` (see the [Jol plugin](#jol-plugin)). The summarized report is
+the task's `xml` report and the linked report is the task's `html` report.
+
+* The `jdependMain` task, if present. The summarized report is the task's `xml` report and the
+linked report is the task's XSL transformation report, if one exists (see the
+[JDepend Additions plugin](#jdepend-additions-plugin)).
 
 Note that these default report sections use XSL files bundled with the Quill jar, and thus appear to
 have no XSL file configured.
