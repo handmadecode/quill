@@ -5,12 +5,12 @@
  */
 package org.myire.quill.check
 
+import org.gradle.api.GradleException
 import org.gradle.api.Project
-
-import com.github.spotbugs.SpotBugsExtension
-import com.github.spotbugs.SpotBugsTask
-
-import org.myire.quill.common.Projects
+import org.gradle.api.Task
+import org.gradle.api.plugins.quality.CodeQualityExtension
+import org.gradle.api.reporting.Report
+import org.gradle.api.tasks.SourceSet
 
 
 /**
@@ -19,11 +19,12 @@ import org.myire.quill.common.Projects
  * a {@code TransformingReport} added to its convention. This report will, if enabled, create an
  * HTML report from the XML report by applying an XSL transformation.
  */
-class SpotBugsEnhancer extends AbstractPluginEnhancer<SpotBugsTask>
+class SpotBugsEnhancer extends AbstractPluginEnhancer<Task>
 {
     static private final String SPOTBUGS_TOOL_NAME = 'SpotBugs'
     static private final String SPOTBUGS_EXTENSION_NAME = SPOTBUGS_TOOL_NAME.toLowerCase()
-    static private final String DEFAULT_TOOL_VERSION = '3.1.12'
+
+    private final Class<Task> fTaskClass;
 
 
     /**
@@ -34,13 +35,14 @@ class SpotBugsEnhancer extends AbstractPluginEnhancer<SpotBugsTask>
     SpotBugsEnhancer(Project pProject)
     {
         super(pProject, SPOTBUGS_TOOL_NAME);
+        fTaskClass = loadSpotBugsTaskClass(pProject);
     }
 
 
     @Override
-    Class<SpotBugsTask> getTaskClass()
+    Class<Task> getTaskClass()
     {
-        return SpotBugsTask.class;
+        return fTaskClass;
     }
 
 
@@ -50,29 +52,90 @@ class SpotBugsEnhancer extends AbstractPluginEnhancer<SpotBugsTask>
     @Override
     void configureExtension()
     {
-        // Set the common defaults for all code quality extensions and the default tool version.
-        SpotBugsExtension aExtension = Projects.getExtension(project, SPOTBUGS_EXTENSION_NAME, SpotBugsExtension.class);
-        configureCodeQualityExtension(aExtension);
-        aExtension?.toolVersion = DEFAULT_TOOL_VERSION;
+        Object aExtension = project.getExtensions().findByName(SPOTBUGS_EXTENSION_NAME);
+        if (aExtension instanceof CodeQualityExtension)
+        {
+            // Set the defaults shared by all code quality extensions.
+            configureCodeQualityExtension((CodeQualityExtension) aExtension);
+        }
+        else if (aExtension != null)
+        {
+            // The extension in SpotBugsPlugin v4 or later does not implement CodeQualityExtension,
+            // it must be configured differently.
+            if (aExtension.hasProperty("ignoreFailures"))
+                aExtension.ignoreFailures = true;
+
+            // There is no sourceSets property in v4, so the disableTestChecks methods instead
+            // clears the classes to analyze for the spotbugsTest task.
+            aExtension.metaClass.disableTestChecks
+            {
+                project.tasks.withType(fTaskClass)
+                {
+                    if (it.name.toLowerCase().endsWith(SourceSet.TEST_SOURCE_SET_NAME))
+                        it.classes = project.files();
+                }
+            }
+        }
     }
 
 
     @Override
-    AbstractCheckTaskEnhancer<SpotBugsTask> createTaskEnhancer(SpotBugsTask pTask)
+    AbstractCheckTaskEnhancer<Task> createTaskEnhancer(Task pTask)
     {
         return new SpotBugsTaskEnhancer(pTask);
     }
 
 
     /**
+     * Load the {@code SpotBugsTask} class available to the current class loader. The
+     * {@code SpotBugsTask} class was moved from package {@code com.github.spotbugs} to
+     * {@code com.github.spotbugs.snom} in version 4 of the SpotBugsPlugin.
+     *
+     * @param pProject  The project to log the class loading with.
+     *
+     * @return  The loaded {@code SpotBugsTask} class.
+     *
+     * @throws GradleException  if no {@code SpotBugsTask} class could be loaded.
+     * @throws NullPointerException if {@code pProject} is null.
+     */
+    static private Class<Task> loadSpotBugsTaskClass(Project pProject)
+    {
+        String[] aCandidates = [
+                "com.github.spotbugs.SpotBugsTask",
+                "com.github.spotbugs.snom.SpotBugsTask"
+        ];
+
+        for (String aCandidate in aCandidates)
+        {
+            try
+            {
+                pProject.logger.debug("Trying to load class {}", aCandidate);
+                Class<?> aClass = Class.forName(aCandidate);
+                if (Task.class.isAssignableFrom(aClass))
+                {
+                    pProject.logger.debug("Successfully loaded class {}", aCandidate);
+                    return (Class<Task>) aClass;
+                }
+            }
+            catch (ClassNotFoundException | NoClassDefFoundError ignore)
+            {
+                pProject.logger.debug("Failed to to load class {}", aCandidate);
+            }
+        }
+
+        throw new GradleException("Could not load any known SpotBugsTask class");
+    }
+
+
+    /**
      * Enhancer for {@code SpotBugs} tasks.
      */
-    static private class SpotBugsTaskEnhancer extends AbstractCheckTaskEnhancer<SpotBugsTask>
+    static private class SpotBugsTaskEnhancer extends AbstractCheckTaskEnhancer<Task>
     {
         static private final String BUILTIN_SPOTBUGS_XSL =
                 '/org/myire/quill/rsrc/report/spotbugs/spotbugs.xsl'
 
-        SpotBugsTaskEnhancer(SpotBugsTask pTask)
+        SpotBugsTaskEnhancer(Task pTask)
         {
             super(pTask);
         }
@@ -80,11 +143,24 @@ class SpotBugsEnhancer extends AbstractPluginEnhancer<SpotBugsTask>
         @Override
         void enhance()
         {
-            // Include bug descriptions in the XML report.
-            task.reports.xml.withMessages = true;
+            // Starting with version 4 of the plugin the reports are referenced by name, not as
+            // properties.
+            if (task.reports.hasProperty("xml"))
+            {
+                // Include bug descriptions in the XML report.
+                task.reports.xml.withMessages = true;
 
-            // Add an HTML report that is created by transforming the XML report.
-            addTransformingReport(task.reports.getXml(), BUILTIN_SPOTBUGS_XSL);
+                // Add an HTML report that is created by transforming the XML report.
+                addTransformingReport(task.reports.getXml(), BUILTIN_SPOTBUGS_XSL);
+            }
+            else
+            {
+                // This version of the XML report always includes bug descriptions, only install the
+                // transforming report.
+                def aXmlReport = task.reports.maybeCreate('xml');
+                if (aXmlReport instanceof Report)
+                    addTransformingReport((Report) aXmlReport, BUILTIN_SPOTBUGS_XSL);
+            }
         }
     }
 }

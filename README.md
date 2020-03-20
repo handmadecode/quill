@@ -934,23 +934,23 @@ Note that unlike the other plugins that enhance existing plugins, the SpotBugs A
 _not_ apply the SpotBugs Gradle plugin. That plugin must be applied explicitly in the build script:
 
     plugins {
-        id 'com.github.spotbugs' version '2.0.0'
-        id 'org.myire.quill.spotbugs' version '2.1'
+        id 'com.github.spotbugs' version '4.0.4'
+        id 'org.myire.quill.spotbugs' version '2.3'
     }
 
 ### Default values
 
 The plugin configures the `spotbugs` extension in the project to let the build continue even if
-violations are found, and to use SpotBugs version 3.1.12 as the default version. This is equivalent
-to configuring the extension explicitly in the build script as follows:
+violations are found. This is equivalent to configuring the extension explicitly in the build script
+as follows:
 
     spotbugs {
       ignoreFailures = true
-      toolVersion = '3.1.12'
     }
 
-All tasks of type `SpotBugsTask` (normally `spotbugsMain` and `spotbugsTest`) are configured to
-produce XML reports with messages, which is equivalent to the build script configuration
+If version 3.0 or older of the `com.github.spotbugs` plugin is used, all tasks of type
+`SpotBugsTask` (normally `spotbugsMain` and `spotbugsTest`) are configured to produce XML reports
+with messages, which is equivalent to the build script configuration
 
     tasks.withType(SpotBugsTask) {
       reports.xml.withMessages = true
@@ -959,8 +959,8 @@ produce XML reports with messages, which is equivalent to the build script confi
 ### Extension additions
 
 A method with the name `disableTestChecks` is added to the `spotbugs` extension. If this method is
-called in the build script it will remove the `test` source set from the extension's source sets,
-thus disabling the `spotbugsTest` task:
+called in the build script it sets the classes to analyze in the `spotbugsTest` task to an empty
+collection, thus disabling that task:
 
     spotbugs.disableTestChecks()
 
