@@ -112,15 +112,23 @@
         </xsl:call-template>
       </tr>
       <tr>
-        <td class="label">Statements:</td>
+        <td class="label">Fields:</td>
         <xsl:call-template name="output-value-cell">
-          <xsl:with-param name="value" select="summary/@statements"/>
+          <xsl:with-param name="value" select="summary/@fields"/>
         </xsl:call-template>
         <td/>
         <td class="label">Block comment lines:</td>
         <xsl:call-template name="output-value-cell">
           <xsl:with-param name="value" select="summary/@block-comments-lines"/>
         </xsl:call-template>
+      </tr>
+      <tr>
+        <td class="label">Statements:</td>
+        <xsl:call-template name="output-value-cell">
+          <xsl:with-param name="value" select="summary/@statements"/>
+        </xsl:call-template>
+        <td/>
+        <td colspan="2"/>
       </tr>
     </table>
   </xsl:template>
