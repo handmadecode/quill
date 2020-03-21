@@ -10,19 +10,20 @@ import java.util.Collection;
 import java.util.Objects;
 import java.util.function.Function;
 
+import org.gradle.api.NamedDomainObjectCollection;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.plugins.Convention;
 import org.gradle.api.plugins.quality.Checkstyle;
 import org.gradle.api.plugins.quality.Pmd;
 import org.gradle.api.reporting.Report;
-import org.gradle.api.reporting.ReportContainer;
-import org.gradle.api.reporting.Reporting;
 import org.gradle.api.tasks.testing.Test;
 import org.gradle.testing.jacoco.tasks.JacocoReport;
 
 import org.myire.quill.common.ProjectAware;
+import org.myire.quill.common.Util;
 import org.myire.quill.cpd.CpdTask;
+import org.myire.quill.jol.JolTask;
 import org.myire.quill.report.FormatChoiceReport;
 import org.myire.quill.report.ReportSet;
 import org.myire.quill.report.ReportingEntity;
@@ -40,6 +41,7 @@ class DashboardSectionFactory extends ProjectAware
     static private final String XSL_RESOURCE_CPD = "/org/myire/quill/rsrc/report/cpd/cpd_summary.xsl";
     static private final String XSL_RESOURCE_JACOCO = "/org/myire/quill/rsrc/report/jacoco/jacoco_summary.xsl";
     static private final String XSL_RESOURCE_JDEPEND = "/org/myire/quill/rsrc/report/jdepend/jdepend_summary.xsl";
+    static private final String XSL_RESOURCE_JOL = "/org/myire/quill/rsrc/report/jol/jol_summary.xsl";
     static private final String XSL_RESOURCE_JUNIT = "/org/myire/quill/rsrc/report/junit/junit_summary.xsl";
     static private final String XSL_RESOURCE_PMD = "/org/myire/quill/rsrc/report/pmd/pmd_summary.xsl";
     static private final String XSL_RESOURCE_SCENT = "/org/myire/quill/rsrc/report/scent/scent_summary.xsl";
@@ -53,6 +55,8 @@ class DashboardSectionFactory extends ProjectAware
     // available.
     static private final Class<? extends Task> cSpotBugsTaskClass =
         getTaskClass("com.github.spotbugs.SpotBugsTask");
+    static private final Class<? extends Task> cSpotBugs4TaskClass =
+        getTaskClass("com.github.spotbugs.snom.SpotBugsTask");
 
     // The JDepend classes can't be referenced explicitly since the JDepend plugin may not be
     // available (it was removed in Gradle 6.0).
@@ -98,7 +102,11 @@ class DashboardSectionFactory extends ProjectAware
             return createPmdSection((Pmd) pTask);
         else if (pTask instanceof ScentTask)
             return createScentSection((ScentTask) pTask);
+        else if (pTask instanceof JolTask)
+            return createJolSection((JolTask) pTask);
         else if (cSpotBugsTaskClass != null && cSpotBugsTaskClass.isAssignableFrom(pTask.getClass()))
+            return createSpotBugsSection(pTask);
+        else if (cSpotBugs4TaskClass != null && cSpotBugs4TaskClass.isAssignableFrom(pTask.getClass()))
             return createSpotBugsSection(pTask);
         else if (cJDependTaskClass != null && cJDependTaskClass.isAssignableFrom(pTask.getClass()))
             return createJDependSection(pTask);
@@ -117,14 +125,17 @@ class DashboardSectionFactory extends ProjectAware
         addSectionsForTaskType(aSections, JacocoReport.class, this::createJacocoSection);
         if (cCoberturaReportsTaskClass != null)
             addSectionsForTaskType(aSections, cCoberturaReportsTaskClass, this::createCoberturaSection);
-        addSectionsForTaskType(aSections, ScentTask.class, this::createScentSection);
-        if (cJDependTaskClass != null)
-            addSectionsForTaskType(aSections, cJDependTaskClass, this::createJDependMainSection);
         if (cSpotBugsTaskClass != null)
             addSectionsForTaskType(aSections, cSpotBugsTaskClass, this::createSpotBugsMainSection);
+        if (cSpotBugs4TaskClass != null)
+            addSectionsForTaskType(aSections, cSpotBugs4TaskClass, this::createSpotBugsMainSection);
         addSectionsForTaskType(aSections, Checkstyle.class, this::createCheckstyleMainSection);
         addSectionsForTaskType(aSections, Pmd.class, this::createPmdMainSection);
         addSectionsForTaskType(aSections, CpdTask.class, this::createCpdSection);
+        addSectionsForTaskType(aSections, ScentTask.class, this::createScentSection);
+        addSectionsForTaskType(aSections, JolTask.class, this::createJolSection);
+        if (cJDependTaskClass != null)
+            addSectionsForTaskType(aSections, cJDependTaskClass, this::createJDependMainSection);
 
         return aSections;
     }
@@ -267,6 +278,24 @@ class DashboardSectionFactory extends ProjectAware
         // Can't refer to the JDepend plugin types since they plugin may not be available (it was
         // removed in Gradle 6.0).
         return createReportingTaskSection(pTask, XSL_RESOURCE_JDEPEND);
+    }
+
+
+    /**
+     * Create a dashboard section for the XML report of a Jol task.
+     *
+     * @param pTask The Jol task.
+     *
+     * @return  A new {@code DashboardSection}.
+     */
+    private DashboardSection createJolSection(JolTask pTask)
+    {
+        return new DashboardSection(
+            pTask.getProject(),
+            pTask.getName(),
+            pTask.getReports().getXml(),
+            pTask.getReports().getHtml(),
+            XSL_RESOURCE_JOL);
     }
 
 
@@ -429,42 +458,54 @@ class DashboardSectionFactory extends ProjectAware
 
 
     /**
-     * Create a dashboard section for the XML and HTML reports, if available, of a {@code Reporting}
-     * task.
+     * Create a dashboard section for the XML and HTML reports, if available, of a task.
      *
      * @param pTask         The task.
      * @param pXslResource  The dashboard section's default XSL resource.
      *
-     * @return  A new {@code DashboardSection}, or null if {@code pTask} does not implement the
-     *          {@code Reporting} interface or does not have an XML report.
+     * @return  A new {@code DashboardSection}, or null if {@code pTask} does not have a
+     *          {@code reports} property or does not have an XML report.
      */
     static private DashboardSection createReportingTaskSection(Task pTask, String pXslResource)
     {
-        ReportContainer<?> aReports = null;
-        if (pTask instanceof Reporting<?>)
-            aReports = ((Reporting<?>) pTask).getReports();
+        NamedDomainObjectCollection<?> aReports = null;
+        if (pTask.hasProperty("reports"))
+        {
+            Object aReportsProperty = pTask.property("reports");
+            if (aReportsProperty instanceof NamedDomainObjectCollection<?>)
+                aReports = (NamedDomainObjectCollection<?>) aReportsProperty;
+        }
 
         if (aReports == null)
             return null;
 
-        Report aXmlReport =  aReports.getByName("xml");
-        if (aXmlReport == null)
+        // Find the XML report in the reports container.
+        Object aXmlReport = Util.findByNameIgnoreCase(aReports, "xml");
+        if (!(aXmlReport instanceof Report))
+            // Non-report object found in the report container.
             return null;
 
-        Report aDetailedReport = null;
+        Object aDetailedReport = null;
 
+        // First try to locate the HTML report in the task's convention, which is where the check
+        // task enhancers put the transforming HTML report.
         Convention aConvention = pTask.getConvention();
         if (aConvention != null)
-            aDetailedReport = (Report) aConvention.findByName(ENHANCED_CHECK_TASK_REPORT_NAME);
+            aDetailedReport = aConvention.findByName(ENHANCED_CHECK_TASK_REPORT_NAME);
 
+        // Fall back to locating the HTML report by name in the reports container.
         if (aDetailedReport == null)
-            aDetailedReport = aReports.getByName("html");
+            aDetailedReport = Util.findByNameIgnoreCase(aReports, "html");
+
+        if (aDetailedReport != null && !(aDetailedReport instanceof Report))
+            // The found detailed report is not a report, ignore it.
+            aDetailedReport = null;
 
         return new DashboardSection(
             pTask.getProject(),
             pTask.getName(),
-            aXmlReport,
-            aDetailedReport,
+            (Report) aXmlReport,
+            (Report) aDetailedReport,
             pXslResource);
     }
 

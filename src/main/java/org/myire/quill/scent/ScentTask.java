@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, 2018-2019 Peter Franzen. All rights reserved.
+ * Copyright 2016, 2018-2020 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -26,7 +26,6 @@ import org.gradle.api.tasks.TaskAction;
 
 import org.myire.quill.common.ExternalToolLoader;
 import org.myire.quill.common.Projects;
-import org.myire.quill.common.Tasks;
 import org.myire.quill.report.ReportingEntity;
 import org.myire.quill.report.TransformingReport;
 
@@ -210,26 +209,8 @@ public class ScentTask extends SourceTask implements ReportingEntity<ScentReport
         // the XML report.
         onlyIf(ignore -> getReports().getXml().isEnabled());
 
-        // If any of the reports' enabled flag is modified the task should be rerun.
-        Tasks.inputProperty(this, "xmlReportEnabled", () -> this.getReports().getXml().isEnabled());
-        Tasks.inputProperty(this, "htmlReportEnabled", () -> this.getReports().getHtml().isEnabled());
-
-        // The XSL file used to create the HTML report is an input to the task.
-        Tasks.optionalInputFile(this, () -> this.getReports().getHtml().getXslFile());
-
-        // Add both reports' destination as output of this task.
-        Tasks.outputFile(this, () -> this.getReports().getXml().getDestination());
-        Tasks.outputFile(this, () -> this.getReports().getHtml().getDestination());
-    }
-
-
-    /**
-     * Add checks of the HTML report to the task's up-to-date check of its outputs.
-     */
-    void addUpToDateCheck()
-    {
-        // Let the HTML report decide if it is up to date.
-        getOutputs().upToDateWhen(ignore -> this.getReports().getHtml().checkUpToDate());
+        // Add the reports to the task's input and output properties.
+        fReports.setInputsAndOutputs(this);
     }
 
 

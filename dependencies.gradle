@@ -43,8 +43,8 @@ dependencies
         exclude group: 'org.ow2.asm'
     }
 
-    // The SpotBugs additions plugin requires the SpotBugs plugin to compile
-    compileOnly 'gradle.plugin.com.github.spotbugs:spotbugs-gradle-plugin:2.0.0'
+    // The Jol plugin requires the jol-core artifact to compile
+    compileOnly 'org.openjdk.jol:jol-core:0.10'
 
     testCompile 'junit:junit:4.12'
     testCompile 'org.mockito:mockito-core:2.27.0'

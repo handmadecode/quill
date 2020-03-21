@@ -26,6 +26,7 @@ appeal to the taste of those who work in different ways.
 1. [PMD Additions Plugin](#pmd-additions-plugin)
 1. [CPD Plugin](#cpd-plugin)
 1. [Scent Plugin](#scent-plugin)
+1. [Jol Plugin](#jol-plugin)
 1. [Reports Dashboard Plugin](#reports-dashboard-plugin)
 1. [Pom Plugin](#pom-plugin)
 1. [Module Info Plugin](#module-info-plugin)
@@ -90,6 +91,7 @@ Most of the time the 'core' plugin is a better choice. It applies all plugins ex
  - Ivy Import plugin
  - Maven Import plugin
  - Module Info plugin
+ - Jol plugin
  - Cobertura plugin
  - JDepend Additions plugin
 
@@ -932,23 +934,23 @@ Note that unlike the other plugins that enhance existing plugins, the SpotBugs A
 _not_ apply the SpotBugs Gradle plugin. That plugin must be applied explicitly in the build script:
 
     plugins {
-        id 'com.github.spotbugs' version '2.0.0'
-        id 'org.myire.quill.spotbugs' version '2.1'
+        id 'com.github.spotbugs' version '4.0.4'
+        id 'org.myire.quill.spotbugs' version '2.3'
     }
 
 ### Default values
 
 The plugin configures the `spotbugs` extension in the project to let the build continue even if
-violations are found, and to use SpotBugs version 3.1.12 as the default version. This is equivalent
-to configuring the extension explicitly in the build script as follows:
+violations are found. This is equivalent to configuring the extension explicitly in the build script
+as follows:
 
     spotbugs {
       ignoreFailures = true
-      toolVersion = '3.1.12'
     }
 
-All tasks of type `SpotBugsTask` (normally `spotbugsMain` and `spotbugsTest`) are configured to
-produce XML reports with messages, which is equivalent to the build script configuration
+If version 3.0 or older of the `com.github.spotbugs` plugin is used, all tasks of type
+`SpotBugsTask` (normally `spotbugsMain` and `spotbugsTest`) are configured to produce XML reports
+with messages, which is equivalent to the build script configuration
 
     tasks.withType(SpotBugsTask) {
       reports.xml.withMessages = true
@@ -957,8 +959,8 @@ produce XML reports with messages, which is equivalent to the build script confi
 ### Extension additions
 
 A method with the name `disableTestChecks` is added to the `spotbugs` extension. If this method is
-called in the build script it will remove the `test` source set from the extension's source sets,
-thus disabling the `spotbugsTest` task:
+called in the build script it sets the classes to analyze in the `spotbugsTest` task to an empty
+collection, thus disabling that task:
 
     spotbugs.disableTestChecks()
 
@@ -987,17 +989,17 @@ configures the corresponding project extension and tasks with some defaults and 
 
 The plugin configures the `checkstyle` extension in the project to let the build continue even if
 violations are found, and to not log every found violation. The Checkstyle version to use is set to
-8.28. This is equivalent to configuring the extension explicitly in the build script as follows:
+8.30. This is equivalent to configuring the extension explicitly in the build script as follows:
 
     checkstyle {
       ignoreFailures = true
       showViolations = false
-      toolVersion = '8.28'
+      toolVersion = '8.30'
     }
 
 The Checkstyle configuration file is specified to be the one bundled with the Quill jar. This
 configuration file is extracted to the path "tmp/checkstyle/checkstyle_config.xml" relative to the
-project's build directory. Note that this configuration file requires at least version 8.24 of
+project's build directory. Note that this configuration file requires at least version 8.30 of
 Checkstyle. When setting `toolVersion` to an older version of Checkstyle, another configuration file
 must be explicitly configured.
 
@@ -1056,12 +1058,12 @@ corresponding project extension and tasks with some defaults and additions.
 ### Default values
 
 The plugin configures the `pmd` extension in the project to let the build continue even if
-violations are found, and to use version 6.20.0 of PMD. This is equivalent to configuring the
+violations are found, and to use version 6.22.0 of PMD. This is equivalent to configuring the
 extension explicitly in the build script as follows:
 
     pmd {
       ignoreFailures = true
-      toolVersion = '6.20.0'
+      toolVersion = '6.22.0'
     }
 
 The plugin removes the built-in PMD rule sets from the extension's configuration and specifies that
@@ -1194,7 +1196,7 @@ through the properties described below. Most of these properties are direct equi
 
 * `toolVersion` - a string specifying the version of CPD to use. The default is the version
 specified in `pmd.toolVersion`, or, if the `pmd` extension isn't available in the project, version
-"6.20.0". Note however that `pmd.toolVersion` is only used if it is equal to or greater than the
+"6.22.0". Note however that `pmd.toolVersion` is only used if it is equal to or greater than the
 minimum CPD version "6.1.0".
 
 * `cpdClasspath` - a `FileCollection` specifying the classpath containing the CPD classes used by
@@ -1372,6 +1374,196 @@ dependency, equivalent to:
 where `<toolVersion>` is the value of the `scent` task's `toolVersion` property.
 
 
+## Jol Plugin
+
+Plugin ID: `org.myire.quill.jol`
+
+The Jol plugin is used to analyze object layout with the
+[Jol](https://openjdk.java.net/projects/code-tools/jol/) tool. This plugin is _not_ applied by the
+`core` plugin; it must be applied explicitly. It is however applied by the `all` plugin.
+
+
+
+### Task
+
+The plugin adds a `jol` task to the project and also adds the task to the dependencies of the
+`build` task. The `jol` task analyzes the memory layout of a collection of Java classes specified in
+the task's properties. By default, the `jol` task analyzes all classes produced when compiling the
+`main` source set's files.
+
+The `jol` task is configured through the following properties:
+
+* `toolVersion` - a string specifying the version of the `jol-core` library to use. Default is
+version "0.10".
+
+* `classes` - a collection of strings holding the fully qualified names of the classes to analyze.
+Different methods for specifying these classes are described below.
+
+* `analysisClassPath` - a `FileCollection` specifying any additional classpath required for loading
+the classes to analyze. The class files in this collection will not be analyzed, but they will be
+added to the classpath used for loading the classes to analyze when the task is executed.
+
+* `layout` - a string specifying the layout to use in the analysis, see below.
+
+* `dataModel` - a string specifying the data model to use in a simulated analysis, see below.
+
+* `alignment` - an integer specifying the object byte alignment to use in a simulated analysis, see
+below.
+
+* `reports` - a nested property holding the reports created by the task, see below.
+
+* `toolClassPath` - a `FileCollection` specifying the classpath from which to load the Jol classes.
+The default value is the `jol` dependency configuration, see below.
+
+### Specifying the classes to analyze
+
+The classes to analyze can be specified in different ways, which can be combined if necessary.
+
+#### Source set
+
+To analyze the classes produced by compiling the source files of a source set, use the `sourceSet`
+configuration method:
+
+    jol {
+        sourceSet sourceSets['test']
+    }
+
+By default all files in all classes directories of the source set will be analyzed. To control which
+class files to analyze a closure that configures a `PatternFilterable` can be specified:
+
+    jol {
+        sourceSet (sourceSets['main']) {
+            include '**/org/myire/data/*.class'
+            exclude '**/*Formatter*'
+        }
+    }
+
+Specifying a source set will automatically add its runtime classpath to the `analysisClassPath`.
+
+#### Classes directory
+
+The classes to analyze can be specified through one or more directories containing the classes. This
+is useful e.g. if a source set contains several classes directories and only a subset of them should
+be analyzed:
+
+    jol {
+        classesDirectory "${buildDir}/classes/java/main"
+        classesDirectory "${buildDir}/classes/groovy/main"
+    }
+
+Note that the `jol` task will not automatically depend on any task that produces the class files
+when configured like this. Any required dependency on other tasks must be configured explicitly. 
+
+By default all class files in the directory will be analyzed. To control which class files to
+analyze a closure that configures a `PatternFilterable` can be specified:
+
+    jol {
+        classesDirectory ("${buildDir}/classes/java/main") {
+            include '**/org/myire/data/*.class'
+            exclude '**/*Formatter*'
+        }
+    }
+
+If the classes in a specified classes directory refer to classes not present in that directory they
+must be added to the analysis classpath:
+
+    jol {
+        classesDirectory '/path/to/classes'
+        analysisClassPath += '/path/to/referenced_classes.jar'
+    }
+
+#### Explicit class names
+
+The classes to analyze can be specified through a list of fully qualified class names. These classes
+will be loaded from the analysis classpath:
+
+    jol {
+        classes = ['org.myire.data.ClassA', 'org.myire.data.ClassB']
+        analysisClassPath = "${buildDir}/classes/java/main"
+    }
+
+### Analysis parameters
+
+Some properties of the `jol` task specify the parameters for the Jol analysis.
+
+#### Layout
+
+The `layout` property specifies if the analysis should simulate the object layout or use the actual
+object layout of the executing JVM. Valid values are:
+
+* "hotspot" - simulate the HotSpot VM object layout. This is the default.
+
+* "raw" - simulate an object layout that packs all fields together. This simulation ignores the
+`alignment` parameter.
+
+* "current" - use the actual object layout of the executing JVM. This is not a simulation, meaning
+that all other analysis parameters will be ignored.
+
+#### Data Model
+
+The `dataModel` property is used to determine e.g. the sizes of basic types in simulated analyses.
+Supported values are:
+
+* "x86_32" - 32 bit x86 data model.
+
+* "x86_64" - 64 bit x86 data model with normal object references.
+
+* "x86_64_compressed" - 64 bit x86 data model with compressed object references. This is the
+default.
+
+#### Alignment
+
+The `alignment` property specifies the object byte alignment in simulated Hotspot analyses. The
+default is 8.
+
+### Reports
+
+The `jol` task creates an XML report containing the result of the object layout analysis. The task
+can also produce an HTML report by applying an XSL transformation on the XML report.
+
+The two reports are configured through the `reports` property of the `jol` task:
+
+* `xml` - a `SingleFileReport` that creates an XML file. The default is a file called "jol.xml"
+located in a directory called "jol" in the project's report directory or, if no project report
+directory is defined, in a directory called "jol" in the project's build directory.
+
+* `html` - a `SingleFileReport` that will be created from the XML report by applying an XSL
+transformation. By default, the HTML report is created in the same directory as the XML report and
+given the same base name as the XML report (e.g. "jol.html" if the XML report has the name
+"jol.xml"). The XSL style sheet to use can be specified through the `xslFile` property. This
+property is a `File` that is resolved relative to the project directory. If no XSL file is specified
+the default style sheet bundled with the Quill jar file will be used.
+
+The reports can be configured with a closure:
+
+    jol {
+      ...
+      reports {
+        xml.destination = "$buildDir/reports/layout.xml"
+        html.xslFile = 'xsl/jol_report.xsl'
+      }
+    }
+
+The reports can also be configured through chained access of the properties:
+
+    jol {
+      ...
+      reports.xml.destination = 'layout_report.xml'
+    }
+
+Note that if the XML report isn't enabled, the `jol` task will not run.
+
+### Dependency configuration
+
+The Jol plugin adds a `jol` dependency configuration to the project. This configuration specifies
+the default value for the `jol` task's `toolClassPath` property. By default, this configuration has
+one dependency, equivalent to:
+
+    jol 'org.openjdk.jol:jol-core:<toolVersion>'
+
+where `<toolVersion>` is the value of the `jol` task's `toolVersion` property.
+
+
 ## Reports Dashboard Plugin
 
 Plugin ID: `org.myire.quill.dashboard`
@@ -1424,13 +1616,6 @@ report is the task's `html` report.
 * All tasks of type `CoberturaReportsTask` (see the [Cobertura plugin](#cobertura-plugin)). The
 summarized report is the task's `xml` report and the linked report is the task's `html` report.
 
-* All tasks of type `ScentTask` (see the [Scent plugin](#scent-plugin)). The summarized report is
-the task's `xml` report and the linked report is the task's `html` report.
-
-* The `jdependMain` task, if present. The summarized report is the task's `xml` report and the
-linked report is the task's XSL transformation report, if one exists (see the
-[JDepend Additions plugin](#jdepend-additions-plugin)).
-
 * The `spotbugsMain` task, if present. The summarized report is the task's `xml` report and the
 linked report is the task's XSL transformation report, if one exists (see the
 [SpotBugs Additions plugin](#spotbugs-additions-plugin)).
@@ -1447,6 +1632,16 @@ task's `html` report.
 
 * All tasks of type `CpdTask` that have "xml" as the format for the primary report (see the
 [CPD plugin](#cpd-plugin)). The linked report is the task's `html` report.
+
+* All tasks of type `ScentTask` (see the [Scent plugin](#scent-plugin)). The summarized report is
+the task's `xml` report and the linked report is the task's `html` report.
+
+* All tasks of type `JolTask` (see the [Jol plugin](#jol-plugin)). The summarized report is
+the task's `xml` report and the linked report is the task's `html` report.
+
+* The `jdependMain` task, if present. The summarized report is the task's `xml` report and the
+linked report is the task's XSL transformation report, if one exists (see the
+[JDepend Additions plugin](#jdepend-additions-plugin)).
 
 Note that these default report sections use XSL files bundled with the Quill jar, and thus appear to
 have no XSL file configured.

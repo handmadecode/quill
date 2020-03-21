@@ -57,6 +57,8 @@ body
     { font-size: 8pt; font-style: oblique; }
 .data
     { font-size:8pt; }
+.emphasizeddata
+    { font-size:8pt; font-style: oblique; color: #602080;}
 
 .neutralbg
     { background-color: #a7cdff; }

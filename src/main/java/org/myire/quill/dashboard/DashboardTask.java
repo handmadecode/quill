@@ -40,11 +40,10 @@ import org.myire.quill.report.ReportingEntity;
  * A task that creates a summary report of a collection of reports generated during a build. The
  * summary report consists of one {@code DashboardSection} for each report included in the summary.
  *<p>
- * By default the task generates a summary of the reports from the Test, JaCoCo, Cobertura, Scent,
- * JDepend, SpotBugs, Checkstyle, PMD, and CPD tasks that are available in the project. Build
- * scripts can access and modify these standard sections through the {@code sections} property,
- * which is a map from task name to {@code DashboardSection} instance. New sections can also be
- * added to this map.
+ * By default the task generates a summary of the reports for the tasks represented by the sections
+ * returned by {@link DashboardSectionFactory#createAvailableDefaultSections()}. Build scripts can
+ * access and modify these standard sections through the {@code sections} property, which is a map
+ * from task name to {@code DashboardSection} instance. New sections can also be added to this map.
  *<p>
  * The layout of the dashboard sections can be configured through the task's {@code layout}
  * property.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, 2018 Peter Franzen. All rights reserved.
+ * Copyright 2016, 2018, 2020 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -87,6 +87,7 @@ public class ScentPlugin implements Plugin<Project>
         }
     }
 
+
     /**
      * Create a new {@code ScentTask}. The {@code build} task will depend on this new task.
      *
@@ -98,7 +99,6 @@ public class ScentPlugin implements Plugin<Project>
         aTask.setDescription("Runs Scent to create a source code metrics report");
         aTask.setScentClasspath(fConfiguration);
         aTask.setupReports();
-        aTask.addUpToDateCheck();
 
         // Add the Scent task to the build task's dependencies.
         Task aBuildTask = Projects.getTask(fProject, "build", Task.class);

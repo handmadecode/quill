@@ -135,6 +135,7 @@
         <td class="data" align="right">
           <!-- Line number -->
           <xsl:value-of select="@line"/>
+          <xsl:if test="@endline &gt; 0">-<xsl:value-of select="@endline"/></xsl:if>
         </td>
         <td/>
       </tr>
