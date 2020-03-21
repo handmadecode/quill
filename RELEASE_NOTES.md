@@ -1,5 +1,6 @@
 # Quill Release Notes
 
+[version 2.3](#version-23)  
 [version 2.2](#version-22)  
 [version 2.1](#version-21)  
 [version 2.0](#version-20)  
@@ -12,6 +13,14 @@
 [version 0.11](#version-011)  
 [version 0.10](#version-010)  
 [version 0.9](#version-09)
+
+### version 2.3
+
+* [Jol plugin](./README.md#jol-plugin) added.
+* Checkstyle default version upgraded to 8.30.
+* PMD and CPD default versions upgraded to 6.22.
+* Support for SpotBugs Gradle plugin version 4.
+
 
 ### version 2.2
 
