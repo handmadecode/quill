@@ -901,11 +901,11 @@ standard `java` plugin before applying the `jacoco` plugin to make the latter ad
 
 ### Default values
 
-The plugin configures the `jacoco` extension in the project to use version 0.8.4 of JaCoCo. This is
+The plugin configures the `jacoco` extension in the project to use version 0.8.5 of JaCoCo. This is
 equivalent to configuring the extension explicitly in the build script as follows:
 
     jacoco {
-      toolVersion = '0.8.4'
+      toolVersion = '0.8.5'
     }
 
 The plugin also configures the `jacoco` extension added to all test tasks by setting the `append`

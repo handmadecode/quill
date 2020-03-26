@@ -1,5 +1,6 @@
 # Quill Release Notes
 
+[version 2.3.1](#version-231)  
 [version 2.3](#version-23)  
 [version 2.2](#version-22)  
 [version 2.1](#version-21)  
@@ -13,6 +14,11 @@
 [version 0.11](#version-011)  
 [version 0.10](#version-010)  
 [version 0.9](#version-09)
+
+### version 2.3.1
+
+* Jacoco default version upgraded to 0.8.5 to support running with Java 14.
+
 
 ### version 2.3
 
