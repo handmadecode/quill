@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Franzen. All rights reserved.
+ * Copyright 2019-2020 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -26,7 +26,7 @@ import org.myire.quill.common.Projects;
  */
 public class JacocoAdditionsPlugin implements Plugin<Project>
 {
-    static private final String DEFAULT_TOOL_VERSION = "0.8.4";
+    static private final String DEFAULT_TOOL_VERSION = "0.8.5";
     static private final String JACOCO_TEST_REPORT_TASK_NAME = "jacocoTestReport";
 
 
