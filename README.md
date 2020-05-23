@@ -1800,15 +1800,15 @@ To add a timestamp after the sections:
 
 Plugin ID: `org.myire.quill.pom`
 
-The Pom plugin applies the Maven plugin to the project and adds a task for creating pom files
-outside the context of uploading to a Maven repository.
+The Pom plugin applies the Maven Publish plugin to the project and adds a task for creating a pom
+file outside the context of uploading to a Maven repository.
 
 ### Task
 
-The plugin adds a task with the name `createPom` to the project. This task has a single property,
-`destination`, that specifies the location of the pom file to create. The default name of this file
-is `${project.archivesBaseName}-${project.version}.pom`, and it is located in the directory
-specified in the project property `mavenPomDir`, which is added by the Maven plugin.
+The plugin adds a task with the name `createPom` to the project. The task's property `destination`
+specifies the location of the pom file to create. The default name of this file is
+`${project.archivesBaseName}-${project.version}.pom`, and it is located in the directory
+`${buildDir}/poms`.
 
 The destination of the pom file can be configured by setting the destination property:
 
@@ -1816,12 +1816,10 @@ The destination of the pom file can be configured by setting the destination pro
 
 The destination will be resolved relative to the project build directory.
 
-The task creates the pom file by creating a `MavenPom` instance using the factory method `pom` added
-by the Maven plugin. This instance is then written to the destination file.
+The properties of the generated pom file can be accessed through the `pom` property. This property
+holds a `MavenPom` instance that can be used to customize the contents of the generated pom file:
 
-Without any configuration, the task is equivalent to
-
-    pom().writeTo "$mavenPomDir/${project.archivesBaseName}-${project.version}.pom"
+    createPom.pom.packaging = 'war'
 
 #### The `from` method
 
@@ -1860,18 +1858,15 @@ This method returns the `createPom` task instance to allow method chaining.
 
 #### The `withoutScope` method
 
-The pom created by the `pom()` method includes all dependencies. Sometimes it is not desirable to
-have all dependencies in the resulting pom file. It may for instance be unnecessary to include the
-test dependencies.
-
-The `withoutScope` method takes one or more scope names as parameters. The dependencies in these
-scopes will be filtered out from the created pom file.
+Sometimes it is not desirable to have all dependencies in the resulting pom file. The `withoutScope`
+method takes one or more scope names as parameters. The dependencies in these scopes will be
+filtered out from the created pom file.
 
 Example:
 
-    createPom.withoutScope 'test'
+    createPom.withoutScope 'runtime'
 
-will filter out all test dependencies.
+will filter out all runtime dependencies.
 
 This method returns the `createPom` task instance to allow method chaining.
 
