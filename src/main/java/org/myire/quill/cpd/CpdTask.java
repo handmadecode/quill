@@ -38,7 +38,7 @@ import org.myire.quill.report.TransformingReport;
 public class CpdTask extends SourceTask implements ReportingEntity<CpdReports>
 {
     static private final VersionNumber MINIMUM_TOOL_VERSION = VersionNumber.parse("6.1.0");
-    static private final String DEFAULT_TOOL_VERSION = "6.22.0";
+    static private final String DEFAULT_TOOL_VERSION = "6.23.0";
     static private final String PMD_EXTENSION_NAME = "pmd";
 
     // Fully qualified name of the CpdRunner implementation class to use.

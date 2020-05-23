@@ -1058,12 +1058,12 @@ corresponding project extension and tasks with some defaults and additions.
 ### Default values
 
 The plugin configures the `pmd` extension in the project to let the build continue even if
-violations are found, and to use version 6.22.0 of PMD. This is equivalent to configuring the
+violations are found, and to use version 6.23.0 of PMD. This is equivalent to configuring the
 extension explicitly in the build script as follows:
 
     pmd {
       ignoreFailures = true
-      toolVersion = '6.22.0'
+      toolVersion = '6.23.0'
     }
 
 The plugin removes the built-in PMD rule sets from the extension's configuration and specifies that
@@ -1196,7 +1196,7 @@ through the properties described below. Most of these properties are direct equi
 
 * `toolVersion` - a string specifying the version of CPD to use. The default is the version
 specified in `pmd.toolVersion`, or, if the `pmd` extension isn't available in the project, version
-"6.22.0". Note however that `pmd.toolVersion` is only used if it is equal to or greater than the
+"6.23.0". Note however that `pmd.toolVersion` is only used if it is equal to or greater than the
 minimum CPD version "6.1.0".
 
 * `cpdClasspath` - a `FileCollection` specifying the classpath containing the CPD classes used by
