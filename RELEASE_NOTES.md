@@ -1,5 +1,6 @@
 # Quill Release Notes
 
+[version 2.4](#version-24)  
 [version 2.3.1](#version-231)  
 [version 2.3](#version-23)  
 [version 2.2](#version-22)  
@@ -14,6 +15,16 @@
 [version 0.11](#version-011)  
 [version 0.10](#version-010)  
 [version 0.9](#version-09)
+
+
+### version 2.4
+
+* The Pom plugin is no longer based on the deprecated Maven plugin, which is scheduled to be removed
+  in Gradle 7.
+* Checkstyle default version upgraded to 8.32. The built-in configuration file requires at least
+  version 8.31.
+* PMD and CPD default versions upgraded to 6.23.
+
 
 ### version 2.3.1
 
