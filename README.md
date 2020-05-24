@@ -989,17 +989,17 @@ configures the corresponding project extension and tasks with some defaults and 
 
 The plugin configures the `checkstyle` extension in the project to let the build continue even if
 violations are found, and to not log every found violation. The Checkstyle version to use is set to
-8.30. This is equivalent to configuring the extension explicitly in the build script as follows:
+8.32. This is equivalent to configuring the extension explicitly in the build script as follows:
 
     checkstyle {
       ignoreFailures = true
       showViolations = false
-      toolVersion = '8.30'
+      toolVersion = '8.32'
     }
 
 The Checkstyle configuration file is specified to be the one bundled with the Quill jar. This
 configuration file is extracted to the path "tmp/checkstyle/checkstyle_config.xml" relative to the
-project's build directory. Note that this configuration file requires at least version 8.30 of
+project's build directory. Note that this configuration file requires at least version 8.31 of
 Checkstyle. When setting `toolVersion` to an older version of Checkstyle, another configuration file
 must be explicitly configured.
 
@@ -1058,12 +1058,12 @@ corresponding project extension and tasks with some defaults and additions.
 ### Default values
 
 The plugin configures the `pmd` extension in the project to let the build continue even if
-violations are found, and to use version 6.22.0 of PMD. This is equivalent to configuring the
+violations are found, and to use version 6.23.0 of PMD. This is equivalent to configuring the
 extension explicitly in the build script as follows:
 
     pmd {
       ignoreFailures = true
-      toolVersion = '6.22.0'
+      toolVersion = '6.23.0'
     }
 
 The plugin removes the built-in PMD rule sets from the extension's configuration and specifies that
@@ -1196,7 +1196,7 @@ through the properties described below. Most of these properties are direct equi
 
 * `toolVersion` - a string specifying the version of CPD to use. The default is the version
 specified in `pmd.toolVersion`, or, if the `pmd` extension isn't available in the project, version
-"6.22.0". Note however that `pmd.toolVersion` is only used if it is equal to or greater than the
+"6.23.0". Note however that `pmd.toolVersion` is only used if it is equal to or greater than the
 minimum CPD version "6.1.0".
 
 * `cpdClasspath` - a `FileCollection` specifying the classpath containing the CPD classes used by
@@ -1800,15 +1800,15 @@ To add a timestamp after the sections:
 
 Plugin ID: `org.myire.quill.pom`
 
-The Pom plugin applies the Maven plugin to the project and adds a task for creating pom files
-outside the context of uploading to a Maven repository.
+The Pom plugin applies the Maven Publish plugin to the project and adds a task for creating a pom
+file outside the context of uploading to a Maven repository.
 
 ### Task
 
-The plugin adds a task with the name `createPom` to the project. This task has a single property,
-`destination`, that specifies the location of the pom file to create. The default name of this file
-is `${project.archivesBaseName}-${project.version}.pom`, and it is located in the directory
-specified in the project property `mavenPomDir`, which is added by the Maven plugin.
+The plugin adds a task with the name `createPom` to the project. The task's property `destination`
+specifies the location of the pom file to create. The default name of this file is
+`${project.archivesBaseName}-${project.version}.pom`, and it is located in the directory
+`${buildDir}/poms`.
 
 The destination of the pom file can be configured by setting the destination property:
 
@@ -1816,12 +1816,10 @@ The destination of the pom file can be configured by setting the destination pro
 
 The destination will be resolved relative to the project build directory.
 
-The task creates the pom file by creating a `MavenPom` instance using the factory method `pom` added
-by the Maven plugin. This instance is then written to the destination file.
+The properties of the generated pom file can be accessed through the `pom` property. This property
+holds a `MavenPom` instance that can be used to customize the contents of the generated pom file:
 
-Without any configuration, the task is equivalent to
-
-    pom().writeTo "$mavenPomDir/${project.archivesBaseName}-${project.version}.pom"
+    createPom.pom.packaging = 'war'
 
 #### The `from` method
 
@@ -1860,18 +1858,15 @@ This method returns the `createPom` task instance to allow method chaining.
 
 #### The `withoutScope` method
 
-The pom created by the `pom()` method includes all dependencies. Sometimes it is not desirable to
-have all dependencies in the resulting pom file. It may for instance be unnecessary to include the
-test dependencies.
-
-The `withoutScope` method takes one or more scope names as parameters. The dependencies in these
-scopes will be filtered out from the created pom file.
+Sometimes it is not desirable to have all dependencies in the resulting pom file. The `withoutScope`
+method takes one or more scope names as parameters. The dependencies in these scopes will be
+filtered out from the created pom file.
 
 Example:
 
-    createPom.withoutScope 'test'
+    createPom.withoutScope 'runtime'
 
-will filter out all test dependencies.
+will filter out all runtime dependencies.
 
 This method returns the `createPom` task instance to allow method chaining.
 
