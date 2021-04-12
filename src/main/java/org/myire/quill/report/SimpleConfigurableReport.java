@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2020 Peter Franzen. All rights reserved.
+ * Copyright 2018, 2020-2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -88,14 +88,6 @@ public class SimpleConfigurableReport extends ProjectAware implements Configurab
     public File getDestination()
     {
         return fDestination != null ? getProject().file(fDestination) : null;
-    }
-
-
-    @Override
-    @SuppressWarnings("deprecation") // Must implement even if deprecated
-    public void setDestination(Object pDestination)
-    {
-        fDestination = pDestination;
     }
 
 

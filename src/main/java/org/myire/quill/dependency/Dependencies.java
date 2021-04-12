@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2018 Peter Franzen. All rights reserved.
+ * Copyright 2017-2018, 2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -90,7 +90,7 @@ public final class Dependencies
         // Copy the external module dependency values.
         if (aDependency instanceof ExternalDependency)
         {
-            ((ExternalDependency) aDependency).setForce(pDependencySpec.isForce());
+            ((ExternalDependency) aDependency).version(_c -> _c.strictly(pDependencySpec.getVersion()));
 
             if (aDependency instanceof ExternalModuleDependency)
                 ((ExternalModuleDependency) aDependency).setChanging(pDependencySpec.isChanging());

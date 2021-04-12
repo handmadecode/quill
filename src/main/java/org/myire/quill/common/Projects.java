@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, 2016, 2018 Peter Franzen. All rights reserved.
+ * Copyright 2014, 2016, 2018, 2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -12,7 +12,6 @@ import org.gradle.api.Task;
 import org.gradle.api.UnknownTaskException;
 import org.gradle.api.internal.file.AbstractFileResolver;
 import org.gradle.api.internal.file.FileResolver;
-import org.gradle.api.internal.file.TemporaryFileProvider;
 import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.reporting.ReportingExtension;
 import org.gradle.api.tasks.SourceSet;
@@ -228,20 +227,8 @@ public final class Projects
      */
     static public File createTemporaryDirectorySpec(Project pProject, String pDirectoryItemName)
     {
-        if (pProject instanceof ProjectInternal)
-        {
-            TemporaryFileProvider aProvider =
-                    ((ProjectInternal) pProject).getServices().get(TemporaryFileProvider.class);
-            if (pDirectoryItemName != null)
-                return aProvider.newTemporaryFile(pDirectoryItemName);
-            else
-                return aProvider.newTemporaryFile("ignore").getParentFile();
-        }
-        else
-        {
-            File aTmpDir = new File(pProject.getBuildDir(), "tmp");
-            return pDirectoryItemName != null ? new File(aTmpDir, pDirectoryItemName) : aTmpDir;
-        }
+        File aTmpDir = new File(pProject.getBuildDir(), "tmp");
+        return pDirectoryItemName != null ? new File(aTmpDir, pDirectoryItemName) : aTmpDir;
     }
 
 
