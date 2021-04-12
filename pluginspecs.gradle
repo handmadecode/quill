@@ -57,12 +57,6 @@ gradlePlugin
             implementationClass = 'org.myire.quill.java.JavaAdditionsPlugin'
         }
 
-        quillJdependPlugin
-        {
-            id = 'org.myire.quill.jdepend'
-            implementationClass = 'org.myire.quill.check.JDependAdditionsPlugin'
-        }
-
         quillJolPlugin
         {
             id = 'org.myire.quill.jol'
@@ -191,13 +185,6 @@ pluginBundle
             displayName = 'Quill Java Additions plugin'
             description = 'Additional functionality for the standard Java tasks and additional Java related tasks'
             tags = ['java', 'defaults', 'enhancements']
-        }
-
-        quillJdependPlugin
-        {
-            displayName = 'Quill JDepend Additions plugin'
-            description = 'Configuration of and additional functionality for the standard JDepend plugin'
-            tags = ['jdepend', 'defaults', 'enhancements']
         }
 
         quillJolPlugin

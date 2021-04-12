@@ -1,5 +1,5 @@
 /*
- * Copyright 2018, 2020 Peter Franzen. All rights reserved.
+ * Copyright 2018, 2020-2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -51,12 +51,6 @@ class ModuleInfoPlugin implements Plugin<Project>
         // Add the module-info.java file to the sources jar file if the task for creating that jar
         // is available when the project has been evaluated.
         pProject.afterEvaluate( { addModuleInfoToSourcesJar() } );
-
-        // Exclude the &quot;module-info.class&quot; from FindBugs and JDepend analysis if any such
-        // tasks are available in the project. These tools can (currently) not read class files
-        // newer than version 52 (Java 8).
-        pProject.afterEvaluate( { excludeModuleInfoFromTasks(" org.gradle.api.plugins.quality.FindBugs") } );
-        pProject.afterEvaluate( { excludeModuleInfoFromTasks("org.gradle.api.plugins.quality.JDepend") } );
     }
 
 
