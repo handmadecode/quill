@@ -25,8 +25,6 @@ import org.myire.quill.common.Util;
 import org.myire.quill.cpd.CpdTask;
 import org.myire.quill.jol.JolTask;
 import org.myire.quill.report.FormatChoiceReport;
-import org.myire.quill.report.ReportSet;
-import org.myire.quill.report.ReportingEntity;
 import org.myire.quill.scent.ScentTask;
 
 
@@ -37,7 +35,6 @@ class DashboardSectionFactory extends ProjectAware
 {
     // XSL resources with default style sheets for the standard dashboard sections.
     static private final String XSL_RESOURCE_CHECKSTYLE = "/org/myire/quill/rsrc/report/checkstyle/checkstyle_summary.xsl";
-    static private final String XSL_RESOURCE_COBERTURA = "/org/myire/quill/rsrc/report/cobertura/cobertura_summary.xsl";
     static private final String XSL_RESOURCE_CPD = "/org/myire/quill/rsrc/report/cpd/cpd_summary.xsl";
     static private final String XSL_RESOURCE_JACOCO = "/org/myire/quill/rsrc/report/jacoco/jacoco_summary.xsl";
     static private final String XSL_RESOURCE_JOL = "/org/myire/quill/rsrc/report/jol/jol_summary.xsl";
@@ -56,11 +53,6 @@ class DashboardSectionFactory extends ProjectAware
         getTaskClass("com.github.spotbugs.SpotBugsTask");
     static private final Class<? extends Task> cSpotBugs4TaskClass =
         getTaskClass("com.github.spotbugs.snom.SpotBugsTask");
-
-    // The Cobertura classes can't be referenced explicitly since the're still in the Groovy source
-    // tree.
-    static private final Class<? extends Task> cCoberturaReportsTaskClass =
-        getTaskClass("org.myire.quill.cobertura.CoberturaReportsTask");
 
 
     /**
@@ -102,8 +94,6 @@ class DashboardSectionFactory extends ProjectAware
             return createSpotBugsSection(pTask);
         else if (cSpotBugs4TaskClass != null && cSpotBugs4TaskClass.isAssignableFrom(pTask.getClass()))
             return createSpotBugsSection(pTask);
-        else if (cCoberturaReportsTaskClass != null && cCoberturaReportsTaskClass.isAssignableFrom(pTask.getClass()))
-            return createCoberturaSection(pTask);
         else
             return null;
     }
@@ -115,8 +105,6 @@ class DashboardSectionFactory extends ProjectAware
 
         addSectionsForTaskType(aSections, Test.class, this::createJUnitSection);
         addSectionsForTaskType(aSections, JacocoReport.class, this::createJacocoSection);
-        if (cCoberturaReportsTaskClass != null)
-            addSectionsForTaskType(aSections, cCoberturaReportsTaskClass, this::createCoberturaSection);
         if (cSpotBugsTaskClass != null)
             addSectionsForTaskType(aSections, cSpotBugsTaskClass, this::createSpotBugsMainSection);
         if (cSpotBugs4TaskClass != null)
@@ -383,35 +371,6 @@ class DashboardSectionFactory extends ProjectAware
     {
         // Can't refer to the SpotBugs plugin types since they plugin may not be available.
         return createReportingTaskSection(pTask, XSL_RESOURCE_SPOTBUGS);
-    }
-
-
-    /**
-     * Create a dashboard section for the XML report of a Cobertura reports task.
-     *
-     * @param pTask The Cobertura reports task.
-     *
-     * @return  A new {@code DashboardSection}.
-     */
-    private DashboardSection createCoberturaSection(Task pTask)
-    {
-        // Can't access the types in the cobertura package since they're in the Groovy source tree.
-        if (pTask instanceof ReportingEntity<?>)
-        {
-            ReportSet aReports = ((ReportingEntity<?>) pTask).getReports();
-            Report aXmlReport = aReports.getReportByName("coberturaXml");
-            if (aXmlReport != null)
-            {
-                return new DashboardSection(
-                    pTask.getProject(),
-                    pTask.getName(),
-                    aXmlReport,
-                    aReports.getReportByName("coberturaHtml"),
-                    XSL_RESOURCE_COBERTURA);
-            }
-        }
-
-        return null;
     }
 
 
