@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
  */
 public class IvyImportExtensionTest
 {
-    static private final String DEFAULT_IVY_VERSION = "2.4.0";
+    static private final String DEFAULT_IVY_VERSION = "2.5.0";
     static private final String DEFAULT_WILDCARD_CONFIGURATION = "compile";
 
 
