@@ -46,6 +46,6 @@ dependencies
     // The Jol plugin requires the jol-core artifact to compile
     compileOnly 'org.openjdk.jol:jol-core:0.10'
 
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.mockito:mockito-core:2.27.0'
+    testImplementation 'junit:junit:4.13.2'
+    testImplementation 'org.mockito:mockito-core:3.9.0'
 }
