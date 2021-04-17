@@ -4,9 +4,8 @@ A collection of Gradle plugins. Some of the plugins enhance existing functionali
 others provide new functionality. All of the plugins can be used individually; they do not depend on
 each other.
 
-The Quill plugins are designed for use with Gradle 4.3 or later, except for the SpotBugs Additions
-plugin, which requires Gradle 5.1 or later. Any success in using the plugins with earlier versions
-of Gradle is purely coincidental.
+The Quill plugins require Gradle 6 or later and Java 8 or later. They have been tested with the
+applicable combinations of Gradle 6.0.1 - 7.0 and Java 8 - 16.
 
 The Quill plugins were developed to support the author's way of working with Gradle. They may not
 appeal to the taste of those who work in different ways.
@@ -30,8 +29,6 @@ appeal to the taste of those who work in different ways.
 1. [Reports Dashboard Plugin](#reports-dashboard-plugin)
 1. [Pom Plugin](#pom-plugin)
 1. [Module Info Plugin](#module-info-plugin)
-1. [Cobertura Plugin](#cobertura-plugin)
-1. [JDepend Additions Plugin](#jdepend-additions-plugin)
 
 
 ## Release Notes
@@ -72,7 +69,7 @@ will simply apply all Quill plugins to the Gradle project, thus removing the nee
 plugins individually:
 
     plugins {
-      id 'org.myire.quill.all' version '2.1'
+      id 'org.myire.quill.all' version '3.0'
       ...
 
 or
@@ -83,23 +80,19 @@ Note that the 'all' plugin applies both the Ivy Import plugin and the Maven Impo
 cases where a project uses both Ivy and Maven are probably rare, and most of the time neither of
 them is probably needed.
 
-The 'all' plugin also applies plugins that either require a Java version greater than 8 (the Module
-Info plugin), or have limited functionality with Java versions greater than 8 (the Cobertura and
-JDepend Additions plugins). This is most likely not a good mix in the majority of the use cases.
+The 'all' plugin also applies the Module Info plugin, which requires Java version 9 or later.
 
 Most of the time the 'core' plugin is a better choice. It applies all plugins except for the
  - Ivy Import plugin
  - Maven Import plugin
  - Module Info plugin
  - Jol plugin
- - Cobertura plugin
- - JDepend Additions plugin
 
 The excluded plugins can then be added explicitly as required:
 
     plugins {
-      id 'org.myire.quill.core' version '2.1'
-      id 'org.myire.quill.moduleinfo' version '2.1'
+      id 'org.myire.quill.core' version '3.0'
+      id 'org.myire.quill.moduleinfo' version '3.0'
       ...
 
 or
@@ -147,11 +140,11 @@ or is inaccessible in some other way, the plugin will fall back to the default I
 #### Ivy version
 
 The extension also allows the version of Ivy used for the import to be specified in the property
-`ivyVersion`. By default version 2.4.0 is used.
+`ivyVersion`. By default, version 2.5.0 is used.
 
 Example:
 
-    ivyImport.ivyVersion = '2.5.0-rc1'
+    ivyImport.ivyVersion = '2.4.0'
 
 #### Ivy class path
 
@@ -901,11 +894,11 @@ standard `java` plugin before applying the `jacoco` plugin to make the latter ad
 
 ### Default values
 
-The plugin configures the `jacoco` extension in the project to use version 0.8.5 of JaCoCo. This is
+The plugin configures the `jacoco` extension in the project to use version 0.8.6 of JaCoCo. This is
 equivalent to configuring the extension explicitly in the build script as follows:
 
     jacoco {
-      toolVersion = '0.8.5'
+      toolVersion = '0.8.6'
     }
 
 The plugin also configures the `jacoco` extension added to all test tasks by setting the `append`
@@ -934,8 +927,8 @@ Note that unlike the other plugins that enhance existing plugins, the SpotBugs A
 _not_ apply the SpotBugs Gradle plugin. That plugin must be applied explicitly in the build script:
 
     plugins {
-        id 'com.github.spotbugs' version '4.0.4'
-        id 'org.myire.quill.spotbugs' version '2.3'
+        id 'com.github.spotbugs' version '4.7.0'
+        id 'org.myire.quill.spotbugs' version '3.0'
     }
 
 ### Default values
@@ -989,17 +982,17 @@ configures the corresponding project extension and tasks with some defaults and 
 
 The plugin configures the `checkstyle` extension in the project to let the build continue even if
 violations are found, and to not log every found violation. The Checkstyle version to use is set to
-8.32. This is equivalent to configuring the extension explicitly in the build script as follows:
+8.41.1. This is equivalent to configuring the extension explicitly in the build script as follows:
 
     checkstyle {
       ignoreFailures = true
       showViolations = false
-      toolVersion = '8.32'
+      toolVersion = '8.41.1'
     }
 
 The Checkstyle configuration file is specified to be the one bundled with the Quill jar. This
 configuration file is extracted to the path "tmp/checkstyle/checkstyle_config.xml" relative to the
-project's build directory. Note that this configuration file requires at least version 8.31 of
+project's build directory. Note that this configuration file requires at least version 8.38 of
 Checkstyle. When setting `toolVersion` to an older version of Checkstyle, another configuration file
 must be explicitly configured.
 
@@ -1058,12 +1051,12 @@ corresponding project extension and tasks with some defaults and additions.
 ### Default values
 
 The plugin configures the `pmd` extension in the project to let the build continue even if
-violations are found, and to use version 6.23.0 of PMD. This is equivalent to configuring the
+violations are found, and to use version 6.33.0 of PMD. This is equivalent to configuring the
 extension explicitly in the build script as follows:
 
     pmd {
       ignoreFailures = true
-      toolVersion = '6.23.0'
+      toolVersion = '6.33.0'
     }
 
 The plugin removes the built-in PMD rule sets from the extension's configuration and specifies that
@@ -1075,7 +1068,7 @@ extension is configured to use another rule set file through the incubating `rul
 property, the built-in rule set file will still be in use. It must be explicitly disabled by setting
 `ruleSetFiles` to en empty file collection, e.g. `pmd.ruleSetFiles = files()`.
 
-Note that the built-in rule set file requires at least version 6.12.0 of PMD. When setting
+Note that the built-in rule set file requires at least version 6.25.0 of PMD. When setting
 `toolVersion` to an older version of PMD, another rule set file must be explicitly configured.
 
 ### Extension additions
@@ -1196,7 +1189,7 @@ through the properties described below. Most of these properties are direct equi
 
 * `toolVersion` - a string specifying the version of CPD to use. The default is the version
 specified in `pmd.toolVersion`, or, if the `pmd` extension isn't available in the project, version
-"6.23.0". Note however that `pmd.toolVersion` is only used if it is equal to or greater than the
+"6.33.0". Note however that `pmd.toolVersion` is only used if it is equal to or greater than the
 minimum CPD version "6.1.0".
 
 * `cpdClasspath` - a `FileCollection` specifying the classpath containing the CPD classes used by
@@ -1311,7 +1304,7 @@ task uses the `main` source set's Java files as input files.
 In addition to the standard source task properties, the `scent` task's behaviour can be configured
 through the following properties:
 
-* `toolVersion` - a string specifying the version of Scent to use. Default is version "2.2".
+* `toolVersion` - a string specifying the version of Scent to use. Default is version "2.3".
 
 * `sourceEncoding` - a string specifying the encoding of the Java files, e.g. "UTF-8". If this
 property isn't specified the platform's default encoding will be used.
@@ -1382,8 +1375,6 @@ The Jol plugin is used to analyze object layout with the
 [Jol](https://openjdk.java.net/projects/code-tools/jol/) tool. This plugin is _not_ applied by the
 `core` plugin; it must be applied explicitly. It is however applied by the `all` plugin.
 
-
-
 ### Task
 
 The plugin adds a `jol` task to the project and also adds the task to the dependencies of the
@@ -1428,8 +1419,8 @@ configuration method:
         sourceSet sourceSets['test']
     }
 
-By default all files in all classes directories of the source set will be analyzed. To control which
-class files to analyze a closure that configures a `PatternFilterable` can be specified:
+By default, all files in all classes directories of the source set will be analyzed. To control
+which class files to analyze a closure that configures a `PatternFilterable` can be specified:
 
     jol {
         sourceSet (sourceSets['main']) {
@@ -1613,9 +1604,6 @@ report.
 * All tasks of type `JacocoReport`. The summarized report is the task's `xml` report and the linked
 report is the task's `html` report.
 
-* All tasks of type `CoberturaReportsTask` (see the [Cobertura plugin](#cobertura-plugin)). The
-summarized report is the task's `xml` report and the linked report is the task's `html` report.
-
 * The `spotbugsMain` task, if present. The summarized report is the task's `xml` report and the
 linked report is the task's XSL transformation report, if one exists (see the
 [SpotBugs Additions plugin](#spotbugs-additions-plugin)).
@@ -1638,10 +1626,6 @@ the task's `xml` report and the linked report is the task's `html` report.
 
 * All tasks of type `JolTask` (see the [Jol plugin](#jol-plugin)). The summarized report is
 the task's `xml` report and the linked report is the task's `html` report.
-
-* The `jdependMain` task, if present. The summarized report is the task's `xml` report and the
-linked report is the task's XSL transformation report, if one exists (see the
-[JDepend Additions plugin](#jdepend-additions-plugin)).
 
 Note that these default report sections use XSL files bundled with the Quill jar, and thus appear to
 have no XSL file configured.
@@ -1918,267 +1902,3 @@ dependencies.
 The tasks added by the plugin require a Java toolchain with version 9 or greater, since a module
 declaration must be compiled with at least JDK 9. Running Gradle with Java 9 is supported starting
 with Gradle version 4.2.1.
-
-
-## Cobertura Plugin
-
-Plugin ID: `org.myire.quill.cobertura`
-
-The Cobertura plugin adds functionality for generating Cobertura test coverage reports to all tasks
-of type `Test`.
-
-Although the plugin offers quite a few configuration options, the default values should be fine for
-most use cases.
-
-Note that the latest release of Cobertura is from February 2015, and that it doesn't work with
-classes compiled for Java 11 or newer (the tool can however still be run with Java 11). Consider
-using the [JaCoCo Additions plugin](#jacoco-additions-plugin) instead for code coverage. Because of
-this, the Cobertura plugin is *not* applied by the 'core' plugin.
-
-### Cobertura documentation
-
-The tasks added by the plugin delegate their work to the corresponding Ant task in the Cobertura
-distribution. Consequently, the majority of the properties used to configure the plugin's extensions
-and tasks are the same as the ones used to configure the
-[Cobertura Ant tasks](https://github.com/cobertura/cobertura/wiki/Ant-Task-Reference).
-
-### Project extension
-
-The plugin adds an extension with the name `cobertura` to the Gradle project. This extension is used
-to configure the behaviour of all Cobertura enhanced tasks through the properties listed below.
-
-* `toolVersion` - a string specifying the version of Cobertura to use. Default is version "2.1.1".
-
-* `workDir` - a `File` specifying the global working directory for the Cobertura tasks. Default is a
-directory called `cobertura` in the Gradle project's temporary directory.
-
-* `coberturaClassPath` - a `FileCollection` specifying the classpath containing the Cobertura
-classes used by the tasks. Default is the `cobertura` dependency configuration (see below).
-
-* `ignoreTrivial` - a `boolean` that if true specifies that constructors/methods that contain one
-line of code should be excluded from the test coverage analysis. Examples of such methods are
-constructors only calling a super constructor, and getters/setters. Default is false.
-
-* `ignoreMethodNames` - a list of strings where each string is a regular expression specifying
-methods names that should be excluded from the coverage analysis. Note that the classes containing
-the methods will still be instrumented. Default is an empty list. Example: `.*PrintStream.*`. Note
-that the corresponding Ant task property is called `ignore`.
-
-* `ignoreMethodAnnotations` - a list of strings where each string is the fully qualified name of an
-annotations with which methods that should be excluded from the coverage analysis are annotated
-with. Default is an empty list.
-
-* `sourceEncoding` - a string with the name of the encoding that the report task(s) should use when
-reading the source files. The platform's default encoding will be used if this property isn't
-specified.
-
-### Task specific project extensions
-
-In addition to the global project extension described above, another project extension is added by
-the plugin for each `Test` task that is enhanced with Cobertura functionality. The name of a task
-specific extension is `cobertura` + *the capitalized name of the task*. For example, the extension
-corresponding to the `test` task will have the name `coberturaTest`.
-
-A task specific extension is used to configure the enhancement of the `Test` task, including the
-related instrumentation and report tasks (see below). Each task specific extension has the following
-properties:
-
-* `enabled` - a `boolean` specifying whether the Cobertura enhancement of the `Test` task is enabled
-or not. If the enhancement is disabled, the tests are run with the original classes under test, not
-the instrumented ones, and no coverage report will produced for the test run. Default is true,
-meaning that the tests will run with instrumented classes and that a coverage report will be
-produced.
-
-* `workDir` - a `File` specifying the working directory for the enhanced task. Default is a
-directory with the same name as the enhanced `Test` task in the directory specified by `workDir` in
-the global project extension.
-
-* `inputClasses` - a `FileCollection` specifying the classes to analyze for test coverage. Default
-is all files in the output classes directory of the main source set. Used as input by the
-instrumentation task.
-
-* `auxClassPath` - a `FileCollection` specifying a path containing any classes that shouldn't be
-analyzed but are needed by the instrumentation. Default is no auxiliary class path. Used as input by
-the instrumentation task.
-
-* `ignoreTrivial` - overrides `ignoreTrivial` in the global project extension if set. Used as input
-by the instrumentation task.
-
-* `ignoreMethodNames` - overrides `ignoreMethodNames` in the global project extension if set. Used
-as input by the instrumentation task.
-
-* `ignoreMethodAnnotations` - overrides `ignoreMethodAnnotations` in the global project extension if
-set. Used as input by the instrumentation task.
-
-* `instrumentedClassesDir` - a `File` specifying the directory containing the instrumented versions
-of the classes to analyze. Default is a directory named `instrumented` in the directory specified by
-`workDir`. Used as output by the instrumentation task and as input by the test task.
-
-* `instrumentationDataFile` - a `File` specifying the file holding metadata about the instrumented
-classes. This file contains information about the names of the classes, their method names, line
-numbers, etc. It is created by the instrumentation task. The default value is a file named
-`cobertura.instrumentation.ser` in the directory specified by `workDir`. Used as output by the
-instrumentation task and input by the test task.
-
-* `executionDataFile` - a `File` specifying the file holding metadata about the test execution of
-the instrumented classes. This file contains updated information about the instrumented classes from
-the test runs. It is an updated version of `instrumentationDataFile`, created by the test task and
-used as input by the report task. The default value is a file named `cobertura.execution.ser` in
-the directory specified by `workDir`.
-
-* `sourceDirs` - a `FileCollection` specifying the directories containing the sources of the
-analyzed classes. Default is all source directories in the main source set. Used as input by the
-report task.
-
-* `sourceEncoding` - overrides `sourceEncoding` in the global project extension if set. Used as
-input by the report task.
-
-### Instrumentation tasks
-
-The plugin adds an instrumentation task for each enhanced `Test` task. The name of this task is
-the name of the `Test` task + `CoberturaInstrument`, e.g. `testCoberturaInstrument` for the `test`
-task.
-
-An instrumentation task gets its properties from the corresponding task specific project extension.
-When executed, the instrumentation task instruments the classes in `inputClasses` and writes the
-instrumented versions of those classes to `instrumentedClassesDir`. The task also creates the
-`instrumentationDataFile` file.
-
-### Enhancement of Test tasks
-
-The plugin adds two actions to each enhanced `Test` task.
-
-The first action is added to the beginning of the task's action list. This action prepares the test
-execution by prepending the `instrumentedClassesDir` and the `coberturaClassPath` to the test task's
-classpath. It also set the system property `net.sourceforge.cobertura.datafile` in the test task's
-forked JVM to the value of `executionDataFile`, and copies `instrumentationDataFile` to
-`executionDataFile`.
-
-The second action is added to the end of the task's action list. This action restores the test task
-by setting its classpath and `net.sourceforge.cobertura.datafile` system property to the values they
-had before the preparing action was run.
-
-The instrumentation task associated with an enhanced `Test` task is added to the latter's
-dependencies.
-
-### Report tasks
-
-The plugin adds an report task for each enhanced `Test` task. The name of this task is `cobertura` +
-the name of the `Test` task + `Report`, e.g. `coberturaTestReport` for the `test` task. This means
-that it normally is sufficient to specify `cobertura` as the task to execute.
-
-A report task gets most of its properties from the corresponding task specific project extension,
-see above. In addition to these, it has a read-only property `reports` that holds two report
-specifications:
-
-* `xml` - a `SingleFileReport` specifying the XML report file. Default is a file called
-`coverage.xml` in a directory with the same name as the associated enhanced `Test` task in a
-directory called `cobertura` in the Gradle project's report directory.
-
-* `html` - a `DirectoryReport` specifying the directory where the HTML report is created. Default is
-a directory with the same name as the associated enhanced `Test` task in a directory called
-`cobertura` in the Gradle project's report directory.
-
-These two reports can be configured as any Gradle report, e.g.
-
-    coberturaTestReport.reports.xml.enabled = false
-    coberturaTestReport.reports.html.destination = "${project.buildDir}/reports/coverage"
-
-A report task depends on the associated enhanced `Test` task.
-
-### Dependency configuration
-
-The Cobertura plugin adds a `cobertura` dependency configuration to the project. This configuration
-specifies the default classpath for the Cobertura task. By default, this configuration has one
-dependency, equivalent to:
-
-    cobertura 'net.sourceforge.cobertura:cobertura:<toolVersion>'
-
-where `<toolVersion>` is the value of the `cobertura` extension's `toolVersion` property.
-
-
-## JDepend Additions Plugin
-
-Plugin ID: `org.myire.quill.jdepend`
-
-The JDepend Additions plugin applies the standard Gradle plugin `jdepend` to the project and
-configures the corresponding project extension and tasks with some defaults and additions. It also
-replaces the `jdepend` configuration's dependency on the standard JDepend distribution with a
-dependency on the [guru-nidi](https://github.com/nidi3/jdepend) fork.
-
-The `jdepend` plugin was deprecated in Gradle version 5 and is scheduled to be removed in Gradle
-version 6. Because of this, the JDepend Additions plugin is *not* applied by the 'core' plugin.
-
-### Configuration dependencies
-
-The latest version of the JDepend tool is 2.9.1, which was released in 2005. This version does not
-recognize the Java 8 class format, and it omits classes with Java 8 specific constructs (e.g. method
-handles) from the analysis.
-
-To support dependency analysis of Java 8 code, the plugin uses the
-[guru-nidi](https://github.com/nidi3/jdepend) fork of JDepend rather than the standard distribution.
-This is done by replacing the `jdepend` configuration's dependency on the `jdepend:jdepend` artifact
-with a dependency on the `guru.nidi:jdepend` artifact. The version of the `guru.nidi:jdepend`
-artifact is specified through the extension property `guruNidiVersion` (see below).
-
-This replacement of the standard JDepend library can be disabled by setting the `guruNidiVersion`
-property to null.
-
-### Default values
-
-The plugin configures the `jdepend` extension in the project to let the build continue even if
-failures occur. This currently is a no-op as JDepend does not have the concept of failure; the
-property is an inheritance from `CodeQualityExtension`. This is equivalent to specifying the
-following in the build script:
-
-    jdepend.ignoreFailures = true
-
-### Extension additions
-
-The plugin adds a method called `disableTestChecks` to the `jdepend` extension. Calling this method
-in the build script it will remove the `test` source set from the extension's source sets, thus
-disabling the `jdependTest` task:
-
-    jdepend.disableTestChecks()
-
-The plugin also adds two properties:
-
-* `guruNidiVersion` - a string specifying the version of the guru-nidi JDepend fork to use. Default
-is version "2.9.5". If this property is set to null, the guru-nidi fork will *not* be used.
-
-* `antTaskVersion` - a string specifying the version of the JDepend Ant task to use in conjunction
-with the guru-nidi fork. Default is "1.9.7". Note that this property does not affect the version of
-the Ant task used when the guru-nidi fork is disabled.
-
-### Task additions
-
-The plugin adds an [XSL transformation report](#xsl-transformation-reports) to all tasks of type
-`JDepend`. These reports have the name `quillHtmlReport` and are `enabled` by default. They can be
-configured per task, e.g. to use another XSL file than the one distributed in the Quill jar:
-
-    jdependMain {
-      quillHtmlReport.xslFile = 'resources/jdepend.xsl'
-      quillHtmlReport.destination = "$buildDir/reports/tools/jdepend.html"
-    }
-
-    jdependTest.quillHtmlReport.enabled = false
-
-The plugin also adds a read-only property `jdependProperties` to all tasks of type `JDepend`. This
-property allows specifying a properties file with runtime options for JDepend, as described in the
-[documentation](http://clarkware.com/software/JDepend.html#customize). Normally this can only be
-achieved by adding the properties file to the JDepend classpath (which is what the plugin does if a
-properties file is specified for the task).
-
-The properties file resolved relative to the project directory and is configured like
-
-    jdependMain {
-        jdependProperties.file = 'jdepend.properties'
-    }
-
-If no properties file is explicitly configured the plugin uses a file bundled with the Quill jar
-that excludes the `java.lang` package from the JDepend analysis:
-
-    ignore.java=java.lang
-
-This file is extracted to the path "tmp/jdepend/jdepend.properties" relative to the project's build
-directory.
