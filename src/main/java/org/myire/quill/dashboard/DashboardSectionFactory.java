@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2019-2020 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2019-2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -25,8 +25,6 @@ import org.myire.quill.common.Util;
 import org.myire.quill.cpd.CpdTask;
 import org.myire.quill.jol.JolTask;
 import org.myire.quill.report.FormatChoiceReport;
-import org.myire.quill.report.ReportSet;
-import org.myire.quill.report.ReportingEntity;
 import org.myire.quill.scent.ScentTask;
 
 
@@ -37,10 +35,8 @@ class DashboardSectionFactory extends ProjectAware
 {
     // XSL resources with default style sheets for the standard dashboard sections.
     static private final String XSL_RESOURCE_CHECKSTYLE = "/org/myire/quill/rsrc/report/checkstyle/checkstyle_summary.xsl";
-    static private final String XSL_RESOURCE_COBERTURA = "/org/myire/quill/rsrc/report/cobertura/cobertura_summary.xsl";
     static private final String XSL_RESOURCE_CPD = "/org/myire/quill/rsrc/report/cpd/cpd_summary.xsl";
     static private final String XSL_RESOURCE_JACOCO = "/org/myire/quill/rsrc/report/jacoco/jacoco_summary.xsl";
-    static private final String XSL_RESOURCE_JDEPEND = "/org/myire/quill/rsrc/report/jdepend/jdepend_summary.xsl";
     static private final String XSL_RESOURCE_JOL = "/org/myire/quill/rsrc/report/jol/jol_summary.xsl";
     static private final String XSL_RESOURCE_JUNIT = "/org/myire/quill/rsrc/report/junit/junit_summary.xsl";
     static private final String XSL_RESOURCE_PMD = "/org/myire/quill/rsrc/report/pmd/pmd_summary.xsl";
@@ -57,16 +53,6 @@ class DashboardSectionFactory extends ProjectAware
         getTaskClass("com.github.spotbugs.SpotBugsTask");
     static private final Class<? extends Task> cSpotBugs4TaskClass =
         getTaskClass("com.github.spotbugs.snom.SpotBugsTask");
-
-    // The JDepend classes can't be referenced explicitly since the JDepend plugin may not be
-    // available (it was removed in Gradle 6.0).
-    static private final Class<? extends Task> cJDependTaskClass =
-        getTaskClass("org.gradle.api.plugins.quality.JDepend");
-
-    // The Cobertura classes can't be referenced explicitly since the're still in the Groovy source
-    // tree.
-    static private final Class<? extends Task> cCoberturaReportsTaskClass =
-        getTaskClass("org.myire.quill.cobertura.CoberturaReportsTask");
 
 
     /**
@@ -108,10 +94,6 @@ class DashboardSectionFactory extends ProjectAware
             return createSpotBugsSection(pTask);
         else if (cSpotBugs4TaskClass != null && cSpotBugs4TaskClass.isAssignableFrom(pTask.getClass()))
             return createSpotBugsSection(pTask);
-        else if (cJDependTaskClass != null && cJDependTaskClass.isAssignableFrom(pTask.getClass()))
-            return createJDependSection(pTask);
-        else if (cCoberturaReportsTaskClass != null && cCoberturaReportsTaskClass.isAssignableFrom(pTask.getClass()))
-            return createCoberturaSection(pTask);
         else
             return null;
     }
@@ -123,8 +105,6 @@ class DashboardSectionFactory extends ProjectAware
 
         addSectionsForTaskType(aSections, Test.class, this::createJUnitSection);
         addSectionsForTaskType(aSections, JacocoReport.class, this::createJacocoSection);
-        if (cCoberturaReportsTaskClass != null)
-            addSectionsForTaskType(aSections, cCoberturaReportsTaskClass, this::createCoberturaSection);
         if (cSpotBugsTaskClass != null)
             addSectionsForTaskType(aSections, cSpotBugsTaskClass, this::createSpotBugsMainSection);
         if (cSpotBugs4TaskClass != null)
@@ -134,8 +114,6 @@ class DashboardSectionFactory extends ProjectAware
         addSectionsForTaskType(aSections, CpdTask.class, this::createCpdSection);
         addSectionsForTaskType(aSections, ScentTask.class, this::createScentSection);
         addSectionsForTaskType(aSections, JolTask.class, this::createJolSection);
-        if (cJDependTaskClass != null)
-            addSectionsForTaskType(aSections, cJDependTaskClass, this::createJDependMainSection);
 
         return aSections;
     }
@@ -246,38 +224,6 @@ class DashboardSectionFactory extends ProjectAware
             pTask.getReports().getXml(),
             pTask.getReports().getHtml(),
             XSL_RESOURCE_JACOCO);
-    }
-
-
-    /**
-     * Create a dashboard section for the XML report of the &quot;jdependMain&quot; task.
-     *
-     * @param pTask The JDepend task.
-     *
-     * @return  A new {@code DashboardSection}, or null if the task isn't the
-     *          &quot;jdependMain&quot; task.
-     */
-    private DashboardSection createJDependMainSection(Task pTask)
-    {
-        if ("jdependMain".equals(pTask.getName()))
-            return createJDependSection(pTask);
-        else
-            return null;
-    }
-
-
-    /**
-     * Create a dashboard section for the XML report of a JDepend task.
-     *
-     * @param pTask The JDepend task.
-     *
-     * @return  A new {@code DashboardSection}.
-     */
-    private DashboardSection createJDependSection(Task pTask)
-    {
-        // Can't refer to the JDepend plugin types since they plugin may not be available (it was
-        // removed in Gradle 6.0).
-        return createReportingTaskSection(pTask, XSL_RESOURCE_JDEPEND);
     }
 
 
@@ -425,35 +371,6 @@ class DashboardSectionFactory extends ProjectAware
     {
         // Can't refer to the SpotBugs plugin types since they plugin may not be available.
         return createReportingTaskSection(pTask, XSL_RESOURCE_SPOTBUGS);
-    }
-
-
-    /**
-     * Create a dashboard section for the XML report of a Cobertura reports task.
-     *
-     * @param pTask The Cobertura reports task.
-     *
-     * @return  A new {@code DashboardSection}.
-     */
-    private DashboardSection createCoberturaSection(Task pTask)
-    {
-        // Can't access the types in the cobertura package since they're in the Groovy source tree.
-        if (pTask instanceof ReportingEntity<?>)
-        {
-            ReportSet aReports = ((ReportingEntity<?>) pTask).getReports();
-            Report aXmlReport = aReports.getReportByName("coberturaXml");
-            if (aXmlReport != null)
-            {
-                return new DashboardSection(
-                    pTask.getProject(),
-                    pTask.getName(),
-                    aXmlReport,
-                    aReports.getReportByName("coberturaHtml"),
-                    XSL_RESOURCE_COBERTURA);
-            }
-        }
-
-        return null;
     }
 
 

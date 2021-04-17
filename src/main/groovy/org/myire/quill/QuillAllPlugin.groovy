@@ -1,5 +1,5 @@
 /*
- * Copyright 2015-2017, 2019-2020 Peter Franzen. All rights reserved.
+ * Copyright 2015-2017, 2019-2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -8,8 +8,7 @@ package org.myire.quill
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 
-import org.myire.quill.check.JDependAdditionsPlugin
-import org.myire.quill.cobertura.CoberturaPlugin
+
 import org.myire.quill.ivy.IvyImportPlugin
 import org.myire.quill.jigsaw.ModuleInfoPlugin
 import org.myire.quill.jol.JolPlugin
@@ -30,7 +29,5 @@ class QuillAllPlugin implements Plugin<Project>
         pProject.plugins.apply(MavenImportPlugin.class);
         pProject.plugins.apply(ModuleInfoPlugin.class);
         pProject.plugins.apply(JolPlugin.class);
-        pProject.plugins.apply(CoberturaPlugin.class);
-        pProject.plugins.apply(JDependAdditionsPlugin.class);
     }
 }

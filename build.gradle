@@ -3,11 +3,11 @@ plugins
     id 'java-gradle-plugin'
     id 'groovy'
     id 'maven'
-    id 'com.gradle.plugin-publish' version '0.10.1'
+    id 'com.gradle.plugin-publish' version '0.14.0'
 }
 
 group = 'org.myire'
-version = '2.4'
+version = '3.0'
 
 
 repositories

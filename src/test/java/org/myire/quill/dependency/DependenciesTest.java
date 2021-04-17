@@ -1,5 +1,5 @@
 /*
- * Copyright 2018 Peter Franzen. All rights reserved.
+ * Copyright 2018, 2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -146,7 +146,7 @@ public class DependenciesTest
         assertEquals(aVersion, aDependency.getVersion());
         assertFalse(((ModuleDependency) aDependency).isTransitive());
         assertTrue(((ExternalModuleDependency) aDependency).isChanging());
-        assertTrue(((ExternalModuleDependency) aDependency).isForce());
+        assertEquals(aVersion, ((ExternalModuleDependency) aDependency).getVersionConstraint().getStrictVersion());
     }
 
 

@@ -1,5 +1,6 @@
 # Quill Release Notes
 
+[version 3.0](#version-30)  
 [version 2.4](#version-24)  
 [version 2.3.1](#version-231)  
 [version 2.3](#version-23)  
@@ -15,6 +16,22 @@
 [version 0.11](#version-011)  
 [version 0.10](#version-010)  
 [version 0.9](#version-09)
+
+
+### version 3.0
+
+* Support for Gradle 7.
+* Requires Gradle 6 to run.
+* Checkstyle default version upgraded to 8.41.1. The built-in configuration file requires at least
+  version 8.38.
+* PMD and CPD default versions upgraded to 6.33. The built-in PMD rule file requires at least
+  version 6.25.
+* Jacoco default version upgraded to 0.8.6.
+* Scent default version upgraded to 2.3.
+* The Ivy Import plugin used Ivy version 2.5.0 by default, but does not depend on any 2.5 specific
+  functionality.
+* Cobertura plugin removed. Use the Jacoco plugin instead.
+* JDepend Additions plugin removed (the JDepend plugin was removed in Gradle 6).
 
 
 ### version 2.4

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, 2018-2020 Peter Franzen. All rights reserved.
+ * Copyright 2016, 2018-2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -36,7 +36,7 @@ import org.myire.quill.report.TransformingReport;
 public class ScentTask extends SourceTask implements ReportingEntity<ScentReports>
 {
     // The default version of Scent to use.
-    static private final String DEFAULT_TOOL_VERSION = "2.2";
+    static private final String DEFAULT_TOOL_VERSION = "2.3";
 
     // Fully qualified name of the ScentRunner implementation class to use.
     static private final String IMPLEMENTATION_PACKAGE = "org.myire.quill.scent.impl.";
