@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -13,6 +13,7 @@ import org.gradle.api.tasks.testing.Test
 
 import org.myire.quill.common.Projects
 import org.myire.quill.report.DefaultSingleFileReport
+import org.myire.quill.report.Reports
 
 
 /**
@@ -55,7 +56,7 @@ class JUnitSummaryReport extends DefaultSingleFileReport
         if (junitReportDirectory != null)
             return junitReportDirectory;
         else
-            return fTask.reports.getJunitXml()?.destination;
+            return Reports.getOutputLocation(fTask.reports.getJunitXml());
     }
 
 
@@ -86,7 +87,7 @@ class JUnitSummaryReport extends DefaultSingleFileReport
             // A disabled report is always up-to-date.
             return true;
 
-        File aReportFile = getDestination();
+        File aReportFile = Reports.getOutputLocation(this);
         if (aReportFile == null)
             // No report file should be created and it is thereby always up-to-date.
             return true;
@@ -109,7 +110,7 @@ class JUnitSummaryReport extends DefaultSingleFileReport
     {
         JUnitReportAggregator aAggregator = new JUnitReportAggregator();
         aAggregator.aggregate(getJunitReportDirectory(), getFileNamePattern());
-        aAggregator.writeXmlFile(getDestination());
+        aAggregator.writeXmlFile(Reports.getOutputLocation(this));
     }
 
 

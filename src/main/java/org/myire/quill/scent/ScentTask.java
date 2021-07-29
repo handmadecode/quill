@@ -27,6 +27,7 @@ import org.gradle.api.tasks.TaskAction;
 import org.myire.quill.common.ExternalToolLoader;
 import org.myire.quill.common.Projects;
 import org.myire.quill.report.ReportingEntity;
+import org.myire.quill.report.Reports;
 import org.myire.quill.report.TransformingReport;
 
 
@@ -183,14 +184,14 @@ public class ScentTask extends SourceTask implements ReportingEntity<ScentReport
     public void run()
     {
         SingleFileReport aXmlReport = fReports.getXml();
-        if (aXmlReport.isEnabled())
+        if (Reports.isRequired(aXmlReport))
         {
             // Collect the code metrics and create the XML report.
-            collectMetricsAsXml(aXmlReport.getDestination());
+            collectMetricsAsXml(Reports.getOutputLocation(aXmlReport));
 
             // Create the HTML report if enabled.
             TransformingReport aHtmlReport = fReports.getHtml();
-            if (aHtmlReport.isEnabled())
+            if (Reports.isRequired(aHtmlReport))
                 aHtmlReport.transform();
         }
         else
@@ -207,7 +208,7 @@ public class ScentTask extends SourceTask implements ReportingEntity<ScentReport
 
         // Only execute the task if its XML report is enabled, as the HTML report is created from
         // the XML report.
-        onlyIf(ignore -> getReports().getXml().isEnabled());
+        onlyIf(ignore -> Reports.isRequired(getReports().getXml()));
 
         // Add the reports to the task's input and output properties.
         fReports.setInputsAndOutputs(this);

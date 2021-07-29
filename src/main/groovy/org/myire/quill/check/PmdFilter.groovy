@@ -12,6 +12,7 @@ import org.gradle.api.plugins.quality.Pmd
 import org.myire.quill.common.ProjectAware
 import org.myire.quill.filter.RuleViolationFilterLoader
 import org.myire.quill.filter.RuleViolationMatcher
+import org.myire.quill.report.Reports
 
 
 /**
@@ -57,7 +58,7 @@ class PmdFilter extends ProjectAware
      */
     void apply()
     {
-        if (!enabled || !fTask.reports.getXml().destination?.canRead())
+        if (!enabled || !Reports.getOutputLocation(fTask.reports.getXml())?.canRead())
             // The filter isn't enabled, or the task's XML report doesn't exist, shouldn't/cannot
             // filter.
             return;
@@ -70,7 +71,7 @@ class PmdFilter extends ProjectAware
                                file.absolutePath);
 
             // Parse the PMD XML report file and filter it.
-            File aPmdReportFile = fTask.reports.getXml().destination;
+            File aPmdReportFile = Reports.getOutputLocation(fTask.reports.getXml());
             Node aPmdReport = new XmlParser().parse(aPmdReportFile);
             int aNumFilteredViolations = doFilter(aPmdReport, aMatchers);
             if (aNumFilteredViolations > 0)

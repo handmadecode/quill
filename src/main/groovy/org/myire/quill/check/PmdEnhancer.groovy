@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2019 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2019, 2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -14,6 +14,7 @@ import org.gradle.util.VersionNumber
 
 import org.myire.quill.common.Projects
 import org.myire.quill.common.Tasks
+import org.myire.quill.report.Reports
 
 
 /**
@@ -170,8 +171,8 @@ class PmdEnhancer extends AbstractPluginEnhancer<Pmd>
         void enhance()
         {
             // Produce an xml report but no html report.
-            task.reports.getXml().enabled = true;
-            task.reports.getHtml().enabled = false;
+            Reports.setRequired(task.reports.getXml(), true);
+            Reports.setRequired(task.reports.getHtml(), false);
 
             // By default tasks get the rule set files from the extension, which is fine, but we
             // must check if the extension specifies the built-in rule file (which it is configured

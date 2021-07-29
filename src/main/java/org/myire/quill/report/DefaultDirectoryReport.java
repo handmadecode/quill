@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2018, 2020 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018, 2020-2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -60,10 +60,10 @@ public class DefaultDirectoryReport extends DefaultDestinationReport implements 
     @Override
     public File getEntryPoint()
     {
-        if  (fEntryPointRelativePath != null)
-            return new File(getDestination(), fEntryPointRelativePath);
+        if (fEntryPointRelativePath != null)
+            return new File(resolveDestination(), fEntryPointRelativePath);
         else
-            return getDestination();
+            return resolveDestination();
     }
 
 
@@ -74,7 +74,7 @@ public class DefaultDirectoryReport extends DefaultDestinationReport implements 
         if (fOutputLocation == null)
         {
             fOutputLocation = Providers.createDirectoryProperty(getProject());
-            fOutputLocation.set(getDestination());
+            fOutputLocation.set(resolveDestination());
         }
 
         return fOutputLocation;

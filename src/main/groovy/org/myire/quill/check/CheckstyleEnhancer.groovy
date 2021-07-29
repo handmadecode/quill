@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -13,6 +13,7 @@ import org.gradle.api.plugins.quality.CheckstyleReports
 import org.gradle.api.reporting.Report
 
 import org.myire.quill.common.Projects
+import org.myire.quill.report.Reports
 
 
 /**
@@ -148,8 +149,8 @@ class CheckstyleEnhancer extends AbstractPluginEnhancer<Checkstyle>
         void enhance()
         {
             // Produce an xml report but no html report.
-            task.reports.getXml().enabled = true;
-            getHtmlReport(task.reports)?.enabled = false;
+            Reports.setRequired(task.reports.getXml(), true);
+            Reports.setRequired(getHtmlReport(task.reports), false);
 
             // By default tasks get the config file from the extension, which is fine, but we must
             // check if the extension specifies the built-in config file (which it is configured to

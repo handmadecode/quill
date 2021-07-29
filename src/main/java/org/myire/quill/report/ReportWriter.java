@@ -48,7 +48,7 @@ public class ReportWriter implements Closeable
     {
         fWriter =
             new OutputStreamWriter(
-                Files.newOutputStream(pReport.getDestination().toPath(), pOpenOptions),
+                Files.newOutputStream(Reports.getOutputLocation(pReport).toPath(), pOpenOptions),
                 pCharset);
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2019 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2019, 2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -10,6 +10,7 @@ import org.gradle.api.Project
 import org.gradle.api.tasks.testing.Test
 
 import org.myire.quill.common.Projects
+import org.myire.quill.report.Reports
 
 
 /**
@@ -28,7 +29,7 @@ class JUnitAdditionsPlugin implements Plugin<Project>
         {
             // Create a JUnit summary report, enable it and add it to the task's convention.
             JUnitSummaryReport aReport = new JUnitSummaryReport(aTestTask);
-            aReport.enabled = true;
+            Reports.setRequired(aReport, true);
             aTestTask.convention.add(SUMMARY_REPORT_NAME, aReport);
 
             // Add the report to the test task's update check to allow triggering the tests if the

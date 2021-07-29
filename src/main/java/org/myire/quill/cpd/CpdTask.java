@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2018-2019 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018-2019, 2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -29,6 +29,7 @@ import org.myire.quill.common.Projects;
 import org.myire.quill.common.Tasks;
 import org.myire.quill.report.FormatChoiceReport;
 import org.myire.quill.report.ReportingEntity;
+import org.myire.quill.report.Reports;
 import org.myire.quill.report.TransformingReport;
 
 
@@ -385,17 +386,17 @@ public class CpdTask extends SourceTask implements ReportingEntity<CpdReports>
     public void run()
     {
         FormatChoiceReport aPrimaryReport = fReports.getPrimary();
-        if (aPrimaryReport.isEnabled())
+        if (Reports.isRequired(aPrimaryReport))
         {
             // Ensure the report's parent directory exists.
-            Projects.ensureParentExists(aPrimaryReport.getDestination());
+            Projects.ensureParentExists(Reports.getOutputLocation(aPrimaryReport));
 
             // Perform the copy-paste detection and create the primary report.
             runCpd(aPrimaryReport);
 
             // Create the HTML report if enabled and the primary report is an XML report.
             TransformingReport aHtmlReport = fReports.getHtml();
-            if (aHtmlReport.isEnabled() && CpdReports.FORMAT_XML.equals(aPrimaryReport.getFormat()))
+            if (Reports.isRequired(aHtmlReport) && CpdReports.FORMAT_XML.equals(aPrimaryReport.getFormat()))
                 aHtmlReport.transform();
         }
         else
@@ -414,7 +415,7 @@ public class CpdTask extends SourceTask implements ReportingEntity<CpdReports>
         {
             loadCpdRunner().runCpd(
                 getSource().getFiles(),
-                pPrimaryReport.getDestination(),
+                Reports.getOutputLocation(pPrimaryReport),
                 pPrimaryReport.getFormat(),
                 fCpdParameters);
         }
@@ -440,18 +441,18 @@ public class CpdTask extends SourceTask implements ReportingEntity<CpdReports>
         fReports = new CpdReportsImpl(this);
 
         // Only execute the task if its primary report is enabled.
-        onlyIf(ignore -> getReports().getPrimary().isEnabled());
+        onlyIf(ignore -> Reports.isRequired(getReports().getPrimary()));
 
         // If any of the reports' enabled flag is modified the task should be rerun.
-        Tasks.inputProperty(this, "'primaryReportEnabled'", () -> this.getReports().getPrimary().isEnabled());
-        Tasks.inputProperty(this, "htmlReportEnabled", () -> this.getReports().getHtml().isEnabled());
+        Tasks.inputProperty(this, "'primaryReportEnabled'", () -> Reports.isRequired(this.getReports().getPrimary()));
+        Tasks.inputProperty(this, "htmlReportEnabled", () -> Reports.isRequired(this.getReports().getHtml()));
 
         // The XSL file used to create the HTML report is an input to the task.
         Tasks.optionalInputFile(this, () -> this.getReports().getHtml().getXslFile());
 
         // Add both reports' destination as output of this task.
-        Tasks.outputFile(this, () -> this.getReports().getPrimary().getDestination());
-        Tasks.outputFile(this, () -> this.getReports().getHtml().getDestination());
+        Tasks.outputFile(this, () -> Reports.getOutputLocation(this.getReports().getPrimary()));
+        Tasks.outputFile(this, () -> Reports.getOutputLocation(this.getReports().getHtml()));
     }
 
 
