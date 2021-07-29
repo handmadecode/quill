@@ -24,7 +24,7 @@ import org.myire.quill.report.Reports;
  */
 public class JacocoAdditionsPlugin implements Plugin<Project>
 {
-    static private final String DEFAULT_TOOL_VERSION = "0.8.6";
+    static private final String DEFAULT_TOOL_VERSION = "0.8.7";
     static private final String JACOCO_TEST_REPORT_TASK_NAME = "jacocoTestReport";
 
 
