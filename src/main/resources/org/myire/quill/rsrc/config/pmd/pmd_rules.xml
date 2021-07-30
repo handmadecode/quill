@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 
-<!--Requires PMD version 6.25 or greater -->
+<!--Requires PMD version 6.36 or greater -->
 
 <ruleset name="Quill">
 
@@ -21,13 +21,12 @@
     <rule ref="category/java/errorprone.xml/AvoidCallingFinalize"><priority>1</priority></rule>
     <rule ref="category/java/errorprone.xml/AvoidCatchingNPE"><priority>1</priority></rule>
     <rule ref="category/java/errorprone.xml/AvoidDecimalLiteralsInBigDecimalConstructor"><priority>1</priority></rule>
-    <rule ref="category/java/errorprone.xml/BadComparison"><priority>1</priority></rule>
     <rule ref="category/java/errorprone.xml/BrokenNullCheck"><priority>1</priority></rule>
     <rule ref="category/java/errorprone.xml/ClassCastExceptionWithToArray"><priority>1</priority></rule>
     <rule ref="category/java/errorprone.xml/CloneMethodMustBePublic"><priority>1</priority></rule>
     <rule ref="category/java/errorprone.xml/CloneMethodMustImplementCloneable"><priority>1</priority></rule>
     <rule ref="category/java/errorprone.xml/CloneMethodReturnTypeMustMatchClassName"><priority>1</priority></rule>
-    <rule ref="category/java/errorprone.xml/CloneThrowsCloneNotSupportedException"><priority>1</priority></rule>
+    <rule ref="category/java/errorprone.xml/ComparisonWithNaN"><priority>1</priority></rule>
     <rule ref="category/java/errorprone.xml/ConstructorCallsOverridableMethod"><priority>1</priority></rule>
     <rule ref="category/java/errorprone.xml/EmptyFinalizer"><priority>1</priority></rule>
     <rule ref="category/java/errorprone.xml/FinalizeDoesNotCallSuperFinalize"><priority>1</priority></rule>
@@ -62,20 +61,18 @@
     <rule ref="category/java/bestpractices.xml/SwitchStmtsShouldHaveDefault"><priority>2</priority></rule>
     <rule ref="category/java/bestpractices.xml/SystemPrintln"><priority>2</priority></rule>
     <rule ref="category/java/bestpractices.xml/UnusedFormalParameter"><priority>2</priority></rule>
-    <rule ref="category/java/bestpractices.xml/UnusedImports"><priority>2</priority></rule>
     <rule ref="category/java/bestpractices.xml/UnusedLocalVariable"><priority>2</priority></rule>
     <rule ref="category/java/bestpractices.xml/UnusedPrivateField"><priority>2</priority></rule>
     <rule ref="category/java/bestpractices.xml/UnusedPrivateMethod"><priority>2</priority></rule>
 
     <rule ref="category/java/codestyle.xml/AvoidDollarSigns"><priority>2</priority></rule>
-    <rule ref="category/java/codestyle.xml/DontImportJavaLang"><priority>2</priority></rule>
-    <rule ref="category/java/codestyle.xml/DuplicateImports"><priority>2</priority></rule>
     <rule ref="category/java/codestyle.xml/PrematureDeclaration"><priority>2</priority></rule>
     <rule ref="category/java/codestyle.xml/UnnecessaryFullyQualifiedName"><priority>2</priority></rule>
+    <rule ref="category/java/codestyle.xml/UnnecessaryImport"><priority>2</priority></rule>
     <rule ref="category/java/codestyle.xml/UnnecessaryLocalBeforeReturn"><priority>2</priority></rule>
     <rule ref="category/java/codestyle.xml/UnnecessaryModifier"><priority>2</priority></rule>
     <rule ref="category/java/codestyle.xml/UnnecessaryReturn"><priority>2</priority></rule>
-    <rule ref="category/java/codestyle.xml/UselessQualifiedThis"><priority>1</priority></rule>
+    <rule ref="category/java/codestyle.xml/UselessQualifiedThis"><priority>2</priority></rule>
 
     <rule ref="category/java/design.xml/AvoidCatchingGenericException"><priority>2</priority></rule>
     <rule ref="category/java/design.xml/AvoidThrowingNewInstanceOfSameException"><priority>2</priority></rule>
@@ -120,7 +117,6 @@
     <rule ref="category/java/errorprone.xml/EmptyWhileStmt"><priority>2</priority></rule>
     <rule ref="category/java/errorprone.xml/EqualsNull"><priority>2</priority></rule>
     <rule ref="category/java/errorprone.xml/IdempotentOperations"><priority>2</priority></rule>
-    <rule ref="category/java/errorprone.xml/ImportFromSamePackage"><priority>2</priority></rule>
     <rule ref="category/java/errorprone.xml/InstantiationToGetClass"><priority>2</priority></rule>
     <rule ref="category/java/errorprone.xml/JumbledIncrementer"><priority>2</priority></rule>
     <rule ref="category/java/errorprone.xml/MissingBreakInSwitch"><priority>2</priority></rule>
@@ -165,6 +161,7 @@
     <rule ref="category/java/bestpractices.xml/ReplaceEnumerationWithIterator"><priority>3</priority></rule>
     <rule ref="category/java/bestpractices.xml/ReplaceHashtableWithMap"><priority>3</priority></rule>
     <rule ref="category/java/bestpractices.xml/ReplaceVectorWithList"><priority>3</priority></rule>
+    <rule ref="category/java/bestpractices.xml/UseStandardCharsets"><priority>3</priority></rule>
     <rule ref="category/java/bestpractices.xml/UseTryWithResources"><priority>3</priority></rule>
 
     <rule ref="category/java/codestyle.xml/AvoidProtectedFieldInFinalClass"><priority>3</priority></rule>
@@ -209,7 +206,6 @@
     <rule ref="category/java/errorprone.xml/AvoidFieldNameMatchingMethodName"><priority>3</priority></rule>
     <rule ref="category/java/errorprone.xml/AvoidFieldNameMatchingTypeName"><priority>3</priority></rule>
     <rule ref="category/java/errorprone.xml/AvoidInstanceofChecksInCatchClause"><priority>3</priority></rule>
-    <rule ref="category/java/errorprone.xml/MissingSerialVersionUID"><priority>3</priority></rule>
     <rule ref="category/java/errorprone.xml/MissingStaticMethodInNonInstantiatableClass"><priority>3</priority></rule>
 
     <rule ref="category/java/performance.xml/AvoidFileStream"><priority>3</priority></rule>

@@ -32,7 +32,7 @@ class PmdEnhancer extends AbstractPluginEnhancer<Pmd>
 {
     static private final String PMD_TOOL_NAME = 'PMD'
     static private final String PMD_EXTENSION_NAME = PMD_TOOL_NAME.toLowerCase()
-    static private final String DEFAULT_TOOL_VERSION = '6.33.0'
+    static private final String DEFAULT_TOOL_VERSION = '6.36.0'
 
     // The file name to use when extracting the built-in rule file from its resource.
     static private final String BUILTIN_RULE_FILE_NAME = 'pmd_rules.xml'
