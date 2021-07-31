@@ -105,6 +105,17 @@ abstract public class SimpleConfigurableReport extends ProjectAware implements C
     }
 
 
+    /**
+     * Set the value of the {@code outputLocation} property.
+     *
+     * @param pLocation The property's new value.
+     */
+    public void setOutputLocation(Object pLocation)
+    {
+        useDestination(pLocation);
+    }
+
+
     @Override
     public boolean isEnabled()
     {
@@ -138,6 +149,17 @@ abstract public class SimpleConfigurableReport extends ProjectAware implements C
     public Property<Boolean> getRequired()
     {
         return fRequiredProperty;
+    }
+
+
+    /**
+     * Set the value of the {@code required} property.
+     *
+     * @param pValue    The property's new value.
+     */
+    public void setRequired(boolean pValue)
+    {
+        fRequiredProperty.set(Boolean.valueOf(pValue));
     }
 
 
@@ -179,7 +201,7 @@ abstract public class SimpleConfigurableReport extends ProjectAware implements C
 
     /**
      * Resolve the destination specified by the latest call to {@link #setDestination(File)},
-     * {@link #setDestination(Provider)}, or {@link #useDestination(File)}.
+     * {@link #setDestination(Provider)}, or {@link #useDestination(Object)}.
      *
      * @return  The destination file resolved with the project directory as base directory. If no
      *          destination has been specified, null is returned.
@@ -196,7 +218,7 @@ abstract public class SimpleConfigurableReport extends ProjectAware implements C
      *
      * @param pDestination  The report's destination, possibly null.
      */
-    protected void useDestination(File pDestination)
+    protected void useDestination(Object pDestination)
     {
         fDestination = pDestination;
     }
