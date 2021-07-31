@@ -83,7 +83,7 @@ class JUnitSummaryReport extends DefaultSingleFileReport
      */
     boolean checkUpToDate()
     {
-        if (!enabled)
+        if (!reportIsRequired())
             // A disabled report is always up-to-date.
             return true;
 
@@ -108,9 +108,12 @@ class JUnitSummaryReport extends DefaultSingleFileReport
      */
     void createReport()
     {
-        JUnitReportAggregator aAggregator = new JUnitReportAggregator();
-        aAggregator.aggregate(getJunitReportDirectory(), getFileNamePattern());
-        aAggregator.writeXmlFile(Reports.getOutputLocation(this));
+        if (reportIsRequired())
+        {
+            JUnitReportAggregator aAggregator = new JUnitReportAggregator();
+            aAggregator.aggregate(getJunitReportDirectory(), getFileNamePattern());
+            aAggregator.writeXmlFile(Reports.getOutputLocation(this));
+        }
     }
 
 

@@ -263,18 +263,23 @@ public class DashboardTask extends DefaultTask implements ReportingEntity<Dashbo
     @TaskAction
     public void createReport()
     {
-        try
+        if (Reports.isRequired(fReports.getHtml()))
         {
-            ReportBuilder aReportBuilder = new ReportBuilder(Reports.getOutputLocation(fReports.getHtml()));
-            fLayout.write(aReportBuilder, fSections.values(), findChildProjectDashboards());
-            aReportBuilder.close();
+            try
+            {
+                ReportBuilder aReportBuilder = new ReportBuilder(Reports.getOutputLocation(fReports.getHtml()));
+                fLayout.write(aReportBuilder, fSections.values(), findChildProjectDashboards());
+                aReportBuilder.close();
 
-            if (fVerbose)
-                getLogger().lifecycle("Created reports dashboard {}", aReportBuilder.getDestination().getAbsolutePath());
-        }
-        catch (IOException ioe)
-        {
-            getLogger().error("Could not create reports dashboard", ioe);
+                if (fVerbose)
+                    getLogger().lifecycle(
+                        "Created reports dashboard {}",
+                        aReportBuilder.getDestination().getAbsolutePath());
+            }
+            catch (IOException ioe)
+            {
+                getLogger().error("Could not create reports dashboard", ioe);
+            }
         }
     }
 
@@ -292,6 +297,9 @@ public class DashboardTask extends DefaultTask implements ReportingEntity<Dashbo
         // of this task.
         fReports = new DashboardReportsImpl(this);
         Tasks.outputFile(this, () -> Reports.getOutputLocation(this.getReports().getHtml()));
+
+        // Only execute the task if its HTML report is enabled.
+        onlyIf(ignore -> Reports.isRequired(getReports().getHtml()));
     }
 
 
