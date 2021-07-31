@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Peter Franzen. All rights reserved.
+ * Copyright 2020-2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -34,6 +34,7 @@ import org.gradle.util.ConfigureUtil;
 import org.myire.quill.common.ExternalToolLoader;
 import org.myire.quill.common.Projects;
 import org.myire.quill.report.ReportingEntity;
+import org.myire.quill.report.Reports;
 import org.myire.quill.report.TransformingReport;
 
 
@@ -369,7 +370,7 @@ public class JolTask extends DefaultTask implements ReportingEntity<JolReports>
     public void run()
     {
         SingleFileReport aXmlReport = fReports.getXml();
-        if (aXmlReport.isEnabled())
+        if (Reports.isRequired(aXmlReport))
         {
             // Run the analysis and create the XML report.
             JolResult aResult = runJolAnalysis();
@@ -379,7 +380,7 @@ public class JolTask extends DefaultTask implements ReportingEntity<JolReports>
 
                 // Create the HTML report if enabled.
                 TransformingReport aHtmlReport = fReports.getHtml();
-                if (aHtmlReport.isEnabled())
+                if (Reports.isRequired(aHtmlReport))
                     aHtmlReport.transform();
             }
         }
@@ -397,7 +398,7 @@ public class JolTask extends DefaultTask implements ReportingEntity<JolReports>
 
         // Only execute the task if its XML report is enabled, as the HTML report is created from
         // the XML report.
-        onlyIf(_ignore -> getReports().getXml().isEnabled());
+        onlyIf(_ignore -> Reports.isRequired(getReports().getXml()));
 
         // Add the reports to the task's input and output properties.
         fReports.setInputsAndOutputs(this);
@@ -470,7 +471,7 @@ public class JolTask extends DefaultTask implements ReportingEntity<JolReports>
         }
         catch (IOException ioe)
         {
-            getLogger().error("Failed to create Jol report {}", pXmlReport.getDestination(), ioe);
+            getLogger().error("Failed to create Jol report {}", Reports.getOutputLocation(pXmlReport), ioe);
         }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2019 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2019, 2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -15,6 +15,7 @@ import org.gradle.util.ConfigureUtil;
 import org.myire.quill.report.DefaultFormatChoiceReport;
 import org.myire.quill.report.FormatChoiceReport;
 import org.myire.quill.report.FormatChoiceReportTransformingReport;
+import org.myire.quill.report.Reports;
 import org.myire.quill.report.TransformingReport;
 
 
@@ -58,8 +59,8 @@ public class CpdReportsImpl implements CpdReports
                 BUILTIN_CPD_XSL);
 
         // Both reports are enabled by default.
-        fPrimaryReport.setEnabled(true);
-        fHtmlReport.setEnabled(true);
+        Reports.setRequired(fPrimaryReport, true);
+        Reports.setRequired(fHtmlReport, true);
     }
 
 

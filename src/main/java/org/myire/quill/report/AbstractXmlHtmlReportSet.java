@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Peter Franzen. All rights reserved.
+ * Copyright 2020-2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -71,8 +71,8 @@ abstract public class AbstractXmlHtmlReportSet<T extends XmlHtmlReportSet<T>> im
                 pXslResourcePath);
 
         // Both reports are enabled by default.
-        fXmlReport.setEnabled(true);
-        fHtmlReport.setEnabled(true);
+        Reports.setRequired(fXmlReport, true);
+        Reports.setRequired(fHtmlReport, true);
     }
 
 
@@ -134,8 +134,8 @@ abstract public class AbstractXmlHtmlReportSet<T extends XmlHtmlReportSet<T>> im
     public void setInputsAndOutputs(Task pTask)
     {
         // If any of the reports' enabled flag is modified the task should be rerun.
-        Tasks.inputProperty(pTask, "xmlReportEnabled", fXmlReport::isEnabled);
-        Tasks.inputProperty(pTask, "htmlReportEnabled", fHtmlReport::isEnabled);
+        Tasks.inputProperty(pTask, "xmlReportEnabled", () -> Reports.isRequired(fXmlReport));
+        Tasks.inputProperty(pTask, "htmlReportEnabled", () -> Reports.isRequired(fHtmlReport));
 
         // The XSL file used to create the HTML report is an optional input file.
         Tasks.optionalInputFile(pTask, fHtmlReport::getXslFile);

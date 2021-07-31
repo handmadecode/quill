@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2018 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018, 2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -16,9 +16,9 @@ import org.gradle.api.reporting.Report;
 
 /**
  * A report that lazily evaluates its destination through a Closure to a default value if no
- * destination has been specified when {@code getDestination()} is called.
+ * destination has been specified when {@code resolveDestination()} is called.
  */
-public class DefaultDestinationReport extends SimpleConfigurableReport
+abstract public class DefaultDestinationReport extends SimpleConfigurableReport
 {
     private final Closure<File> fDefaultDestination;
 
@@ -35,7 +35,7 @@ public class DefaultDestinationReport extends SimpleConfigurableReport
      *
      * @throws NullPointerException if {@code pProject} or {@code pDefaultDestination} is null.
      */
-    public DefaultDestinationReport(
+    protected DefaultDestinationReport(
         Project pProject,
         String pName,
         String pDisplayName,
@@ -48,13 +48,13 @@ public class DefaultDestinationReport extends SimpleConfigurableReport
 
 
     @Override
-    public File getDestination()
+    protected File resolveDestination()
     {
-        File aDestination = super.getDestination();
+        File aDestination = super.resolveDestination();
         if (aDestination == null)
         {
             aDestination = fDefaultDestination.call();
-            setDestination(aDestination);
+            useDestination(aDestination);
         }
 
         return aDestination;

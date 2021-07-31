@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2019 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2019, 2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -34,6 +34,7 @@ import org.myire.quill.common.Projects;
 import org.myire.quill.common.Tasks;
 import org.myire.quill.report.ReportBuilder;
 import org.myire.quill.report.ReportingEntity;
+import org.myire.quill.report.Reports;
 
 
 /**
@@ -262,18 +263,23 @@ public class DashboardTask extends DefaultTask implements ReportingEntity<Dashbo
     @TaskAction
     public void createReport()
     {
-        try
+        if (Reports.isRequired(fReports.getHtml()))
         {
-            ReportBuilder aReportBuilder = new ReportBuilder(fReports.getHtml().getDestination());
-            fLayout.write(aReportBuilder, fSections.values(), findChildProjectDashboards());
-            aReportBuilder.close();
+            try
+            {
+                ReportBuilder aReportBuilder = new ReportBuilder(Reports.getOutputLocation(fReports.getHtml()));
+                fLayout.write(aReportBuilder, fSections.values(), findChildProjectDashboards());
+                aReportBuilder.close();
 
-            if (fVerbose)
-                getLogger().lifecycle("Created reports dashboard {}", aReportBuilder.getDestination().getAbsolutePath());
-        }
-        catch (IOException ioe)
-        {
-            getLogger().error("Could not create reports dashboard", ioe);
+                if (fVerbose)
+                    getLogger().lifecycle(
+                        "Created reports dashboard {}",
+                        aReportBuilder.getDestination().getAbsolutePath());
+            }
+            catch (IOException ioe)
+            {
+                getLogger().error("Could not create reports dashboard", ioe);
+            }
         }
     }
 
@@ -290,7 +296,10 @@ public class DashboardTask extends DefaultTask implements ReportingEntity<Dashbo
         // Create the task's report container and add the container's report's destination as output
         // of this task.
         fReports = new DashboardReportsImpl(this);
-        Tasks.outputFile(this, () -> this.getReports().getHtml().getDestination());
+        Tasks.outputFile(this, () -> Reports.getOutputLocation(this.getReports().getHtml()));
+
+        // Only execute the task if its HTML report is enabled.
+        onlyIf(ignore -> Reports.isRequired(getReports().getHtml()));
     }
 
 
@@ -336,11 +345,11 @@ public class DashboardTask extends DefaultTask implements ReportingEntity<Dashbo
 
         // Create a map from child project name to dashboard report file path.
         Map<String, String> aChildProjectsDashboards = new HashMap<>();
-        Path aBasePath = getReports().getHtml().getDestination().toPath().getParent();
+        Path aBasePath = Reports.getOutputLocation(getReports().getHtml()).toPath().getParent();
 
         for (DashboardTask aChildTask : aChildTasks)
         {
-            Path aChildReportPath = aChildTask.getReports().getHtml().getDestination().toPath();
+            Path aChildReportPath = Reports.getOutputLocation(aChildTask.getReports().getHtml()).toPath();
             String aRelativePath = aBasePath.relativize(aChildReportPath).toString();
             aChildProjectsDashboards.put(aChildTask.getProject().getName(), aRelativePath);
         }
@@ -398,9 +407,8 @@ public class DashboardTask extends DefaultTask implements ReportingEntity<Dashbo
 
         static private File getReportFileSpec(Report pReport)
         {
-            return pReport != null && pReport.isEnabled() ? pReport.getDestination() : null;
+            return Reports.isRequired(pReport) ? Reports.getOutputLocation(pReport) : null;
         }
-
 
         static private DashboardSectionFile toDashboardSectionFile(File pFile)
         {

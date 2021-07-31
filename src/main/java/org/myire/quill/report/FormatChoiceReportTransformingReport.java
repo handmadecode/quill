@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2018 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018, 2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -42,14 +42,14 @@ public class FormatChoiceReportTransformingReport extends ReportTransformingRepo
 
 
     @Override
-    public boolean isEnabled()
+    public boolean reportIsRequired()
     {
-        // The format choice report must be enabled and on the XML format for this report to be
-        // enabled.
+        // The format choice report must be required and on the XML format for this report to be
+        // required.
         return
-            super.isEnabled()
+            super.reportIsRequired()
             &&
-            fFormatChoiceReport.isEnabled()
+            Reports.isRequired(fFormatChoiceReport)
             &&
             "xml".equals(fFormatChoiceReport.getFormat());
     }

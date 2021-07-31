@@ -1,5 +1,6 @@
 # Quill Release Notes
 
+[version 3.1](#version-31)  
 [version 3.0](#version-30)  
 [version 2.4](#version-24)  
 [version 2.3.1](#version-231)  
@@ -16,6 +17,18 @@
 [version 0.11](#version-011)  
 [version 0.10](#version-010)  
 [version 0.9](#version-09)
+
+
+### version 3.1
+
+* Requires Gradle 6.1 to run.
+* All task reports support the properties `required` and `outputLocation` in addition to the
+  deprecated properties `enabled` and `destination`.
+* Checkstyle default version upgraded to 8.44. The built-in configuration file requires at least
+  version 8.42.
+* PMD and CPD default versions upgraded to 6.36. The built-in PMD rule file requires at least
+  version 6.36.
+* Jacoco default version upgraded to 0.8.7.
 
 
 ### version 3.0

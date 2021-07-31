@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2018, 2019-2020 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018, 2019-2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -73,7 +73,7 @@ abstract class AbstractTransformingReport extends DefaultSingleFileReport implem
     @Override
     public boolean checkUpToDate()
     {
-        if (!isEnabled())
+        if (!reportIsRequired())
             // A disabled report is always up to date.
             return true;
 
@@ -83,7 +83,7 @@ abstract class AbstractTransformingReport extends DefaultSingleFileReport implem
             // therefore not be created, and is thus not out-of-date.
             return true;
 
-        File aDestination = getDestination();
+        File aDestination = Reports.getOutputLocation(this);
         return aDestination.exists() && aDestination.lastModified() >= aInputFile.lastModified();
     }
 
@@ -91,7 +91,7 @@ abstract class AbstractTransformingReport extends DefaultSingleFileReport implem
     @Override
     public void transform()
     {
-        if (!isEnabled())
+        if (!reportIsRequired())
             return;
 
         File aInputFile = getInputFile();
@@ -128,7 +128,7 @@ abstract class AbstractTransformingReport extends DefaultSingleFileReport implem
      */
     private void transformFile(File pXmlFile)
     {
-        File aDestination = getDestination();
+        File aDestination = Reports.getOutputLocation(this);
         try
         {
             ReportBuilder aReportBuilder = new ReportBuilder(aDestination);

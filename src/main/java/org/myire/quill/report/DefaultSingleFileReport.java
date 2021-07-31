@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2018, 2020 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018, 2020-2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -58,7 +58,7 @@ public class DefaultSingleFileReport extends DefaultDestinationReport implements
         if (fOutputLocation == null)
         {
             fOutputLocation = Providers.createFileProperty(getProject());
-            fOutputLocation.set(getDestination());
+            fOutputLocation.set(resolveDestination());
         }
 
         return fOutputLocation;

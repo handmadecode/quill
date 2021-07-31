@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2018 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018, 2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -50,16 +50,16 @@ public class ReportTransformingReport extends AbstractTransformingReport
 
 
     @Override
-    public boolean isEnabled()
+    public boolean reportIsRequired()
     {
-        return super.isEnabled() && fInput.isEnabled();
+        return super.reportIsRequired() && Reports.isRequired(fInput);
     }
 
 
     @Override
     protected File getInputFile()
     {
-        return fInput.getDestination();
+        return Reports.getOutputLocation(fInput);
     }
 
 
@@ -82,7 +82,7 @@ public class ReportTransformingReport extends AbstractTransformingReport
 
         public File doCall(Object pValue)
         {
-            File aInputFile = fInput.getDestination();
+            File aInputFile = Reports.getOutputLocation(fInput);
             if (aInputFile != null)
                 return new File(aInputFile.getParentFile(), aInputFile.getName().replace(".xml", ".html"));
             else

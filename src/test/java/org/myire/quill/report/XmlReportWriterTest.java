@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Peter Franzen. All rights reserved.
+ * Copyright 2020-2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -12,15 +12,15 @@ import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 
+import org.gradle.api.reporting.SingleFileReport;
+
 import org.junit.Test;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-
-import org.gradle.api.reporting.SingleFileReport;
 
 import org.myire.quill.test.FileBasedTest;
+import static org.myire.quill.report.ReportTests.createReportWithOutputLocation;
 
 
 /**
@@ -166,8 +166,6 @@ public class XmlReportWriterTest extends FileBasedTest
 
     static private XmlReportWriter createXmlReportWriter(Path pReportFile) throws IOException
     {
-        SingleFileReport aReport = mock(SingleFileReport.class);
-        when(aReport.getDestination()).thenReturn(pReportFile.toFile());
-        return new XmlReportWriter(aReport);
+        return new XmlReportWriter(createReportWithOutputLocation(pReportFile));
     }
 }

@@ -15,6 +15,7 @@ import org.gradle.testing.jacoco.tasks.JacocoReport;
 import org.gradle.testing.jacoco.tasks.JacocoReportsContainer;
 
 import org.myire.quill.common.Projects;
+import org.myire.quill.report.Reports;
 
 
 /**
@@ -23,7 +24,7 @@ import org.myire.quill.common.Projects;
  */
 public class JacocoAdditionsPlugin implements Plugin<Project>
 {
-    static private final String DEFAULT_TOOL_VERSION = "0.8.6";
+    static private final String DEFAULT_TOOL_VERSION = "0.8.7";
     static private final String JACOCO_TEST_REPORT_TASK_NAME = "jacocoTestReport";
 
 
@@ -59,9 +60,9 @@ public class JacocoAdditionsPlugin implements Plugin<Project>
         if (aTask != null)
         {
             JacocoReportsContainer aReports = aTask.getReports();
-            aReports.getXml().setEnabled(true);
-            aReports.getHtml().setEnabled(true);
-            aReports.getCsv().setEnabled(false);
+            Reports.setRequired(aReports.getXml(), true);
+            Reports.setRequired(aReports.getHtml(), true);
+            Reports.setRequired(aReports.getCsv(), false);
 
             // Add the Jacoco report task to the build task's dependencies.
             Task aBuildTask = Projects.getTask(pProject, "build", Task.class);

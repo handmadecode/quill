@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2019 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2019, 2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -19,6 +19,7 @@ import org.gradle.api.tasks.Optional;
 
 import org.myire.quill.common.ProjectAware;
 import org.myire.quill.report.ReportBuilder;
+import org.myire.quill.report.Reports;
 import org.myire.quill.report.TransformingReport;
 
 
@@ -159,7 +160,7 @@ public class DashboardSection extends ProjectAware
      */
     void writeTo(ReportBuilder pReportBuilder)
     {
-        if (fReport.isEnabled())
+        if (Reports.isRequired(fReport))
         {
             getProjectLogger().debug("Creating dashboard section '{}'", fName);
             transform(pReportBuilder);
@@ -181,7 +182,7 @@ public class DashboardSection extends ProjectAware
      */
     private void transform(ReportBuilder pReportBuilder)
     {
-        File aInputFile = fReport.getDestination();
+        File aInputFile = Reports.getOutputLocation(fReport);
         if (aInputFile == null)
         {
             getProjectLogger().error(
@@ -244,12 +245,14 @@ public class DashboardSection extends ProjectAware
 
     private File getDetailedReportFile()
     {
-        if (fDetailedReport == null || !fDetailedReport.isEnabled())
-            return null;
-
-        if (fDetailedReport instanceof DirectoryReport)
-            return ((DirectoryReport) fDetailedReport).getEntryPoint();
+        if (Reports.isRequired(fDetailedReport))
+        {
+            if (fDetailedReport instanceof DirectoryReport)
+                return ((DirectoryReport) fDetailedReport).getEntryPoint();
+            else
+                return Reports.getOutputLocation(fDetailedReport);
+        }
         else
-            return fDetailedReport.getDestination();
+            return null;
     }
 }

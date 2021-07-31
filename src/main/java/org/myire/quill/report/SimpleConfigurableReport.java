@@ -26,7 +26,7 @@ import org.myire.quill.common.ProjectAware;
 /**
  * Implementation of {@code org.gradle.api.reporting.ConfigurableReport}.
  */
-public class SimpleConfigurableReport extends ProjectAware implements ConfigurableReport
+abstract public class SimpleConfigurableReport extends ProjectAware implements ConfigurableReport
 {
     private final String fName;
     private final String fDisplayName;
@@ -46,7 +46,7 @@ public class SimpleConfigurableReport extends ProjectAware implements Configurab
      *
      * @throws NullPointerException if {@code pProject} is null.
      */
-    public SimpleConfigurableReport(
+    protected SimpleConfigurableReport(
             Project pProject,
             String pName,
             String pDisplayName,
@@ -87,7 +87,7 @@ public class SimpleConfigurableReport extends ProjectAware implements Configurab
     @Override
     public File getDestination()
     {
-        return fDestination != null ? getProject().file(fDestination) : null;
+        return resolveDestination();
     }
 
 
@@ -105,10 +105,21 @@ public class SimpleConfigurableReport extends ProjectAware implements Configurab
     }
 
 
+    /**
+     * Set the value of the {@code outputLocation} property.
+     *
+     * @param pLocation The property's new value.
+     */
+    public void setOutputLocation(Object pLocation)
+    {
+        useDestination(pLocation);
+    }
+
+
     @Override
     public boolean isEnabled()
     {
-        return fRequiredProperty.get().booleanValue();
+        return reportIsRequired();
     }
 
 
@@ -141,6 +152,17 @@ public class SimpleConfigurableReport extends ProjectAware implements Configurab
     }
 
 
+    /**
+     * Set the value of the {@code required} property.
+     *
+     * @param pValue    The property's new value.
+     */
+    public void setRequired(boolean pValue)
+    {
+        fRequiredProperty.set(Boolean.valueOf(pValue));
+    }
+
+
     // Override to add @Internal annotation
     @Override
     @Internal
@@ -163,5 +185,41 @@ public class SimpleConfigurableReport extends ProjectAware implements Configurab
     public String toString()
     {
         return "Report " + getName();
+    }
+
+
+    /**
+     * Check if this report is required (enabled) and should be created.
+     *
+     * @return  True if this report is required, false if not.
+     */
+    protected boolean reportIsRequired()
+    {
+        return fRequiredProperty.getOrElse(Boolean.FALSE).booleanValue();
+    }
+
+
+    /**
+     * Resolve the destination specified by the latest call to {@link #setDestination(File)},
+     * {@link #setDestination(Provider)}, or {@link #useDestination(Object)}.
+     *
+     * @return  The destination file resolved with the project directory as base directory. If no
+     *          destination has been specified, null is returned.
+     */
+    protected File resolveDestination()
+    {
+        return fDestination != null ? getProject().file(fDestination) : null;
+    }
+
+
+    /**
+     * Set the value of the report's destination without calling {@link #setDestination(File)}. That
+     * method was deprecated in Gradle 7.1.
+     *
+     * @param pDestination  The report's destination, possibly null.
+     */
+    protected void useDestination(Object pDestination)
+    {
+        fDestination = pDestination;
     }
 }

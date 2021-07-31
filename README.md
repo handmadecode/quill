@@ -4,8 +4,8 @@ A collection of Gradle plugins. Some of the plugins enhance existing functionali
 others provide new functionality. All of the plugins can be used individually; they do not depend on
 each other.
 
-The Quill plugins require Gradle 6 or later and Java 8 or later. They have been tested with the
-applicable combinations of Gradle 6.0.1 - 7.0 and Java 8 - 16.
+The Quill plugins require Gradle 6.1 or later and Java 8 or later. They have been tested with the
+applicable combinations of Gradle 6.1 - 7.1 and Java 8 - 16.
 
 The Quill plugins were developed to support the author's way of working with Gradle. They may not
 appeal to the taste of those who work in different ways.
@@ -809,23 +809,23 @@ present in the project, the plugin has no effect.
 The plugin adds a `junitSummaryReport` property to the `Test` task's convention. This is a
 `SingleFileReport` that aggregates individual JUnit XML report files into a summary XML report.
 
-The report is `enabled` by default and is created last when the `Test` task is executed. In addition
-to the `SingleFileReport` properties, the following are supported:
+The report is `required` by default and is created last when the `Test` task is executed. In
+addition to the `SingleFileReport` properties, the following are supported:
 
 * `junitReportDirectory` - a `File` specifying the directory with the JUnit XML reports to
 aggregate. The default is the directory specified by the `Test` task's property
-`reports.junitXml.destination`.
+`reports.junitXml.outputLocation`.
 
 * `fileNamePattern` - A string with a regular expression that the names of the JUnit report files to
 aggregate must match. Only the files in the `junitReportDirectory` that match this pattern will be
 aggregated into the summary report. The default pattern is "^TEST\\-.*\\.xml$".
 
-The summary report's `destination` is by default a file called `junitSummary.xml` in the `junit`
-subdirectory of the project report directory. This destination can be modified as with any Gradle
+The summary report's `outputLocation` is by default a file called `junitSummary.xml` in the `junit`
+subdirectory of the project report directory. This location can be modified as with any Gradle
 report:
 
     test {
-        summaryReport.destination = "$buildDir/aggregates/better_report_name.xml"
+        junitSummaryReport.outputLocation = "$buildDir/aggregates/better_report_name.xml"
     }
 
 When producing the summary report, the plugin will parse each XML file in the `junitReportDirectory`
@@ -894,11 +894,11 @@ standard `java` plugin before applying the `jacoco` plugin to make the latter ad
 
 ### Default values
 
-The plugin configures the `jacoco` extension in the project to use version 0.8.6 of JaCoCo. This is
+The plugin configures the `jacoco` extension in the project to use version 0.8.7 of JaCoCo. This is
 equivalent to configuring the extension explicitly in the build script as follows:
 
     jacoco {
-      toolVersion = '0.8.6'
+      toolVersion = '0.8.7'
     }
 
 The plugin also configures the `jacoco` extension added to all test tasks by setting the `append`
@@ -946,7 +946,7 @@ If version 3.0 or older of the `com.github.spotbugs` plugin is used, all tasks o
 with messages, which is equivalent to the build script configuration
 
     tasks.withType(SpotBugsTask) {
-      reports.xml.withMessages = true
+      reports.XML.withMessages = true
     }
 
 ### Extension additions
@@ -960,15 +960,15 @@ collection, thus disabling that task:
 ### Task additions
 
 The plugin adds an [XSL transformation report](#xsl-transformation-reports) to the `SpotBugsTask` 
-tasks. These reports have the name `quillHtmlReport` and are `enabled` by default. They can be
+tasks. These reports have the name `quillHtmlReport` and are `required` by default. They can be
 configured per task, e.g. to use another XSL file than the one distributed in the Quill jar:
 
     spotbugsMain {
       quillHtmlReport.xslFile = 'xsl/spotbugs.xsl'
-      quillHtmlReport.destination = "$buildDir/reports/spotbugs.html"
+      quillHtmlReport.outputLocation = "$buildDir/reports/spotbugs.html"
     }
 
-    spotbugsTest.quillHtmlReport.enabled = false
+    spotbugsTest.quillHtmlReport.required = false
 
 
 ## Checkstyle Additions Plugin
@@ -982,17 +982,17 @@ configures the corresponding project extension and tasks with some defaults and 
 
 The plugin configures the `checkstyle` extension in the project to let the build continue even if
 violations are found, and to not log every found violation. The Checkstyle version to use is set to
-8.41.1. This is equivalent to configuring the extension explicitly in the build script as follows:
+8.44. This is equivalent to configuring the extension explicitly in the build script as follows:
 
     checkstyle {
       ignoreFailures = true
       showViolations = false
-      toolVersion = '8.41.1'
+      toolVersion = '8.44'
     }
 
 The Checkstyle configuration file is specified to be the one bundled with the Quill jar. This
 configuration file is extracted to the path "tmp/checkstyle/checkstyle_config.xml" relative to the
-project's build directory. Note that this configuration file requires at least version 8.38 of
+project's build directory. Note that this configuration file requires at least version 8.42 of
 Checkstyle. When setting `toolVersion` to an older version of Checkstyle, another configuration file
 must be explicitly configured.
 
@@ -1015,30 +1015,30 @@ source sets, thus disabling the `checkstyleTest` task:
 ### Task additions
 
 The plugin adds an [XSL transformation report](#xsl-transformation-reports) to all tasks of type
-`Checkstyle`. These reports have the name `quillHtmlReport` and are `enabled` by default. They can
+`Checkstyle`. These reports have the name `quillHtmlReport` and are `required` by default. They can
 be configured per task, e.g. to use another XSL file than the one distributed in the Quill jar:
 
     checkstyleMain {
       quillHtmlReport.xslFile = 'resources/checkstyle.xsl'
-      quillHtmlReport.destination = "$buildDir/reports/checkstyle/checkstyle.html"
+      quillHtmlReport.outputLocation = "$buildDir/reports/checkstyle/checkstyle.html"
     }
 
-    checkstyleTest.quillHtmlReport.enabled = false
+    checkstyleTest.quillHtmlReport.required = false
 
 The plugin disables the standard HTML report for all tasks of type `Checkstyle`
 (normally `checkstyleMain` and `checkstyleTest`). This is equivalent to the build script
 
     tasks.withType(Checkstyle) {
-      reports.html.enabled = false
+      reports.html.required = false
     }
 
 The standard HTML report can of course be enabled alongside with the XSL transformation report. Note
-however that these two reports by default have the same file destination, meaning that one will
+however that these two reports by default have the same file location, meaning that one will
 overwrite the other. If both are to be enabled at least one of them should be configured to have a
-non-default file destination, e.g.
+non-default output location, e.g.
 
-    checkstyleMain.reports.html.enabled = true
-    checkstyleMain.quillHtmlReport.destination = "$buildDir/reports/checkstyle/quill.html"
+    checkstyleMain.reports.html.required = true
+    checkstyleMain.quillHtmlReport.outputLocation = "$buildDir/reports/checkstyle/quill.html"
 
 
 ## PMD Additions Plugin
@@ -1051,12 +1051,12 @@ corresponding project extension and tasks with some defaults and additions.
 ### Default values
 
 The plugin configures the `pmd` extension in the project to let the build continue even if
-violations are found, and to use version 6.33.0 of PMD. This is equivalent to configuring the
+violations are found, and to use version 6.36.0 of PMD. This is equivalent to configuring the
 extension explicitly in the build script as follows:
 
     pmd {
       ignoreFailures = true
-      toolVersion = '6.33.0'
+      toolVersion = '6.36.0'
     }
 
 The plugin removes the built-in PMD rule sets from the extension's configuration and specifies that
@@ -1068,7 +1068,7 @@ extension is configured to use another rule set file through the incubating `rul
 property, the built-in rule set file will still be in use. It must be explicitly disabled by setting
 `ruleSetFiles` to en empty file collection, e.g. `pmd.ruleSetFiles = files()`.
 
-Note that the built-in rule set file requires at least version 6.25.0 of PMD. When setting
+Note that the built-in rule set file requires at least version 6.36.0 of PMD. When setting
 `toolVersion` to an older version of PMD, another rule set file must be explicitly configured.
 
 ### Extension additions
@@ -1082,15 +1082,15 @@ disabling the `pmdTest` task:
 ### Task additions
 
 The plugin adds an [XSL transformation report](#xsl-transformation-reports) to all tasks of type
-`PMD`. These reports have the name `quillHtmlReport` and are `enabled` by default. They can be
-configured per task, e.g. to use another XSL file than the one distributed in the Quill jar:
+`PMD`. These reports have the name `quillHtmlReport` and are `required` by default. They can be
+configured per task e.g., to use another XSL file than the one distributed in the Quill jar:
 
     pmdMain {
       quillHtmlReport.xslFile = 'resources/pmd.xsl'
-      quillHtmlReport.destination = "$buildDir/reports/static_analysis/pmd.html"
+      quillHtmlReport.outputLocation = "$buildDir/reports/static_analysis/pmd.html"
     }
 
-    pmdTest.quillHtmlReport.enabled = false
+    pmdTest.quillHtmlReport.required = false
 
 Note that the default XSL file requires XML reports produced by PMD 6.0 or later.
 
@@ -1098,16 +1098,16 @@ The plugin disables the standard HTML report for all tasks of type `Pmd` (normal
 `pmdTest`). This is equivalent to the build script
 
     tasks.withType(Pmd) {
-      reports.html.enabled = false
+      reports.html.required = false
     }
 
 The standard HTML report can of course be enabled alongside with the XSL transformation report. Note
-however that these two reports by default have the same file destination, meaning that one will
+however that these two reports by default have the same file location, meaning that one will
 overwrite the other. If both are to be enabled at least one of them should be configured to have a
-non-default file destination, e.g.
+non-default output location, e.g.
 
-    pmdMain.reports.html.enabled = true
-    pmdMain.quillHtmlReport.destination = "$buildDir/reports/pmd/quill.html"
+    pmdMain.reports.html.required = true
+    pmdMain.quillHtmlReport.outputLocation = "$buildDir/reports/pmd/quill.html"
 
 The plugin also adds a read-only `filter` property to all tasks of type `PMD`. This property allows
 an XML file containing filters for PMD rule violations to be specified. These filters are applied
@@ -1189,7 +1189,7 @@ through the properties described below. Most of these properties are direct equi
 
 * `toolVersion` - a string specifying the version of CPD to use. The default is the version
 specified in `pmd.toolVersion`, or, if the `pmd` extension isn't available in the project, version
-"6.33.0". Note however that `pmd.toolVersion` is only used if it is equal to or greater than the
+"6.36.0". Note however that `pmd.toolVersion` is only used if it is equal to or greater than the
 minimum CPD version "6.1.0".
 
 * `cpdClasspath` - a `FileCollection` specifying the classpath containing the CPD classes used by
@@ -1251,8 +1251,9 @@ is the value of the `format` property. The default report file is located in a d
 "cpd" in the project's report directory or, if no project report directory is defined, in a
 directory called "cpd" in the project's build directory.
 
-* `html` - a `SingleFileReport` that will be created if the primary report is `enabled` and its
-`format` is "xml". This report produces an HTML version of the tasks's XML report by applying an XSL transformation. By default, the HTML report is created in the same directory as the XML report
+* `html` - a `SingleFileReport` that will be created if the primary report is `required` and its
+`format` is "xml". This report produces an HTML version of the tasks's XML report by applying an XSL
+transformation. By default, the HTML report is created in the same directory as the XML report
 and given the same base name as the XML report (e.g. "cpd.html" if the XML report has the name
 "cpd.xml"). The XSL style sheet to use can be specified through the `xslFile` property. This
 property is a `File` that is resolved relative to the project directory. If no XSL file is specified
@@ -1263,7 +1264,7 @@ The reports can be configured with a closure:
     cpd {
       ...
       reports {
-        primary.destination = "$buildDir/reports/cpdReport.xml"
+        primary.outputLocation = "$buildDir/reports/cpdReport.xml"
         html.xslFile = 'xsl/cpd.xsl'
       }
     }
@@ -1326,7 +1327,7 @@ default is a file called "scent.xml"  located in a directory called "scent" in t
 directory or, if no project report directory is defined, in a directory called "scent" in the
 project's build directory.
 
-* `html` - a `SingleFileReport` that will be created if the XML report is `enabled`. This report
+* `html` - a `SingleFileReport` that will be created if the XML report is `required`. This report
 produces an HTML version of the tasks's XML report by applying an XSL transformation. By default,
 the HTML report is created in the same directory as the XML report and given the same base name as
 the XML report (e.g. "scent.html" if the XML report has the name "scent.xml"). The XSL style sheet
@@ -1339,7 +1340,7 @@ The reports can be configured with a closure:
     scent {
       ...
       reports {
-        xml.destination = "$buildDir/reports/metrics.xml"
+        xml.outputLocation = "$buildDir/reports/metrics.xml"
         html.xslFile = 'xsl/scent.xsl'
       }
     }
@@ -1348,13 +1349,13 @@ The reports can also be configured through chained access of the properties:
 
     scent {
       ...
-      reports.xml.destination = 'myreport.xml'
+      reports.xml.outputLocation = 'myreport.xml'
     }
 
 Note that if the XML report isn't enabled, the `scent` task will not run. This means that the task
 can be skipped by adding the configuration line
 
-    scent.reports.xml.enabled = false
+    scent.reports.xml.required = false
 
 ### Dependency configuration
 
@@ -1530,7 +1531,7 @@ The reports can be configured with a closure:
     jol {
       ...
       reports {
-        xml.destination = "$buildDir/reports/layout.xml"
+        xml.outputLocation = "$buildDir/reports/layout.xml"
         html.xslFile = 'xsl/jol_report.xsl'
       }
     }
@@ -1539,7 +1540,7 @@ The reports can also be configured through chained access of the properties:
 
     jol {
       ...
-      reports.xml.destination = 'layout_report.xml'
+      reports.xml.outputLocation = 'layout_report.xml'
     }
 
 Note that if the XML report isn't enabled, the `jol` task will not run.
@@ -1581,7 +1582,7 @@ report, e.g. to give it another name:
     reportsDashboard {
       ...
       reports {
-        html.destination = "$buildDir/reports/summary.html"
+        html.outputLocation = "$buildDir/reports/summary.html"
       }
     }
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2019 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2019, 2021 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -16,6 +16,7 @@ import org.gradle.util.ConfigureUtil;
 
 import org.myire.quill.common.Projects;
 import org.myire.quill.report.DefaultSingleFileReport;
+import org.myire.quill.report.Reports;
 
 
 /**
@@ -44,7 +45,7 @@ class DashboardReportsImpl implements DashboardReports
                 new DefaultReportDestination(pTask.getProject()));
 
         // The report is enabled by default.
-        fHtmlReport.setEnabled(true);
+        Reports.setRequired(fHtmlReport, true);
     }
 
 
