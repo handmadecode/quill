@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2021 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2021-2022 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -28,7 +28,7 @@ class CheckstyleEnhancer extends AbstractPluginEnhancer<Checkstyle>
 {
     static private final String CHECKSTYLE_TOOL_NAME = 'Checkstyle'
     static private final String CHECKSTYLE_EXTENSION_NAME = CHECKSTYLE_TOOL_NAME.toLowerCase()
-    static private final String DEFAULT_TOOL_VERSION = '8.44'
+    static private final String DEFAULT_TOOL_VERSION = '8.45.1'
 
     // The file name to use when extracting the built-in config file from its resource.
     static private final String BUILTIN_CONFIG_FILE_NAME = 'checkstyle_config.xml'
