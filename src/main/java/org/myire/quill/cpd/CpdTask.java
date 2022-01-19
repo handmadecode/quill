@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2018-2019, 2021 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018-2019, 2021-2022 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -39,7 +39,7 @@ import org.myire.quill.report.TransformingReport;
 public class CpdTask extends SourceTask implements ReportingEntity<CpdReports>
 {
     static private final VersionNumber MINIMUM_TOOL_VERSION = VersionNumber.parse("6.1.0");
-    static private final String DEFAULT_TOOL_VERSION = "6.36.0";
+    static private final String DEFAULT_TOOL_VERSION = "6.41.0";
     static private final String PMD_EXTENSION_NAME = "pmd";
 
     // Fully qualified name of the CpdRunner implementation class to use.
