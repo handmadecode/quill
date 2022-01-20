@@ -982,17 +982,17 @@ configures the corresponding project extension and tasks with some defaults and 
 
 The plugin configures the `checkstyle` extension in the project to let the build continue even if
 violations are found, and to not log every found violation. The Checkstyle version to use is set to
-8.44. This is equivalent to configuring the extension explicitly in the build script as follows:
+8.45.1. This is equivalent to configuring the extension explicitly in the build script as follows:
 
     checkstyle {
       ignoreFailures = true
       showViolations = false
-      toolVersion = '8.44'
+      toolVersion = '8.45.1'
     }
 
 The Checkstyle configuration file is specified to be the one bundled with the Quill jar. This
 configuration file is extracted to the path "tmp/checkstyle/checkstyle_config.xml" relative to the
-project's build directory. Note that this configuration file requires at least version 8.42 of
+project's build directory. Note that this configuration file requires at least version 8.45 of
 Checkstyle. When setting `toolVersion` to an older version of Checkstyle, another configuration file
 must be explicitly configured.
 
@@ -1051,12 +1051,12 @@ corresponding project extension and tasks with some defaults and additions.
 ### Default values
 
 The plugin configures the `pmd` extension in the project to let the build continue even if
-violations are found, and to use version 6.36.0 of PMD. This is equivalent to configuring the
+violations are found, and to use version 6.41.0 of PMD. This is equivalent to configuring the
 extension explicitly in the build script as follows:
 
     pmd {
       ignoreFailures = true
-      toolVersion = '6.36.0'
+      toolVersion = '6.41.0'
     }
 
 The plugin removes the built-in PMD rule sets from the extension's configuration and specifies that
@@ -1068,7 +1068,7 @@ extension is configured to use another rule set file through the incubating `rul
 property, the built-in rule set file will still be in use. It must be explicitly disabled by setting
 `ruleSetFiles` to en empty file collection, e.g. `pmd.ruleSetFiles = files()`.
 
-Note that the built-in rule set file requires at least version 6.36.0 of PMD. When setting
+Note that the built-in rule set file requires at least version 6.37.0 of PMD. When setting
 `toolVersion` to an older version of PMD, another rule set file must be explicitly configured.
 
 ### Extension additions
@@ -1189,7 +1189,7 @@ through the properties described below. Most of these properties are direct equi
 
 * `toolVersion` - a string specifying the version of CPD to use. The default is the version
 specified in `pmd.toolVersion`, or, if the `pmd` extension isn't available in the project, version
-"6.36.0". Note however that `pmd.toolVersion` is only used if it is equal to or greater than the
+"6.41.0". Note however that `pmd.toolVersion` is only used if it is equal to or greater than the
 minimum CPD version "6.1.0".
 
 * `cpdClasspath` - a `FileCollection` specifying the classpath containing the CPD classes used by
@@ -1292,7 +1292,8 @@ where `<toolVersion>` is the value of the `cpd` task's `toolVersion` property.
 Plugin ID: `org.myire.quill.scent`
 
 The Scent plugin adds a task for collecting source code metrics using the
-[Scent](https://github.com/handmadecode/scent) library.
+[Scent](https://github.com/handmadecode/scent) library. The plugin works with Scent version 2.4 or
+later.
 
 ### Task
 
@@ -1305,10 +1306,18 @@ task uses the `main` source set's Java files as input files.
 In addition to the standard source task properties, the `scent` task's behaviour can be configured
 through the following properties:
 
-* `toolVersion` - a string specifying the version of Scent to use. Default is version "2.3".
+* `toolVersion` - a string specifying the version of Scent to use. Default is version "2.4".
 
 * `sourceEncoding` - a string specifying the encoding of the Java files, e.g. "UTF-8". If this
 property isn't specified the platform's default encoding will be used.
+
+* `languageLevel` - the numeric value of the Java language level to parse the sources with, e.g. 17.
+The default is the default language level of the Scent version used.
+
+* `enableLanguagePreviews` - if true, language feature previews will be enabled for the specified
+language level. The default is false. For example, records were added as a feature preview in
+Java 14 and as  standard feature in Java 16. Setting `languageLevel` to 15 would cause the parser to
+reject sources with record classes unless `enableLanguagePreviews` is set to true.
 
 * `reports` - a nested property holding the reports created by the task, see below.
 
