@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, 2018-2021 Peter Franzen. All rights reserved.
+ * Copyright 2016, 2018-2022 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -37,7 +37,7 @@ import org.myire.quill.report.TransformingReport;
 public class ScentTask extends SourceTask implements ReportingEntity<ScentReports>
 {
     // The default version of Scent to use.
-    static private final String DEFAULT_TOOL_VERSION = "2.3";
+    static private final String DEFAULT_TOOL_VERSION = "2.4";
 
     // Fully qualified name of the ScentRunner implementation class to use.
     static private final String IMPLEMENTATION_PACKAGE = "org.myire.quill.scent.impl.";
@@ -47,6 +47,8 @@ public class ScentTask extends SourceTask implements ReportingEntity<ScentReport
     // Task properties.
     private String fToolVersion;
     private String fSourceEncoding;
+    private int fLanguageLevel;
+    private boolean fEnableLanguagePreviews;
     private FileCollection fScentClasspath;
     private ScentReportsImpl fReports;
 
@@ -86,6 +88,45 @@ public class ScentTask extends SourceTask implements ReportingEntity<ScentReport
     public void setSourceEncoding(String pSourceEncoding)
     {
         fSourceEncoding = pSourceEncoding;
+    }
+
+
+    /**
+     * The language level to parse the sources with. A value of {@code 0} means the default version.
+     *
+     * @return  The language level.
+     */
+    @Input
+    public int getLanguageLevel()
+    {
+        return fLanguageLevel;
+    }
+
+
+    public void setLanguageLevel(int pLanguageLevel)
+    {
+        fLanguageLevel = pLanguageLevel;
+    }
+
+
+    /**
+     * If true, the language feature previews of the language level specified by
+     * {@link #setLanguageLevel(int)} will be enabled. Default is false, i.e. language feature
+     * previews will be disabled when parsing the sources.
+     *
+     * @return  True if language feature previews should be enabled, false if they should be
+     *          disabled.
+     */
+    @Input
+    public boolean isEnableLanguagePreviews()
+    {
+        return fEnableLanguagePreviews;
+    }
+
+
+    public void setEnableLanguagePreviews(boolean pEnableLanguagePreviews)
+    {
+        fEnableLanguagePreviews = pEnableLanguagePreviews;
     }
 
 
@@ -238,7 +279,12 @@ public class ScentTask extends SourceTask implements ReportingEntity<ScentReport
                 pXmlFile);
 
             // Collect the metrics and write the XML report.
-            loadScentRunner().collectMetricsAsXml(getSource().getFiles(), aCharset, pXmlFile);
+            loadScentRunner().collectMetricsAsXml(
+                getSource().getFiles(),
+                aCharset,
+                fLanguageLevel,
+                fEnableLanguagePreviews,
+                pXmlFile);
         }
         catch (ClassNotFoundException | IllegalAccessException | InstantiationException e)
         {

@@ -1,5 +1,5 @@
 /*
- * Copyright 2019 Peter Franzen. All rights reserved.
+ * Copyright 2019, 2022 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -135,6 +135,8 @@ class SpotBugsEnhancer extends AbstractPluginEnhancer<Task>
         static private final String BUILTIN_SPOTBUGS_XSL =
                 '/org/myire/quill/rsrc/report/spotbugs/spotbugs.xsl'
 
+        private Report fXmlReport;
+
         SpotBugsTaskEnhancer(Task pTask)
         {
             super(pTask);
@@ -147,6 +149,8 @@ class SpotBugsEnhancer extends AbstractPluginEnhancer<Task>
             // properties.
             if (task.reports.hasProperty("xml"))
             {
+                fXmlReport = task.reports.xml;
+
                 // Include bug descriptions in the XML report.
                 task.reports.xml.withMessages = true;
 
@@ -159,7 +163,24 @@ class SpotBugsEnhancer extends AbstractPluginEnhancer<Task>
                 // transforming report.
                 def aXmlReport = task.reports.maybeCreate('xml');
                 if (aXmlReport instanceof Report)
-                    addTransformingReport((Report) aXmlReport, BUILTIN_SPOTBUGS_XSL);
+                {
+                    fXmlReport = (Report) aXmlReport;
+                    addTransformingReport(fXmlReport, BUILTIN_SPOTBUGS_XSL);
+                }
+            }
+
+            // Delete the XML report file before executing the task; SpotBugs does not truncate it
+            // if it already exists.
+            task.doFirst({ deleteXmlReportFile() });
+        }
+
+        void deleteXmlReportFile()
+        {
+            if (fXmlReport?.enabled)
+            {
+                File aFile = fXmlReport.outputLocation.getOrNull()?.asFile;
+                if (aFile?.exists() && aFile?.isFile())
+                    aFile.delete();
             }
         }
     }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, 2018 Peter Franzen. All rights reserved.
+ * Copyright 2016, 2018, 2022 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -16,6 +16,7 @@ import java.util.Collection;
 import org.gradle.api.logging.Logger;
 import org.gradle.api.logging.Logging;
 
+import org.myire.scent.collect.JavaLanguageLevel;
 import org.myire.scent.collect.JavaMetricsCollector;
 import org.myire.scent.report.MetricsReportMetaData;
 import org.myire.scent.report.XmlReportWriter;
@@ -37,9 +38,14 @@ public class ScentRunnerImpl implements ScentRunner
      * Scan the directories and files in a collection of Java files, collect source code metrics
      * for them, and create an XML report from the collected metrics.
      *
-     * @param pFiles        The files and/or directories to collect Java file metrics from.
-     * @param pCharset      The charset the Java files are encoded with.
-     * @param pReportFile   The file to write the XML report to.
+     * @param pFiles            The files and/or directories to collect Java file metrics from.
+     * @param pLanguageLevel    The Java language level to use when parsing the source files. Pass
+     *                          {@code 0} to use the default language level.
+     * @param pEnableLanguagePreviews
+     *                          If true, language feature previews at the specified language level
+     *                          will be enabled.
+     * @param pCharset          The charset the Java files are encoded with.
+     * @param pReportFile       The file to write the XML report to.
      *
      * @throws IOException  if writing the report file fails.
      *
@@ -47,11 +53,30 @@ public class ScentRunnerImpl implements ScentRunner
      *
      */
     @Override
-    public void collectMetricsAsXml(Collection<File> pFiles, Charset pCharset, File pReportFile) throws IOException
+    public void collectMetricsAsXml(
+        Collection<File> pFiles,
+        Charset pCharset,
+        int pLanguageLevel,
+        boolean pEnableLanguagePreviews,
+        File pReportFile) throws IOException
     {
-        JavaMetricsCollector aCollector = new JavaMetricsCollector();
+        JavaLanguageLevel aLanguageLevel =
+            pLanguageLevel == 0 ?
+                JavaLanguageLevel.getDefault():
+                    JavaLanguageLevel.forNumericValue(pLanguageLevel);
+        if (aLanguageLevel == null)
+        {
+            aLanguageLevel = JavaLanguageLevel.getDefault();
+            fLogger.error(
+                "Java language level " +
+                pLanguageLevel +
+                " is not supported, using default level " +
+                aLanguageLevel.getNumericValue());
+        }
 
-        // Visit each file/directory in teh collection and pass teh Java files to the
+        JavaMetricsCollector aCollector = new JavaMetricsCollector(aLanguageLevel, pEnableLanguagePreviews);
+
+        // Visit each file/directory in the collection and pass the Java files to the
         // JavaMetricsCollector.
         CollectingFileVisitor aVisitor = new CollectingFileVisitor(aCollector, pCharset);
         for (File aJavaFile : pFiles)

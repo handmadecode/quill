@@ -1,5 +1,6 @@
 # Quill Release Notes
 
+[version 3.2](#version-32)  
 [version 3.1](#version-31)  
 [version 3.0](#version-30)  
 [version 2.4](#version-24)  
@@ -17,6 +18,16 @@
 [version 0.11](#version-011)  
 [version 0.10](#version-010)  
 [version 0.9](#version-09)
+
+
+### version 3.2
+
+* The Scent plugin requires Scent version 2.4 or later. Properties `languageLevel` and
+  `enableLanguagePreviews` added to the Scent task.
+* Checkstyle default version upgraded to 8.45.1. The built-in configuration file requires at least
+  version 8.45.
+* PMD and CPD default versions upgraded to 6.41. The built-in PMD rule file requires at least
+  version 6.37.
 
 
 ### version 3.1
