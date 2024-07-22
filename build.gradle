@@ -32,34 +32,37 @@ generatePomFileForQuillPublication.destination =
 
 ext.sourceAndTargetCompatibility = JavaVersion.VERSION_1_8
 
-tasks.withType(GroovyCompile)
+tasks.withType(GroovyCompile).configureEach
 {
     sourceCompatibility = sourceAndTargetCompatibility
     targetCompatibility = sourceAndTargetCompatibility
 }
 
-tasks.withType(JavaCompile)
+tasks.withType(JavaCompile).configureEach
 {
     sourceCompatibility = sourceAndTargetCompatibility
     targetCompatibility = sourceAndTargetCompatibility
 }
 
-task ('sourcesJar', type: Jar)
+tasks.register('sourcesJar', Jar)
 {
-    classifier = 'sources'
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
 
-task ('groovydocJar', type: Jar, dependsOn: groovydoc)
+tasks.register('groovydocJar', Jar)
 {
-    classifier = 'groovydoc'
+    archiveClassifier = 'groovydoc'
     from groovydoc.destinationDir
 }
 
-task ('javadocJar', type: Jar, dependsOn: javadoc)
+tasks.register('javadocJar', Jar)
 {
-    classifier = 'javadoc'
+    archiveClassifier = 'javadoc'
     from javadoc.destinationDir
 }
+
+groovydocJar.dependsOn 'groovydoc'
+javadocJar.dependsOn 'javadoc'
 
 build.finalizedBy 'sourcesJar', 'groovydocJar', 'javadocJar', 'generatePomFileForQuillPublication'
