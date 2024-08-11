@@ -1869,11 +1869,9 @@ This method returns the `createPom` task instance to allow method chaining.
 
 Plugin ID: `org.myire.quill.moduleinfo`
 
-The Module Info plugin adds functionality for creating modular jar files for Java 8 projects. It
-adds a task for compiling a module declaration and another task for updating the modular jar file
-with a `ModuleMainClass` attribute in the `module-info.class` entry.
+The Module Info plugin adds functionality for creating modular jar files for Java 8 projects.
 
-### The compileModuleInfo task
+### The `compileModuleInfo` task
 
 The plugin adds a `compileModuleInfo` task to the project. This task is of type `JavaCompile` and by
 default has the file 'src/main/module-info/module-info.java' as its only source. This default
@@ -1883,7 +1881,7 @@ location can be changed by setting the `source` property:
 
 The task's `sourceCompatibility` and `targetCompatibility` properties are both set to '1.9' by
 default, since compiling a module declaration requires at least Java 9. The  default value for the
-`destinationDir` property is taken from the `compileJava` task. This means that the
+`destinationDirectory` property is taken from the `compileJava` task. This means that the
 'module-info.class' file will be put into the same location as the main java class files, and that
 it thereby will be included in the jar artifact, making that artifact a modular jar file.
 
@@ -1892,20 +1890,24 @@ The `compileModuleInfo` task has a `moduleVersion` property in addition to the o
 module version string in the `module-info` class. If this value is set to null, no version string
 will be compiled into the `module-info` class.
 
-The plugin adds the `compileModuleInfo` task to the `jar` task's dependencies. If the
+If the task's property `mainClassName` is set, the  `module-info` class will have a
+`ModuleMainClass` attribute with the value taken from that property. If the `projectMetaData`
+extension (added by the [Project Metadata plugin](#java-additions-plugin)) is available in the project, the property's
+default value is taken from the extension's `mainClass` attribute.
+
+The plugin adds the `compileModuleInfo` task to the dependencies of the `classes` task. If the
 [Java Additions plugin](#java-additions-plugin) has been applied to the project, the `sourcesJar`
 task is modified to include the `compileModuleInfo` task's `source`.
 
-### The moduleMainClass task
+### The `addModuleMainClassAttribute` task
 
-The plugin adds a `moduleMainClass` task to the project. This task updates the jar artifact with a
-`ModuleMainClass` attribute in the `module-info.class` entry.  The value for this attribute is taken
-from the task's `className` property. If that attribute has no value, the value of the property
-`projectMetaData.mainClass` is used. Should none of those values be present, the task will not
-execute.
+The plugin adds a `addModuleMainClassAttribute` task to the project. This task add a
+`ModuleMainClass` attribute to a `module-info.class` file (compiled by any other task). The value of
+the attribute is taken from the task's `mainClassName` property, which gets its default value from
+the `projectMetaData` extension's `mainClass` attribute, if available.
 
-The `moduleMainClass` task depends on the `jar` task and is added to the `assemble` task's
-dependencies.
+The task's `classesDirectory` property  specifies the directory where the  `module-info.class` file
+is located. The default value for that attribute is the `compileJava` task's `destinationDirectory`.
 
 ### Requirements
 

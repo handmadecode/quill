@@ -1,86 +1,84 @@
 /*
- * Copyright 2018 Peter Franzen. All rights reserved.
+ * Copyright 2018, 2024 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
 package org.myire.quill.jigsaw
 
+import org.gradle.api.DefaultTask
+import org.gradle.api.Project
+import org.gradle.api.file.Directory
+import org.gradle.api.file.DirectoryProperty
 import org.gradle.api.plugins.JavaPlugin
-import org.gradle.api.tasks.Exec
+import org.gradle.api.provider.Property
+import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Optional
-import org.gradle.api.tasks.bundling.Jar
+import org.gradle.api.tasks.InputDirectory
+import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.compile.JavaCompile
 
 import org.myire.quill.common.Projects
-import org.myire.quill.meta.ProjectMetaDataExtension
-import org.myire.quill.meta.ProjectMetaDataPlugin
 
 
 /**
- * Task that updates the jar file produced by the Jar task with a main class attribute.
+ * Task that updates a {@code module-info.class} file with a {@code ModuleMainClass} attribute.
  */
-class ModuleMainClassTask extends Exec
+class ModuleMainClassTask extends DefaultTask
 {
-    private String fClassName;
+    private final Property<String> fMainClassName = project.objects.property(String.class);
+    private final DirectoryProperty fClassesDirectory = project.objects.directoryProperty();
 
 
-    /**
-     * Initialize the task by setting default values for some properties and adding an action for
-     * setting the executable's arguments before the task is executed.
-     */
-    void init()
+    // Set property default values.
     {
-        description = 'Updates the jar file with a main class attribute in the module-info class';
-        workingDir = project.getBuildDir();
-        executable = 'jar';
+        group = 'build';
+        description = 'Adds the ModuleMainClass attribute to a module-info class file';
 
-        doFirst( { specifyArguments() } );
-
-        // Only execute the task if a class name is specified.
-        onlyIf { getClassName() != null};
+        fMainClassName.set(ModuleInfoUtil.createDefaultMainClassNameProvider(project));
+        fClassesDirectory.set(createDefaultClassesDirectoryProvider(project));
     }
 
 
     /**
-     * Get the fully qualified name of the class to specify as main class when updating the jar.
+     * Get the fully qualified name of the class to specify as main class in the {@code module-info}
+     * class file.
      *
-     * @return  The fully qualified class name, or null if not specified.
+     * @return  The fully qualified class name.
      */
     @Input
-    @Optional
-    String getClassName()
+    Property<String> getMainClassName()
     {
-        if (fClassName == null)
-        {
-            def aExtension =
-                    Projects.getExtension(
-                            project,
-                            ProjectMetaDataPlugin.PROJECT_META_EXTENSION_NAME,
-                            ProjectMetaDataExtension.class);
-            fClassName = aExtension?.mainClass;
-        }
-
-        return fClassName;
+        return fMainClassName;
     }
 
 
     /**
-     * Set the fully qualified name of the class to specify as main class when updating the jar.
+     * Get the directory where the {@code module-info} class file to update is located, together
+     * with any classes it depends on.
      *
-     * @param pClassName    The fully qualified class name, possibly null.
+     * @return  The directory containing the {@code module-info} class file.
      */
-    void setClassName(String pClassName)
+    @InputDirectory
+    DirectoryProperty getClassesDirectory()
     {
-        fClassName = pClassName;
+        return fClassesDirectory
     }
 
 
-    /**
-     * Set the arguments for this task's executable.
-     */
-    void specifyArguments()
+    @TaskAction
+    void addModuleMainClassAttribute()
     {
-        Jar aJarTask = Projects.getTask(project, JavaPlugin.JAR_TASK_NAME, Jar.class);
-        args('-u', "--main-class=${className}", '-f', aJarTask?.archivePath);
+        if (fClassesDirectory.isPresent() && fMainClassName.isPresent())
+            ModuleInfoUtil.addModuleMainClassAttribute(project, fClassesDirectory.get(), fMainClassName.get());
+    }
+
+
+    static private Provider<Directory> createDefaultClassesDirectoryProvider(Project pProject)
+    {
+        return pProject.provider {
+            JavaCompile aMainCompileTask =
+                    Projects.getTask(pProject, JavaPlugin.COMPILE_JAVA_TASK_NAME, JavaCompile.class);
+            return aMainCompileTask?.destinationDirectory?.get();
+        };
     }
 }

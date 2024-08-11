@@ -1,15 +1,17 @@
 /*
- * Copyright 2018, 2020-2021 Peter Franzen. All rights reserved.
+ * Copyright 2018, 2020-2021, 2024 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
 package org.myire.quill.jigsaw
 
+import org.gradle.api.Action
 import org.gradle.api.Plugin
 import org.gradle.api.Project
 import org.gradle.api.Task
-import org.gradle.api.plugins.BasePlugin
+import org.gradle.api.UnknownTaskException
 import org.gradle.api.plugins.JavaPlugin
+import org.gradle.api.tasks.TaskProvider
 import org.gradle.api.tasks.bundling.Jar
 
 import org.myire.quill.common.Projects
@@ -21,16 +23,17 @@ import org.myire.quill.java.JavaAdditionsPlugin
  * configured to compile a &quot;module-info.java&quot; file in a pre-9 Java project and output the
  * resulting class into the output directory of the &quot;compileJava&quot; task.
  *<p>
- * The plugin also adds a &quot;moduleMainClass&quot; task that, if a main class is specified,
- * updates the jar file with a main class attribute.
+ * The plugin also adds a &quot;addModuleMainClassAttribute&quot; task that updates a
+ * &quot;module-info.class&quot; file with a {@code ModuleMainClass} attribute.
  */
 class ModuleInfoPlugin implements Plugin<Project>
 {
     static private final String COMPILE_TASK_NAME = 'compileModuleInfo';
-    static private final String MAIN_CLASS_TASK_NAME = 'moduleMainClass';
+    static private final String ADD_MAIN_CLASS_ATTRIBUTE_TASK_NAME = 'addModuleMainClassAttribute';
+
 
     private Project fProject;
-    private CompileModuleInfoTask fCompileModuleInfoTask;
+    private TaskProvider<CompileModuleInfoTask> fCompileModuleInfoTaskProvider;
 
 
     @Override
@@ -43,9 +46,9 @@ class ModuleInfoPlugin implements Plugin<Project>
         pProject.plugins.apply(JavaPlugin.class);
 
         // Create and configure the compileModuleInfo task.
-        fCompileModuleInfoTask = createCompileModuleInfoTask();
+        fCompileModuleInfoTaskProvider = createCompileModuleInfoTask();
 
-        // Create and configure the moduleMainClass task.
+        // Create and configure the addModuleMainClassAttribute task.
         createModuleMainClassTask();
 
         // Add the module-info.java file to the sources jar file if the task for creating that jar
@@ -59,41 +62,33 @@ class ModuleInfoPlugin implements Plugin<Project>
      *
      * @return  The created task.
      */
-    private CompileModuleInfoTask createCompileModuleInfoTask()
+    private TaskProvider<CompileModuleInfoTask> createCompileModuleInfoTask()
     {
-        CompileModuleInfoTask aTask = fProject.tasks.create(COMPILE_TASK_NAME, CompileModuleInfoTask.class);
-        aTask.init();
+        TaskProvider<CompileModuleInfoTask> aProvider =
+                fProject.tasks.register(COMPILE_TASK_NAME, CompileModuleInfoTask.class, {t -> t.init()});
 
-        // The module info compile task requires the main java classes and thus depends on the main
-        // java compile task.
-        Task aMainCompileTask = Projects.getTask(fProject, JavaPlugin.COMPILE_JAVA_TASK_NAME, Task.class);
-        if (aMainCompileTask != null)
-            aTask.dependsOn(aMainCompileTask);
+        // The module info compile task requires the main java classes to exist and thus depends on
+        // the main java compile task.
+        configureTask(JavaPlugin.COMPILE_JAVA_TASK_NAME, { t -> aProvider.get().dependsOn(t); });
 
-        // The Jar file should include the module-info.class file, thus the Jar task depends on the
-        // compileModuleInfo task.
-        Projects.getTask(fProject, JavaPlugin.JAR_TASK_NAME, Task.class)?.dependsOn(aTask);
+        // The module-info.class file should be part of the classes produced by the project.
+        configureTask(JavaPlugin.CLASSES_TASK_NAME, { t -> t.dependsOn(aProvider); });
 
-        return aTask;
+        return aProvider;
     }
 
 
     /**
-     * Create the &quot;moduleMainClass&quot; task in the plugin's project.
+     * Create the &quot;addModuleMainClassAttribute&quot; task in the plugin's project.
      */
     private void createModuleMainClassTask()
     {
-        ModuleMainClassTask aTask = fProject.tasks.create(MAIN_CLASS_TASK_NAME, ModuleMainClassTask.class);
-        aTask.init();
+        TaskProvider<ModuleMainClassTask> aProvider =
+            fProject.tasks.register(ADD_MAIN_CLASS_ATTRIBUTE_TASK_NAME, ModuleMainClassTask.class);
 
-        Task aJarTask = Projects.getTask(fProject, JavaPlugin.JAR_TASK_NAME, Task.class);
-        if (aJarTask != null)
-            // The moduleMainClass task operates on the jar file and thus depends on the Jar task.
-            aTask.dependsOn(aJarTask);
-
-        // The assemble task should depend on the moduleMainClass task to have the jar's main class
-        // attribute set when the project's artifacts are assembled.
-        Projects.getTask(fProject, BasePlugin.ASSEMBLE_TASK_NAME, Task.class)?.dependsOn(aTask);
+        // The add module main class attribute task requires the main java classes to exist and thus
+        // depends on the main java compile task.
+        configureTask(JavaPlugin.COMPILE_JAVA_TASK_NAME, { t -> aProvider.get().dependsOn(t); });
     }
 
 
@@ -105,60 +100,25 @@ class ModuleInfoPlugin implements Plugin<Project>
     {
         Jar aSourcesJarTask =
                 Projects.getTask(fProject, JavaAdditionsPlugin.SOURCES_JAR_TASK_NAME, Jar.class);
-        aSourcesJarTask?.from(fCompileModuleInfoTask.source);
+        aSourcesJarTask?.from(fCompileModuleInfoTaskProvider.get().source);
     }
 
 
     /**
-     * Exclude the &quot;module-info.class&quot; file from all tasks of a certain type. This is done
-     * by renaming the file before the task executes, and renaming it back when the task is
-     * finished.
-     */
-    private void excludeModuleInfoFromTasks(String pTaskClassName)
-    {
-        Class<? extends Task> aTaskClass = findTaskClass(pTaskClassName);
-        if (aTaskClass != null)
-        {
-            fProject.tasks.withType(aTaskClass)
-            {
-                File aModuleInfoClass = new File(fCompileModuleInfoTask.destinationDir, 'module-info.class');
-                File aModuleInfoTmp = new File(fCompileModuleInfoTask.destinationDir, 'module-info.tmp');
-
-                doFirst {
-                    if (aModuleInfoClass.exists())
-                        aModuleInfoClass.renameTo(aModuleInfoTmp);
-                }
-
-                doLast {
-                    if (aModuleInfoTmp.exists())
-                        aModuleInfoTmp.renameTo(aModuleInfoClass);
-                }
-            }
-        }
-    }
-
-
-    /**
-     * Find a task class by its name.
+     * Add a configuration action to a task in the plugin's project.
      *
-     * @param pClassName    The name of the task class.
-     *
-     * @return  The task class, or null if the class with the specified name cannot be found or is
-     *          not a subclass of {@code Task}.
+     * @param pTaskName             The task's name.
+     * @param pConfigurationAction  The configuration action.
      */
-    static private Class<? extends Task> findTaskClass(String pClassName)
+    private <T extends Task> void configureTask(String pTaskName, Action<? super T> pConfigurationAction)
     {
         try
         {
-            Class<?> aClass = Class.forName(pClassName);
-            if (Task.class.isAssignableFrom(aClass))
-                return (Class<? extends Task>) aClass;
-            else
-                return null;
+            fProject.tasks.named(pTaskName, pConfigurationAction);
         }
-        catch (Throwable ignore)
+        catch (UnknownTaskException ute)
         {
-            return null;
+            fProject.logger.warn("No task with name " + pTaskName + " found in project", ute);
         }
     }
 }
