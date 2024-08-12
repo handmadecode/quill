@@ -1,11 +1,14 @@
 /*
- * Copyright 2014, 2016, 2018, 2021 Peter Franzen. All rights reserved.
+ * Copyright 2014, 2016, 2018, 2021, 2024 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
 package org.myire.quill.common;
 
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 
 import org.gradle.api.Project;
 import org.gradle.api.Task;
@@ -16,7 +19,6 @@ import org.gradle.api.internal.project.ProjectInternal;
 import org.gradle.api.reporting.ReportingExtension;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceSetContainer;
-import org.gradle.util.GFileUtils;
 
 
 /**
@@ -285,9 +287,20 @@ public final class Projects
             return false;
 
         ensureParentExists(pFile);
-        GFileUtils.copyURLToFile(Projects.class.getResource(pResource), pFile);
+        try (InputStream aInputStream = Projects.class.getResourceAsStream(pResource))
+        {
+            if (aInputStream != null)
+            {
+                Files.copy(aInputStream, pFile.toPath());
+                return true;
+            }
+        }
+        catch (IOException ioe)
+        {
+            // Ignore
+        }
 
-        return true;
+        return false;
     }
 
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2019, 2021-2022 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2019, 2021-2022, 2024 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -10,10 +10,10 @@ import org.gradle.api.file.FileCollection
 import org.gradle.api.plugins.quality.Pmd
 import org.gradle.api.plugins.quality.PmdExtension
 import org.gradle.api.plugins.quality.PmdPlugin
-import org.gradle.util.VersionNumber
 
 import org.myire.quill.common.Projects
 import org.myire.quill.common.Tasks
+import org.myire.quill.common.VersionNumber
 import org.myire.quill.report.Reports
 
 
@@ -39,7 +39,7 @@ class PmdEnhancer extends AbstractPluginEnhancer<Pmd>
 
     // The PMD version where the artifacts were restructured and the plugin should depend on
     // 'pmd-dist' rather than 'pmd'.
-    static private final VersionNumber PMD_DIST_ARTIFACT_VERSION = VersionNumber.parse('5.2')
+    static private final VersionNumber PMD_DIST_ARTIFACT_VERSION = new VersionNumber(5, 2, 0)
 
 
     /**
@@ -129,7 +129,7 @@ class PmdEnhancer extends AbstractPluginEnhancer<Pmd>
         aConfig?.incoming?.beforeResolve
         {
             PmdExtension aExtension = getExtension();
-            VersionNumber aVersion = VersionNumber.parse(aExtension.toolVersion);
+            VersionNumber aVersion = new VersionNumber(aExtension.toolVersion);
             if (aVersion >= PMD_DIST_ARTIFACT_VERSION)
             {
                 // The specified version of PMD requires the 'pmd-dist' artifact, not the 'pmd'
