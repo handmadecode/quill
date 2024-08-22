@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2018, 2020-2021 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018, 2020-2021, 2024 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -12,7 +12,6 @@ import groovy.lang.Closure;
 import org.gradle.api.Project;
 import org.gradle.api.file.RegularFileProperty;
 import org.gradle.api.reporting.Report;
-import org.gradle.api.reporting.SingleFileReport;
 import org.gradle.api.tasks.OutputFile;
 
 import org.myire.quill.common.Providers;
@@ -21,7 +20,7 @@ import org.myire.quill.common.Providers;
 /**
  * A {@code SingleFileReport} with a lazily evaluated default destination.
  */
-public class DefaultSingleFileReport extends DefaultDestinationReport implements SingleFileReport
+public class DefaultSingleFileReport extends DefaultDestinationReport implements CompatibleSingleFileReport
 {
     private RegularFileProperty fOutputLocation;
 

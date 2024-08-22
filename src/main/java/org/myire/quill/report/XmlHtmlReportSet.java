@@ -1,11 +1,10 @@
 /*
- * Copyright 2020 Peter Franzen. All rights reserved.
+ * Copyright 2020, 2024 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
 package org.myire.quill.report;
 
-import org.gradle.api.reporting.SingleFileReport;
 import org.gradle.api.tasks.Nested;
 import org.gradle.util.Configurable;
 
@@ -24,7 +23,7 @@ public interface XmlHtmlReportSet<T extends XmlHtmlReportSet<T>> extends ReportS
      * @return The XML file report.
      */
     @Nested
-    SingleFileReport getXml();
+    CompatibleSingleFileReport getXml();
 
     /**
      * Get the HTML file report. This report is produced by applying an XSL transformation on the

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2018, 2019-2021 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018, 2019-2021, 2024 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -102,7 +102,8 @@ abstract class AbstractTransformingReport extends DefaultSingleFileReport implem
                 transformFile(aInputFile);
             else
                 getProjectLogger().error(
-                    "The XML input file for the '{}' report is not readable",
+                    "The XML input file '{}' for the '{}' report is not readable",
+                    aInputFile,
                     getDisplayName());
         }
         else
