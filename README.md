@@ -647,14 +647,15 @@ following in the build script:
 The Java Additions plugin adds two tasks of type `Jar` to the project.
 
 The `sourcesJar` task assembles a jar archive containing the main source set's source code, i.e. the
-sources specified by the project property `sourceSets.main.allSource`. The task's `classifier` is
-set to `sources`, meaning that the default name of the jar will be `<basename>-sources.jar`.
+sources specified by the project property `sourceSets.main.allSource`. The task's
+`archiveClassifier` property is set to `sources`, meaning that the default name of the jar will be
+`<basename>-sources.jar`.
 
 
 The `javadocJar` task assembles a jar archive containing the main JavaDocs, i.e. the directory
 specified in the `javadoc` task's `destinationDir` property. Consequently, the `javadocJar` depends
-on the `javadoc` task. The task's `classifier` is set to `javadoc`, meaning that the default name of
-the jar will be `<basename>-javadoc.jar`.
+on the `javadoc` task. The task's `archiveClassifier` property is set to `javadoc`, meaning that the
+default name of the jar will be `<basename>-javadoc.jar`.
 
 Both tasks are added to the `archives` project artifact.
 
