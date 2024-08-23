@@ -1,5 +1,5 @@
 /*
- * Copyright 2019-2021 Peter Franzen. All rights reserved.
+ * Copyright 2019-2021, 2024 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -15,6 +15,7 @@ import org.gradle.testing.jacoco.tasks.JacocoReport;
 import org.gradle.testing.jacoco.tasks.JacocoReportsContainer;
 
 import org.myire.quill.common.Projects;
+import org.myire.quill.common.VersionNumber;
 import org.myire.quill.report.Reports;
 
 
@@ -24,7 +25,7 @@ import org.myire.quill.report.Reports;
  */
 public class JacocoAdditionsPlugin implements Plugin<Project>
 {
-    static private final String DEFAULT_TOOL_VERSION = "0.8.7";
+    static private final VersionNumber DEFAULT_TOOL_VERSION = new VersionNumber(0, 8, 12);
     static private final String JACOCO_TEST_REPORT_TASK_NAME = "jacocoTestReport";
 
 
@@ -50,7 +51,11 @@ public class JacocoAdditionsPlugin implements Plugin<Project>
         JacocoPluginExtension aExtension =
             Projects.getExtension(pProject, JacocoPluginExtension.TASK_EXTENSION_NAME, JacocoPluginExtension.class);
         if (aExtension != null)
-            aExtension.setToolVersion(DEFAULT_TOOL_VERSION);
+        {
+            String aToolVersion = aExtension.getToolVersion();
+            if (aToolVersion == null || DEFAULT_TOOL_VERSION.compareTo(new VersionNumber(aToolVersion)) > 0)
+                aExtension.setToolVersion(DEFAULT_TOOL_VERSION.toString());
+        }
     }
 
 
