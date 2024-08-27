@@ -1,5 +1,5 @@
 /*
- * Copyright 2016, 2020 Peter Franzen. All rights reserved.
+ * Copyright 2016, 2020, 2024 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -7,11 +7,8 @@ package org.myire.quill.pom
 
 import groovy.xml.QName
 
-import org.gradle.api.plugins.BasePluginConvention
 import org.gradle.api.publish.maven.MavenPom
 import org.gradle.api.publish.maven.tasks.GenerateMavenPom
-
-import org.myire.quill.common.Projects
 
 
 /**
@@ -182,11 +179,7 @@ class PomFileTask extends GenerateMavenPom
     private File createDefaultPomFileSpec()
     {
         File aPomDirectory = new File(project.buildDir, 'poms');
-
-        BasePluginConvention aConvention =
-                Projects.getConventionPlugin(project, 'base', BasePluginConvention.class);
-        String aBaseName = aConvention?.archivesBaseName ?: project.name;
-        String aFileName = aBaseName + '-' + project.version + '.pom';
+        String aFileName = project.name + '-' + project.version + '.pom';
         return new File(aPomDirectory, aFileName);
     }
 

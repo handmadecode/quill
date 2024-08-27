@@ -1802,8 +1802,7 @@ file outside the context of uploading to a Maven repository.
 
 The plugin adds a task with the name `createPom` to the project. The task's property `destination`
 specifies the location of the pom file to create. The default name of this file is
-`${project.archivesBaseName}-${project.version}.pom`, and it is located in the directory
-`${buildDir}/poms`.
+`${project.name}-${project.version}.pom`, and it is located in the directory `${buildDir}/poms`.
 
 The destination of the pom file can be configured by setting the destination property:
 
