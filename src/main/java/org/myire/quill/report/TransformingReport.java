@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2018, 2019 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018, 2019, 2024 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -9,7 +9,6 @@ import java.io.File;
 import java.util.function.BiFunction;
 
 import org.gradle.api.Project;
-import org.gradle.api.reporting.SingleFileReport;
 import org.gradle.api.tasks.InputFile;
 import org.gradle.api.tasks.Optional;
 
@@ -18,7 +17,7 @@ import org.gradle.api.tasks.Optional;
  * A single file report that is created by applying an XSL transformation to some XML input. The
  * result of the transformation will be written to the report's destination.
  */
-public interface TransformingReport extends SingleFileReport
+public interface TransformingReport extends CompatibleSingleFileReport
 {
     /**
      * Get the XSL file that will be used to transform the XML input.
@@ -49,7 +48,6 @@ public interface TransformingReport extends SingleFileReport
      * write the result to this report's destination.
      */
     void transform();
-
 
     /**
      * Pass the XSL parameter for the project root directory path to a function.

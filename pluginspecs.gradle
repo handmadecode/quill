@@ -7,102 +7,136 @@ gradlePlugin
         {
             id = 'org.myire.quill.all'
             implementationClass = 'org.myire.quill.QuillAllPlugin'
+            displayName = 'Quill All plugin'
+            description = 'Apply all quill plugins'
         }
 
         quillCorePlugin
         {
             id = 'org.myire.quill.core'
             implementationClass = 'org.myire.quill.QuillCorePlugin'
+            displayName = 'Quill Core plugin'
+            description = 'Apply the core quill plugins'
         }
 
         quillCheckstylePlugin
         {
             id = 'org.myire.quill.checkstyle'
             implementationClass = 'org.myire.quill.check.CheckstyleAdditionsPlugin'
+            displayName = 'Quill Checkstyle Additions plugin'
+            description = 'Configuration of and additional functionality for the standard Checkstyle plugin'
         }
 
         quillCpdPlugin
         {
             id = 'org.myire.quill.cpd'
             implementationClass = 'org.myire.quill.cpd.CpdPlugin'
+            displayName = 'Quill CPD plugin'
+            description = 'Copy-paste detection based on the CPD tool'
         }
 
         quillDashboardPlugin
         {
             id = 'org.myire.quill.dashboard'
             implementationClass = 'org.myire.quill.dashboard.DashboardPlugin'
+            displayName = 'Quill Reports Dashboard plugin'
+            description = 'One-page HTML report with a summary of other reports generated during a build'
         }
 
         quillIvyPlugin
         {
             id = 'org.myire.quill.ivy'
             implementationClass = 'org.myire.quill.ivy.IvyImportPlugin'
+            displayName = 'Quill Ivy Import plugin'
+            description = 'Dependency and/or configuration import from an Apache Ivy module file'
         }
 
         quillJacocoPlugin
         {
             id = 'org.myire.quill.jacoco'
             implementationClass = 'org.myire.quill.jacoco.JacocoAdditionsPlugin'
+            displayName = 'Quill JaCoCo Additions plugin'
+            description = 'Configuration of and additional functionality for the standard JaCoCo plugin'
         }
 
         quillJavaPlugin
         {
             id = 'org.myire.quill.java'
             implementationClass = 'org.myire.quill.java.JavaAdditionsPlugin'
+            displayName = 'Quill Java Additions plugin'
+            description = 'Additional functionality for the standard Java tasks and additional Java related tasks'
         }
 
         quillJolPlugin
         {
             id = 'org.myire.quill.jol'
             implementationClass = 'org.myire.quill.jol.JolPlugin'
+            displayName = 'Quill Java Object Layout plugin'
+            description = 'Java Object Layout report created with the jol-core library'
         }
 
         quillJunitPlugin
         {
             id = 'org.myire.quill.junit'
             implementationClass = 'org.myire.quill.junit.JUnitAdditionsPlugin'
+            displayName = 'Quill Junit Additions plugin'
+            description = 'Configuration of and JUnit summary report for the standard Test task'
         }
 
         quillMavenPlugin
         {
             id = 'org.myire.quill.maven'
             implementationClass = 'org.myire.quill.maven.MavenImportPlugin'
+            displayName = 'Quill Maven plugin'
+            description = 'Repository and/or dependency import from a Maven pom file'
         }
 
         quillMetaPlugin
         {
             id = 'org.myire.quill.meta'
             implementationClass = 'org.myire.quill.meta.ProjectMetaDataPlugin'
+            displayName = 'Quill Project Metadata plugin'
+            description = 'Project extensions for specifying additional metadata and version properties'
         }
 
         quillModuleinfoPlugin
         {
             id = 'org.myire.quill.moduleinfo'
             implementationClass = 'org.myire.quill.jigsaw.ModuleInfoPlugin'
+            displayName = 'Quill Module Info plugin'
+            description = 'Modular jar files for Java 8 projects'
         }
 
         quillPmdPlugin
         {
             id = 'org.myire.quill.pmd'
             implementationClass = 'org.myire.quill.check.PmdAdditionsPlugin'
+            displayName = 'Quill PMD Additions plugin'
+            description = 'Configuration of and additional functionality for the standard PMD plugin'
         }
 
         quillPomPlugin
         {
             id = 'org.myire.quill.pom'
             implementationClass = 'org.myire.quill.pom.PomPlugin'
+            displayName = 'Quill Pom plugin'
+            description = 'Pom file creation outside the context of uploading to a Maven repository'
         }
 
         quillScentPlugin
         {
             id = 'org.myire.quill.scent'
             implementationClass = 'org.myire.quill.scent.ScentPlugin'
+            displayName = 'Quill Scent plugin'
+            description = 'Source code metrics report based on the Scent library'
         }
 
         quillSpotbugsPlugin
         {
             id = 'org.myire.quill.spotbugs'
             implementationClass = 'org.myire.quill.check.SpotBugsAdditionsPlugin'
+            displayName = 'Quill Spotbugs Additions plugin'
+            description = 'Configuration of and additional functionality for the SpotBugs Gradle plugin'
         }
     }
 }
@@ -116,125 +150,23 @@ pluginBundle
 
     description = 'A collection of Gradle plugins'
 
-    plugins
-    {
-        quillAllPlugin
-        {
-            displayName = 'Quill All plugin'
-            description = 'Apply all quill plugins'
-            tags = ['quill', 'all']
-        }
-
-        quillCorePlugin
-        {
-            displayName = 'Quill Core plugin'
-            description = 'Apply the core quill plugins'
-            tags = ['quill', 'core']
-        }
-
-        quillCheckstylePlugin
-        {
-            displayName = 'Quill Checkstyle Additions plugin'
-            description = 'Configuration of and additional functionality for the standard Checkstyle plugin'
-            tags = ['checkstyle', 'defaults', 'enhancements']
-        }
-
-        quillCpdPlugin
-        {
-            displayName = 'Quill CPD plugin'
-            description = 'Copy-paste detection based on the CPD tool'
-            tags = ['cpd', 'verification', 'copy-paste-detection']
-        }
-
-        quillDashboardPlugin
-        {
-            displayName = 'Quill Reports Dashboard plugin'
-            description = 'One-page HTML report with a summary of other reports generated during a build'
-            tags = ['dashboard', 'report', 'summary']
-        }
-
-        quillIvyPlugin
-        {
-            displayName = 'Quill Ivy Import plugin'
-            description = 'Dependency and/or configuration import from an Apache Ivy module file'
-            tags = ['ivy', 'import', 'dependency', 'configuration']
-        }
-
-        quillJacocoPlugin
-        {
-            displayName = 'Quill JaCoCo Additions plugin'
-            description = 'Configuration of and additional functionality for the standard JaCoCo plugin'
-            tags = ['jacoco', 'defaults', 'enhancements']
-        }
-
-        quillJavaPlugin
-        {
-            displayName = 'Quill Java Additions plugin'
-            description = 'Additional functionality for the standard Java tasks and additional Java related tasks'
-            tags = ['java', 'defaults', 'enhancements']
-        }
-
-        quillJolPlugin
-        {
-            displayName = 'Quill Java Object Layout plugin'
-            description = 'Java Object Layout report created with the jol-core library'
-            tags = ['jol', 'object', 'layout']
-        }
-
-        quillJunitPlugin
-        {
-            displayName = 'Quill Junit Additions plugin'
-            description = 'Configuration of and JUnit summary report for the standard Test task'
-            tags = ['junit', 'defaults', 'summary', 'report']
-        }
-
-        quillMavenPlugin
-        {
-            displayName = 'Quill Maven plugin'
-            description = 'Repository and/or dependency import from a Maven pom file'
-            tags = ['maven', 'import', 'dependency', 'repository']
-        }
-
-        quillMetaPlugin
-        {
-            displayName = 'Quill Project Metadata plugin'
-            description = 'Project extensions for specifying additional metadata and version properties'
-            tags = ['project', 'metadata', 'semantic-version']
-        }
-
-        quillModuleinfoPlugin
-        {
-            displayName = 'Quill Module Info plugin'
-            description = 'Modular jar files for Java 8 projects'
-            tags = ['module-info']
-        }
-
-        quillPmdPlugin
-        {
-            displayName = 'Quill PMD Additions plugin'
-            description = 'Configuration of and additional functionality for the standard PMD plugin'
-            tags = ['pmd', 'defaults', 'enhancements']
-        }
-
-        quillPomPlugin
-        {
-            displayName = 'Quill Pom plugin'
-            description = 'Pom file creation outside the context of uploading to a Maven repository'
-            tags = ['pom', 'pom-file']
-        }
-
-        quillScentPlugin
-        {
-            displayName = 'Quill Scent plugin'
-            description = 'Source code metrics report based on the Scent library'
-            tags = ['scent', 'code', 'metrics']
-        }
-
-        quillSpotbugsPlugin
-        {
-            displayName = 'Quill Spotbugs Additions plugin'
-            description = 'Configuration of and additional functionality for the SpotBugs Gradle plugin'
-            tags = ['spotbugs', 'defaults', 'enhancements']
-        }
-    }
+    pluginTags = [
+        quillAllPlugin : ['quill', 'all'],
+        quillCorePlugin :  ['quill', 'core'],
+        quillCheckstylePlugin : ['checkstyle', 'defaults', 'enhancements'],
+        quillCpdPlugin : ['cpd', 'verification', 'copy-paste-detection'],
+        quillDashboardPlugin : ['dashboard', 'report', 'summary'],
+        quillIvyPlugin : ['ivy', 'import', 'dependency', 'configuration'],
+        quillJacocoPlugin : ['jacoco', 'defaults', 'enhancements'],
+        quillJavaPlugin : ['java', 'defaults', 'enhancements'],
+        quillJolPlugin : ['jol', 'object', 'layout'],
+        quillJunitPlugin : ['junit', 'defaults', 'summary', 'report'],
+        quillMavenPlugin : ['maven', 'import', 'dependency', 'repository'],
+        quillMetaPlugin : ['project', 'metadata', 'semantic-version'],
+        quillModuleinfoPlugin : ['module-info'],
+        quillPmdPlugin : ['pmd', 'defaults', 'enhancements'],
+        quillPomPlugin : ['pom', 'pom-file'],
+        quillScentPlugin : ['scent', 'code', 'metrics'],
+        quillSpotbugsPlugin : ['spotbugs', 'defaults', 'enhancements']
+    ]
 }

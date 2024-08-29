@@ -1,5 +1,5 @@
 /*
- * Copyright 2020-2021 Peter Franzen. All rights reserved.
+ * Copyright 2020-2021, 2024 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -13,7 +13,6 @@ import groovy.lang.Closure;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.reporting.Report;
-import org.gradle.api.reporting.SingleFileReport;
 import org.gradle.util.ConfigureUtil;
 
 import org.myire.quill.common.Projects;
@@ -27,7 +26,7 @@ import org.myire.quill.common.Tasks;
  */
 abstract public class AbstractXmlHtmlReportSet<T extends XmlHtmlReportSet<T>> implements XmlHtmlReportSet<T>
 {
-    private final SingleFileReport fXmlReport;
+    private final CompatibleSingleFileReport fXmlReport;
     private final TransformingReport fHtmlReport;
     private final String fXmlReportName;
     private final String fHtmlReportName;
@@ -85,7 +84,7 @@ abstract public class AbstractXmlHtmlReportSet<T extends XmlHtmlReportSet<T>> im
      * @return  The XML report, never null.
      */
     @Override
-    public SingleFileReport getXml()
+    public CompatibleSingleFileReport getXml()
     {
         return fXmlReport;
     }
@@ -125,7 +124,7 @@ abstract public class AbstractXmlHtmlReportSet<T extends XmlHtmlReportSet<T>> im
 
     /**
      * Add the enabled flags of the reports to a task's input properties and the destination files
-     * of teh reports to the task's output files.
+     * of the reports to the task's output files.
      *
      * @param pTask The task.
      *
@@ -141,8 +140,8 @@ abstract public class AbstractXmlHtmlReportSet<T extends XmlHtmlReportSet<T>> im
         Tasks.optionalInputFile(pTask, fHtmlReport::getXslFile);
 
         // Add the destination of both reports as output files of this task.
-        Tasks.outputFile(pTask, fXmlReport::getDestination);
-        Tasks.outputFile(pTask, fHtmlReport::getDestination);
+        Tasks.outputFile(pTask, () -> Reports.getOutputLocation(fXmlReport));
+        Tasks.outputFile(pTask, () -> Reports.getOutputLocation(fHtmlReport));
 
         // Let the HTML report decide if it is up to date.
         pTask.getOutputs().upToDateWhen(_ignore -> fHtmlReport.checkUpToDate());

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Peter Franzen. All rights reserved.
+ * Copyright 2020, 2024 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -37,13 +37,13 @@ public class Providers
         MethodType aDirectoryPropertyMethodType = MethodType.methodType(DirectoryProperty.class);
 
         PROJECT_LAYOUT_FILE_PROPERTY =
-            lookupVirtualMethod(aLookup, ProjectLayout.class, "fileProperty", aRegularFilePropertyMethodType);
+            Invocations.lookupVirtualMethod(aLookup, ProjectLayout.class, "fileProperty", aRegularFilePropertyMethodType);
         PROJECT_LAYOUT_DIRECTORY_PROPERTY =
-            lookupVirtualMethod(aLookup, ProjectLayout.class, "directoryProperty", aDirectoryPropertyMethodType);
+            Invocations.lookupVirtualMethod(aLookup, ProjectLayout.class, "directoryProperty", aDirectoryPropertyMethodType);
         OBJECT_FACTORY_FILE_PROPERTY =
-            lookupVirtualMethod(aLookup, ObjectFactory.class, "fileProperty", aRegularFilePropertyMethodType);
+            Invocations.lookupVirtualMethod(aLookup, ObjectFactory.class, "fileProperty", aRegularFilePropertyMethodType);
         OBJECT_FACTORY_DIRECTORY_PROPERTY =
-            lookupVirtualMethod(aLookup, ObjectFactory.class, "directoryProperty", aDirectoryPropertyMethodType);
+            Invocations.lookupVirtualMethod(aLookup, ObjectFactory.class, "directoryProperty", aDirectoryPropertyMethodType);
     }
 
 
@@ -100,34 +100,5 @@ public class Providers
         }
 
         return aProperty;
-    }
-
-
-    /**
-     * Lookup a virtual method in a class.
-     *
-     * @param pLookup       The instance to perform the lookup with.
-     * @param pClass        The class to lookup a virtual method in.
-     * @param pMethodName   The name of the method to lookup.
-     * @param pMethodType   The method's parameters and return type.
-     *
-     * @return  A {@code MethodHandle} to the method if found, null if not found.
-     *
-     * @throws NullPointerException if any of the parameters is null.
-     */
-    static private MethodHandle lookupVirtualMethod(
-        MethodHandles.Lookup pLookup,
-        Class<?> pClass,
-        String pMethodName,
-        MethodType pMethodType)
-    {
-        try
-        {
-            return pLookup.findVirtual(pClass, pMethodName, pMethodType);
-        }
-        catch (ReflectiveOperationException | RuntimeException ignore)
-        {
-            return null;
-        }
     }
 }

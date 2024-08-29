@@ -1,5 +1,5 @@
 /*
- * Copyright 2014, 2018, 2020 Peter Franzen. All rights reserved.
+ * Copyright 2014, 2018, 2020, 2024 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -123,7 +123,7 @@ class JavaAdditionsPlugin implements Plugin<Project>
         Jar aTask = fProject.tasks.create(SOURCES_JAR_TASK_NAME, Jar.class);
         aTask.description = 'Assembles a jar archive containing the main source code.';
         aTask.from aSourceSet.allSource;
-        aTask.classifier = 'sources';
+        aTask.archiveClassifier.set('sources');
         setExtensionProperty(aTask, 'jar');
         aTask.group = 'build';
 
@@ -145,7 +145,7 @@ class JavaAdditionsPlugin implements Plugin<Project>
         aTask.description = 'Assembles a jar archive containing the main JavaDocs.';
         aTask.dependsOn += aJavadocTask;
         aTask.from aJavadocTask.destinationDir;
-        aTask.classifier = 'javadoc';
+        aTask.archiveClassifier.set('javadoc');
         setExtensionProperty(aTask, 'jar');
         aTask.group = 'build';
 

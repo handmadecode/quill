@@ -2,12 +2,12 @@ plugins
 {
     id 'java-gradle-plugin'
     id 'groovy'
-    id 'maven'
-    id 'com.gradle.plugin-publish' version '0.14.0'
+    id 'maven-publish'
+    id 'com.gradle.plugin-publish' version '1.2.1'
 }
 
 group = 'org.myire'
-version = '3.2'
+version = '3.3'
 
 
 repositories
@@ -16,65 +16,53 @@ repositories
     maven { url "https://plugins.gradle.org/m2/" }
 }
 
-// Load dependencies from external file
+// Load external dependencies
 apply from: 'dependencies.gradle'
 
-// Load plugin descriptor and id specifications from external file
+// Load plugin descriptors
 apply from: 'pluginspecs.gradle'
+
+// Load the configuration of the pom file to generate
+apply from: 'pomspec.gradle'
+
+// Set the location of the generated pom file
+generatePomFileForQuillPublication.destination =
+        "$buildDir/poms/${project.archivesBaseName}-${project.version}.pom"
 
 
 ext.sourceAndTargetCompatibility = JavaVersion.VERSION_1_8
 
-tasks.withType(GroovyCompile)
+tasks.withType(GroovyCompile).configureEach
 {
     sourceCompatibility = sourceAndTargetCompatibility
     targetCompatibility = sourceAndTargetCompatibility
 }
 
-tasks.withType(JavaCompile)
+tasks.withType(JavaCompile).configureEach
 {
     sourceCompatibility = sourceAndTargetCompatibility
     targetCompatibility = sourceAndTargetCompatibility
 }
 
-task ('sourcesJar', type: Jar)
+tasks.register('sourcesJar', Jar)
 {
-    classifier = 'sources'
+    archiveClassifier = 'sources'
     from sourceSets.main.allSource
 }
 
-task ('groovydocJar', type: Jar, dependsOn: groovydoc)
+tasks.register('groovydocJar', Jar)
 {
-    classifier = 'groovydoc'
+    archiveClassifier = 'groovydoc'
     from groovydoc.destinationDir
 }
 
-task ('javadocJar', type: Jar, dependsOn: javadoc)
+tasks.register('javadocJar', Jar)
 {
-    classifier = 'javadoc'
+    archiveClassifier = 'javadoc'
     from javadoc.destinationDir
 }
 
-task ('createPom')
-{
-    def pomFile = "$mavenPomDir/${project.archivesBaseName}-${project.version}.pom"
-    outputs.file(pomFile)
+groovydocJar.dependsOn 'groovydoc'
+javadocJar.dependsOn 'javadoc'
 
-    def pom = pom()
-    pom.withXml
-    {
-        def pomRoot = asNode()
-        def dependencies = pomRoot.get('dependencies')
-        if (dependencies)
-            pomRoot.remove(dependencies)
-
-        new XmlParser().parse(file('meta/pom-template.xml')).children().each
-        {
-            pomRoot.append(it)
-        }
-    }
-
-    doFirst { pom.writeTo(pomFile) }
-}
-
-build.finalizedBy 'sourcesJar', 'groovydocJar', 'javadocJar', 'createPom'
+build.finalizedBy 'sourcesJar', 'groovydocJar', 'javadocJar', 'generatePomFileForQuillPublication'

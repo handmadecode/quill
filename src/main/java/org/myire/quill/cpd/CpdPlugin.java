@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2019 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2019, 2024 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -9,6 +9,7 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.artifacts.Configuration;
+import org.gradle.api.artifacts.DependencySet;
 import org.gradle.api.plugins.JavaBasePlugin;
 
 import org.myire.quill.common.Projects;
@@ -65,26 +66,24 @@ public class CpdPlugin implements Plugin<Project>
         aConfiguration.setTransitive(true);
         aConfiguration.setDescription("The CPD classes used by the CPD task");
 
-        // Add an action that adds a dependency on the PMD/CPD artifact before the configuration's
-        // dependencies are resolved.
-        aConfiguration.getIncoming().beforeResolve(ignore -> this.setConfigurationDependencies());
+        // Add an action that adds a default dependency on the PMD/CPD artifact with the version
+        // specified by the task's toolVersion property.
+        aConfiguration.defaultDependencies(this::addDefaultDependency);
 
         return aConfiguration;
     }
 
 
     /**
-     * Add a dependency on the PMD/CPD artifact to the {@code cpd} configuration if it has  no
-     * explicit dependencies. The artifact's version will be taken from the {@code cpd} task's
-     * {@code toolVersion} property.
+     * Add a dependency on the PMD/CPD artifact to a {@code DependencySet}. The artifact's version
+     * will be taken from the {@code cpd} task's {@code toolVersion} property.
+     *
+     * @param pDependencies The dependency set to add the default dependency to.
      */
-    private void setConfigurationDependencies()
+    private void addDefaultDependency(DependencySet pDependencies)
     {
-        if (fConfiguration.getDependencies().isEmpty())
-        {
-            String aID = CPD_GROUP_ARTIFACT_ID + ':' + fTask.getToolVersion();
-            fConfiguration.getDependencies().add(fProject.getDependencies().create(aID));
-        }
+        String aID = CPD_GROUP_ARTIFACT_ID + ':' + fTask.getToolVersion();
+        pDependencies.add(fProject.getDependencies().create(aID));
     }
 
 

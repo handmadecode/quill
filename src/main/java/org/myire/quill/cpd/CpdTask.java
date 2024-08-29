@@ -1,5 +1,5 @@
 /*
- * Copyright 2015, 2018-2019, 2021-2022 Peter Franzen. All rights reserved.
+ * Copyright 2015, 2018-2019, 2021-2022, 2024 Peter Franzen. All rights reserved.
  *
  * Licensed under the Apache License v2.0: http://www.apache.org/licenses/LICENSE-2.0
  */
@@ -22,11 +22,11 @@ import org.gradle.api.tasks.SkipWhenEmpty;
 import org.gradle.api.tasks.SourceSet;
 import org.gradle.api.tasks.SourceTask;
 import org.gradle.api.tasks.TaskAction;
-import org.gradle.util.VersionNumber;
 
 import org.myire.quill.common.ExternalToolLoader;
 import org.myire.quill.common.Projects;
 import org.myire.quill.common.Tasks;
+import org.myire.quill.common.VersionNumber;
 import org.myire.quill.report.FormatChoiceReport;
 import org.myire.quill.report.ReportingEntity;
 import org.myire.quill.report.Reports;
@@ -38,7 +38,7 @@ import org.myire.quill.report.TransformingReport;
  */
 public class CpdTask extends SourceTask implements ReportingEntity<CpdReports>
 {
-    static private final VersionNumber MINIMUM_TOOL_VERSION = VersionNumber.parse("6.1.0");
+    static private final VersionNumber MINIMUM_TOOL_VERSION = new VersionNumber(6, 1, 0);
     static private final String DEFAULT_TOOL_VERSION = "6.41.0";
     static private final String PMD_EXTENSION_NAME = "pmd";
 
@@ -518,6 +518,6 @@ public class CpdTask extends SourceTask implements ReportingEntity<CpdReports>
     private VersionNumber parsePmdVersion()
     {
         PmdExtension aPmdExtension = Projects.getExtension(getProject(), PMD_EXTENSION_NAME, PmdExtension.class);
-        return aPmdExtension != null ? VersionNumber.parse(aPmdExtension.getToolVersion()) : null;
+        return aPmdExtension != null ? new VersionNumber(aPmdExtension.getToolVersion()) : null;
     }
 }

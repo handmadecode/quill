@@ -1,0 +1,46 @@
+// Configure the pom file for the quill publication.
+publishing.publications
+{
+    quill(MavenPublication)
+    {
+        pom
+        {
+            name = 'Quill'
+            description = 'A collection of Gradle plugins'
+            url = 'https://github.com/handmadecode/quill'
+            packaging = 'jar'
+            licenses
+            {
+                license
+                {
+                    name = 'The Apache License, Version 2.0'
+                    url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                }
+            }
+            developers
+            {
+                developer
+                {
+                    name = 'Peter Franzen'
+                    email = 'peter@myire.org'
+                }
+            }
+            scm
+            {
+                connection = 'scm:git:https://github.com/handmadecode/quill.git'
+                developerConnection = 'scm:git:https://github.com/handmadecode/quill.git'
+                url = 'https://github.com/handmadecode/quill'
+            }
+
+            withXml
+            {
+                // Remove the dependencies; the plugins will pull in their dependencies through
+                // their configurations.
+                def pomRoot = asNode()
+                def dependencies = pomRoot.get('dependencies')
+                if (dependencies)
+                    pomRoot.remove(dependencies)
+            }
+        }
+    }
+}
