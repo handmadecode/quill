@@ -5,7 +5,7 @@ others provide new functionality. All of the plugins can be used individually; t
 each other.
 
 The Quill plugins require Gradle 6.1 or later and Java 8 or later. They have been tested with the
-applicable combinations of Gradle 6.1 - 7.1 and Java 8 - 16.
+applicable combinations of Gradle 6.1 - 8.10 and Java 8 - 22.
 
 The Quill plugins were developed to support the author's way of working with Gradle. They may not
 appeal to the taste of those who work in different ways.

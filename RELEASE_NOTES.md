@@ -1,5 +1,6 @@
 # Quill Release Notes
 
+[version 3.3](#version-33)  
 [version 3.2](#version-32)  
 [version 3.1](#version-31)  
 [version 3.0](#version-30)  
@@ -19,6 +20,18 @@
 [version 0.10](#version-010)  
 [version 0.9](#version-09)
 
+
+### version 3.3
+
+* Support for Gradle 8.
+* The `compileModuleInfo` task of the Module Info plugin adds the `ModuleMainClass` attribute if
+  applicable. This was previously done separately in the now removed `moduleMainClass` task.
+* `addModuleMainClassAttribute` task added to the Module Info plugin.
+* Jacoco default version upgraded to 0.8.12.
+* The Jacoco plugin does not modify its `toolVersion` property if its value is greater than the
+  default version.
+* The Pom plugin no longer uses `project.archivesBaseName` as the pom file's base name, instead
+  `project.name` is always used.
 
 ### version 3.2
 
